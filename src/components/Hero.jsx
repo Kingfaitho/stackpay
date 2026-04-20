@@ -6,27 +6,13 @@ function Hero() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!email) return;
-
-  const { error } = await supabase
-    .from('waitlist')
-    .insert([{ email }]);
-
-  if (error) {
-    if (error.code === '23505') {
-      // duplicate email
-      setSubmitted(true);
-    } else {
-      alert('Something went wrong. Please try again.');
-      console.error(error);
-    }
-  } else {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    console.log('Email captured:', email);
     setSubmitted(true);
     setEmail('');
-  }
-};
+  };
 
   return (
     <section style={{
