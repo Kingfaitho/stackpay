@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom'
+
 
 const styles = {
   nav: {
@@ -84,6 +86,20 @@ function Navbar() {
               onMouseEnter={e => e.target.style.background = '#00A855'}
               onMouseLeave={e => e.target.style.background = '#00C566'}
             >
+
+                <li>
+  <Link
+    to="/login"
+    style={{
+      color: '#8A9E92',
+      fontSize: '0.9rem',
+      fontWeight: 500,
+    }}
+  >
+    Login
+  </Link>
+</li>
+
               Join Waitlist
             </button>
           </li>
