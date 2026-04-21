@@ -1,20 +1,18 @@
-import { useState } from 'react';
-import { ArrowRight, CheckCircle } from 'lucide-react';
-import { supabase } from '../supabaseClient';
+import { useState } from 'react'
+import { ArrowRight, CheckCircle } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 function Hero() {
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
   const navigate = useNavigate()
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!email) return;
-    console.log('Email captured:', email);
-    setSubmitted(true);
-    setEmail('');
-  };
+    e.preventDefault()
+    if (!email) return
+    setSubmitted(true)
+    setEmail('')
+  }
 
   return (
     <section style={{
@@ -29,7 +27,7 @@ function Hero() {
       overflow: 'hidden',
     }}>
 
-      {/* Background glow effect */}
+      {/* Background glow */}
       <div style={{
         position: 'absolute',
         top: '20%',
@@ -57,7 +55,8 @@ function Hero() {
         fontFamily: 'Syne, sans-serif',
       }}>
         <span style={{
-          width: '6px', height: '6px',
+          width: '6px',
+          height: '6px',
           borderRadius: '50%',
           background: '#00C566',
           animation: 'pulse 2s infinite',
@@ -77,12 +76,7 @@ function Hero() {
         color: '#F0F5F2',
       }}>
         Stop Losing Money to{' '}
-        <span style={{
-          color: '#00C566',
-          position: 'relative',
-        }}>
-          Messy Records
-        </span>
+        <span style={{ color: '#00C566' }}>Messy Records</span>
         {' '}and Unpaid Invoices
       </h1>
 
@@ -99,7 +93,68 @@ function Hero() {
         accept payments in Naira, track expenses, and know your profit. All in one place.
       </p>
 
-      {/* Email Form */}
+      {/* CTA Buttons */}
+      <div style={{
+        display: 'flex',
+        gap: '0.75rem',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginBottom: '2rem',
+      }}>
+        <button
+          onClick={() => navigate('/signup')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: '#00C566',
+            color: '#080C0A',
+            padding: '0.9rem 1.8rem',
+            borderRadius: '10px',
+            fontWeight: 700,
+            fontSize: '1rem',
+            fontFamily: 'Syne, sans-serif',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.background = '#00A855'}
+          onMouseLeave={e => e.currentTarget.style.background = '#00C566'}
+        >
+          Start Free — No Card Needed <ArrowRight size={16} />
+        </button>
+
+        <button
+          onClick={() => document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'transparent',
+            color: '#F0F5F2',
+            padding: '0.9rem 1.8rem',
+            borderRadius: '10px',
+            fontWeight: 600,
+            fontSize: '1rem',
+            fontFamily: 'Syne, sans-serif',
+            border: '1px solid rgba(255,255,255,0.15)',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'rgba(0,197,102,0.4)'
+            e.currentTarget.style.color = '#00C566'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
+            e.currentTarget.style.color = '#F0F5F2'
+          }}
+        >
+          Join Waitlist
+        </button>
+      </div>
+
+      {/* Waitlist form — still works for email collection */}
       <form
         id="waitlist"
         onSubmit={handleSubmit}
@@ -119,7 +174,7 @@ function Hero() {
               type="email"
               placeholder="Enter your business email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value)}
               required
               style={{
                 flex: 1,
@@ -140,26 +195,22 @@ function Hero() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: '#00C566',
-                color: '#080C0A',
+                background: 'transparent',
+                color: '#00C566',
                 padding: '0.85rem 1.5rem',
                 borderRadius: '10px',
                 fontWeight: 700,
-                fontSize: '0. 95rem',
+                fontSize: '0.95rem',
                 fontFamily: 'Syne, sans-serif',
+                border: '1px solid rgba(0,197,102,0.3)',
+                cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 transition: 'all 0.2s',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = '#00A855'}
-              onMouseLeave={e => e.currentTarget.style.background = '#00C566'}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,197,102,0.1)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
-              <button
-                type="button"
-                onClick={() => navigate('/signup')}
-                style={{ ... existing styles ...}}
-              >
-              
-              Get Early Access <ArrowRight size={16} />
+              Join Waitlist
             </button>
           </>
         ) : (
@@ -181,9 +232,9 @@ function Hero() {
         )}
       </form>
 
-      {/* Trust signals */}
+      {/* Trust signal */}
       <p style={{ color: '#8A9E92', fontSize: '0.82rem' }}>
-        🔒 No spam. Free early access for the first 500 businesses.
+        🔒 Free to start. No credit card required. 500 early access spots.
       </p>
 
       <style>{`
@@ -193,7 +244,7 @@ function Hero() {
         }
       `}</style>
     </section>
-  );
+  )
 }
 
-export default Hero;
+export default Hero
