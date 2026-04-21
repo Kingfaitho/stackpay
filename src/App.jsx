@@ -9,6 +9,7 @@ import Expenses from './pages/app/Expenses'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import './styles/global.css'
+import Profile from './pages/app/Profile'
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/profile" element={
+  <ProtectedRoute><Profile /></ProtectedRoute>
+} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={
             <ProtectedRoute><Dashboard /></ProtectedRoute>

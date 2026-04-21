@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
+import { generateInvoicePDF } from '../../lib/generatePDF'
 
 function Invoices() {
   const { user } = useAuth()
   const [invoices, setInvoices] = useState([])
+  const [profile, setProfile] = useState(null)
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -18,11 +20,18 @@ function Invoices() {
   })
 
   useEffect(() => {
-    if (user) {
-      loadInvoices()
-      loadClients()
-    }
-  }, [user])
+  if (user) {
+    loadInvoices()
+    loadClients()
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => setProfile(data))
+  }
+}, [user])
+
 
   const loadInvoices = async () => {
     const { data } = await supabase
@@ -524,6 +533,45 @@ function Invoices() {
                 )}
 
                 <button
+  onClick={() => generateInvoicePDF(
+    inv,
+    inv.clients?.name || 'Client',
+    profile?.business_name || 'My Business',
+    profile?.owner_name || ''
+  )}
+  style={{
+    padding: '0.3rem 0.75rem',
+    background: 'rgba(0,197,102,0.08)',
+    border: '1px solid rgba(0,197,102,0.15)',
+    color: '#00C566',
+    borderRadius: '6px',
+    fontSize: '0.78rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'Syne, sans-serif',
+  }}
+>
+  ↓ PDF
+</button>
+<button
+  onClick={() => shareOnWhatsApp(inv, inv.clients?.name)}
+  style={{
+    padding: '0.3rem 0.75rem',
+    background: 'rgba(37,211,102,0.08)',
+    border: '1px solid rgba(37,211,102,0.2)',
+    color: '#25D366',
+    borderRadius: '6px',
+    fontSize: '0.78rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'Syne, sans-serif',
+  }}
+>
+  WhatsApp
+</button>
+
+
+                <button
                   onClick={() => deleteInvoice(inv.id)}
                   style={{
                     background: 'transparent',
@@ -538,13 +586,30 @@ function Invoices() {
                 >
                   Delete
                 </button>
+
               </div>
-            </div>
+            </div>            
           ))}
         </div>
       )}
     </AppLayout>
   )
+  const shareOnWhatsApp = (inv, clientName) => {
+  const message = encodeURIComponent(
+    `Hello ${clientName || 'there'},\n\n` +
+    `Please find your invoice details below:\n\n` +
+    `📋 Invoice: ${inv.invoice_number}\n` +
+    `💰 Amount: ${formatNaira(inv.total)}\n` +
+    `📅 Due: ${inv.due_date
+      ? new Date(inv.due_date).toLocaleDateString('en-NG')
+      : 'On receipt'}\n\n` +
+    `Kindly make payment at your earliest convenience.\n\n` +
+    `Thank you for your business! 🙏\n` +
+    `— ${profile?.business_name || 'StackPay'}`
+  )
+  window.open(`https://wa.me/?text=${message}`, '_blank')
+}
+
 }
 
 export default Invoices

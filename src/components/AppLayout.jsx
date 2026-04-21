@@ -7,6 +7,7 @@ const navItems = [
   { path: '/invoices', icon: '📄', label: 'Invoices' },
   { path: '/clients', icon: '👥', label: 'Clients' },
   { path: '/expenses', icon: '💸', label: 'Expenses' },
+  { path: '/profile', icon: '⚙️', label: 'Settings' },
 ]
 
 function AppLayout({ children }) {
