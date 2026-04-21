@@ -46,6 +46,16 @@ function Login() {
             <input type="email" placeholder="you@yourbusiness.com" value={email} onChange={e => setEmail(e.target.value)} required style={inp} />
             <label style={{ color: '#8A9E92', fontSize: '0.82rem', fontWeight: 600, letterSpacing: '0.5px', display: 'block', marginBottom: '0.4rem' }}>PASSWORD</label>
             <input type="password" placeholder="Your password" value={password} onChange={e => setPassword(e.target.value)} required style={{ ...inp, marginBottom: '1.5rem' }} />
+            <div style={{ textAlign: 'right', marginTop: '-0.5rem', marginBottom: '1.5rem' }}>
+  <Link to="/forgot-password" style={{
+    color: '#7A9485',
+    fontSize: '0.82rem',
+    textDecoration: 'none',
+    fontWeight: 500,
+  }}>
+    Forgot password?
+  </Link>
+</div>
             <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.9rem', borderRadius: '10px', background: loading ? '#005a30' : '#00C566', color: '#080C0A', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1rem', border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}>
               {loading ? 'Signing in...' : 'Sign In'}
             </button>

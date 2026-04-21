@@ -3,9 +3,26 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
+import OnboardingBanner from '../../components/OnboardingBanner'
+import HealthScore from '../../components/HealthScore'
+
+<>
+<OnboardingBanner
+  profile={profile}
+  invoiceCount={stats.recentInvoices.length}
+  clientCount={stats.totalClients}
+/> 
+<HealthScore
+  income={stats.totalIncome}
+  expenses={stats.totalExpenses}
+  unpaidInvoices={stats.unpaidInvoices}
+  totalClients={stats.totalClients}
+/>
+</>
 
 function StatCard({ label, value, sub, color }) {
-  return (
+  return ( 
     <div style={{
       background: '#141A16',
       border: '1px solid rgba(255,255,255,0.07)',
@@ -42,6 +59,7 @@ function StatCard({ label, value, sub, color }) {
 }
 
 function Dashboard() {
+  const [chartData, setChartData] = useState([])
   const { user } = useAuth()
   const [stats, setStats] = useState({
     totalIncome: 0,
@@ -79,6 +97,36 @@ function Dashboard() {
         .from('expenses')
         .select('*')
         .eq('user_id', user.id)
+
+        // Build last 6 months chart data
+const months = []
+for (let i = 5; i >= 0; i--) {
+  const d = new Date()
+  d.setMonth(d.getMonth() - i)
+  const monthKey = d.toLocaleString('en-NG', { month: 'short' })
+  const monthNum = d.getMonth()
+  const year = d.getFullYear()
+
+  const income = invoices
+    ?.filter(inv => {
+      const invDate = new Date(inv.created_at)
+      return inv.status === 'paid' &&
+        invDate.getMonth() === monthNum &&
+        invDate.getFullYear() === year
+    })
+    .reduce((sum, inv) => sum + Number(inv.total), 0) || 0
+
+  const expense = expenses
+    ?.filter(exp => {
+      const expDate = new Date(exp.date)
+      return expDate.getMonth() === monthNum &&
+        expDate.getFullYear() === year
+    })
+    .reduce((sum, exp) => sum + Number(exp.amount), 0) || 0
+
+  months.push({ month: monthKey, Income: income, Expenses: expense })
+}
+setChartData(months)
 
       // Load clients
       const { data: clients } = await supabase
@@ -226,6 +274,101 @@ function Dashboard() {
           ))}
         </div>
       </div>
+
+      {/* Chart */}
+<div style={{ marginBottom: '2rem' }}>
+  <h2 style={{
+    fontFamily: 'Syne, sans-serif',
+    fontWeight: 700,
+    fontSize: '1rem',
+    color: '#F0F5F2',
+    marginBottom: '1rem',
+  }}>
+    Income vs Expenses — Last 6 Months
+  </h2>
+  <div style={{
+    background: '#141A16',
+    border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '16px',
+    padding: '1.5rem 1rem',
+  }}>
+    {chartData.every(d => d.Income === 0 && d.Expenses === 0) ? (
+      <div style={{
+        textAlign: 'center',
+        color: '#8A9E92',
+        padding: '2rem',
+        fontSize: '0.9rem',
+      }}>
+        Chart will appear once you have invoices and expenses recorded.
+      </div>
+    ) : (
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={chartData} barGap={4}>
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="rgba(255,255,255,0.04)"
+            vertical={false}
+          />
+          <XAxis
+            dataKey="month"
+            tick={{ fill: '#8A9E92', fontSize: 12, fontFamily: 'DM Sans' }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <YAxis
+            tick={{ fill: '#8A9E92', fontSize: 11, fontFamily: 'DM Sans' }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={v => v === 0 ? '0' : `₦${(v/1000).toFixed(0)}k`}
+          />
+          <Tooltip
+            contentStyle={{
+              background: '#0F1510',
+              border: '1px solid rgba(0,197,102,0.2)',
+              borderRadius: '10px',
+              color: '#EDF2EF',
+              fontFamily: 'DM Sans',
+              fontSize: '0.85rem',
+            }}
+            formatter={(value) => [`₦${value.toLocaleString()}`, '']}
+            cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+          />
+          <Bar dataKey="Income" fill="#00C566" radius={[6, 6, 0, 0]} maxBarSize={32} />
+          <Bar dataKey="Expenses" fill="rgba(255,80,80,0.6)" radius={[6, 6, 0, 0]} maxBarSize={32} />
+        </BarChart>
+      </ResponsiveContainer>
+    )}
+
+    {/* Legend */}
+    <div style={{
+      display: 'flex',
+      gap: '1.5rem',
+      justifyContent: 'center',
+      marginTop: '1rem',
+    }}>
+      {[
+        { color: '#00C566', label: 'Income' },
+        { color: 'rgba(255,80,80,0.6)', label: 'Expenses' },
+      ].map(item => (
+        <div key={item.label} style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.4rem',
+        }}>
+          <div style={{
+            width: '10px',
+            height: '10px',
+            borderRadius: '2px',
+            background: item.color,
+          }} />
+          <span style={{ color: '#8A9E92', fontSize: '0.8rem' }}>
+            {item.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
 
       {/* Recent Invoices */}
       <div>
