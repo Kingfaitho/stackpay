@@ -7,6 +7,7 @@ import Invoices from './pages/app/Invoices'
 import Clients from './pages/app/Clients'
 import Expenses from './pages/app/Expenses'
 import { AuthProvider } from './context/AuthContext'
+import ProtectedRoute from './components/ProtectedRoute'
 import './styles/global.css'
 
 function App() {
@@ -17,10 +18,18 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/invoices" element={<Invoices />} />
-          <Route path="/clients" element={<Clients />} />
-          <Route path="/expenses" element={<Expenses />} />
+          <Route path="/dashboard" element={
+            <ProtectedRoute><Dashboard /></ProtectedRoute>
+          } />
+          <Route path="/invoices" element={
+            <ProtectedRoute><Invoices /></ProtectedRoute>
+          } />
+          <Route path="/clients" element={
+            <ProtectedRoute><Clients /></ProtectedRoute>
+          } />
+          <Route path="/expenses" element={
+            <ProtectedRoute><Expenses /></ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </AuthProvider>

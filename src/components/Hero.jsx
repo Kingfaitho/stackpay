@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { ArrowRight, CheckCircle } from 'lucide-react';
 import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom'
 
 function Hero() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
@@ -151,6 +153,12 @@ function Hero() {
               onMouseEnter={e => e.currentTarget.style.background = '#00A855'}
               onMouseLeave={e => e.currentTarget.style.background = '#00C566'}
             >
+              <button
+                type="button"
+                onClick={() => navigate('/signup')}
+                style={{ ... existing styles ...}}
+              >
+              
               Get Early Access <ArrowRight size={16} />
             </button>
           </>

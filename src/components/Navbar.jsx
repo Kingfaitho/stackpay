@@ -1,143 +1,92 @@
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom'
-
-
-const styles = {
-  nav: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 100,
-    padding: '0 5%',
-    height: '70px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    background: 'rgba(8, 12, 10, 0.85)',
-    backdropFilter: 'blur(12px)',
-    borderBottom: '1px solid rgba(255,255,255,0.07)',
-  },
-  logo: {
-    fontFamily: 'Syne, sans-serif',
-    fontWeight: 800,
-    fontSize: '1.4rem',
-    color: '#F0F5F2',
-    letterSpacing: '-0.5px',
-  },
-  logoSpan: {
-    color: '#00C566',
-  },
-  links: {
-    display: 'flex',
-    gap: '2rem',
-    listStyle: 'none',
-    alignItems: 'center',
-  },
-  link: {
-    color: '#8A9E92',
-    fontSize: '0.9rem',
-    fontWeight: 500,
-    transition: 'color 0.2s',
-    cursor: 'pointer',
-  },
-  ctaBtn: {
-    background: '#00C566',
-    color: '#080C0A',
-    padding: '0.5rem 1.2rem',
-    borderRadius: '8px',
-    fontWeight: 700,
-    fontSize: '0.9rem',
-    fontFamily: 'Syne, sans-serif',
-    transition: 'background 0.2s',
-  },
-  mobileMenu: {
-    display: 'none',
-    background: 'transparent',
-    color: '#F0F5F2',
-    padding: '4px',
-  },
-};
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { Menu, X } from 'lucide-react'
 
 function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setMenuOpen(false);
-  };
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    setMenuOpen(false)
+  }
 
   return (
     <>
-      <nav style={styles.nav}>
-        <div style={styles.logo}>
-          Stack<span style={styles.logoSpan}>Pay</span>
-        </div>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        padding: '0 5%', height: '70px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(8,12,10,0.85)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+      }}>
+        <Link to="/" style={{
+          fontFamily: 'Syne, sans-serif', fontWeight: 800,
+          fontSize: '1.4rem', color: '#F0F5F2', textDecoration: 'none',
+        }}>
+          Stack<span style={{ color: '#00C566' }}>Pay</span>
+        </Link>
 
-        <ul style={styles.links} className="nav-links">
-          <li style={styles.link} onClick={() => scrollTo('features')}>Features</li>
-          <li style={styles.link} onClick={() => scrollTo('how-it-works')}>How it works</li>
-          <li style={styles.link} onClick={() => scrollTo('pricing')}>Pricing</li>
-          <li>
-            <button
-              style={styles.ctaBtn}
-              onClick={() => scrollTo('waitlist')}
-              onMouseEnter={e => e.target.style.background = '#00A855'}
-              onMouseLeave={e => e.target.style.background = '#00C566'}
+        <ul className="nav-links" style={{
+          display: 'flex', gap: '2rem', listStyle: 'none', alignItems: 'center',
+        }}>
+          {['features', 'how-it-works', 'pricing'].map(id => (
+            <li key={id}
+              onClick={() => scrollTo(id)}
+              style={{ color: '#8A9E92', fontSize: '0.9rem', fontWeight: 500, cursor: 'pointer', transition: 'color 0.2s', textTransform: 'capitalize' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#F0F5F2'}
+              onMouseLeave={e => e.currentTarget.style.color = '#8A9E92'}
             >
-
-                <li>
-  <Link
-    to="/login"
-    style={{
-      color: '#8A9E92',
-      fontSize: '0.9rem',
-      fontWeight: 500,
-    }}
-  >
-    Login
-  </Link>
-</li>
-
-              Join Waitlist
-            </button>
+              {id.replace('-', ' ')}
+            </li>
+          ))}
+          <li>
+            <Link to="/login" style={{ color: '#8A9E92', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>
+              Login
+            </Link>
+          </li>
+          <li>
+            <Link to="/signup" style={{
+              background: '#00C566', color: '#080C0A',
+              padding: '0.5rem 1.2rem', borderRadius: '8px',
+              fontWeight: 700, fontSize: '0.9rem',
+              fontFamily: 'Syne, sans-serif', textDecoration: 'none',
+            }}>
+              Get Started Free
+            </Link>
           </li>
         </ul>
 
         <button
-          style={{ ...styles.mobileMenu, display: 'none' }}
           className="mobile-toggle"
           onClick={() => setMenuOpen(!menuOpen)}
+          style={{ background: 'transparent', border: 'none', color: '#F0F5F2', cursor: 'pointer', display: 'none' }}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </nav>
 
-      {/* Mobile Dropdown */}
       {menuOpen && (
         <div style={{
-          position: 'fixed',
-          top: '70px',
-          left: 0,
-          right: 0,
-          background: '#0F1510',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-          padding: '1.5rem 5%',
-          zIndex: 99,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1.2rem',
+          position: 'fixed', top: '70px', left: 0, right: 0,
+          background: '#0F1510', borderBottom: '1px solid rgba(255,255,255,0.07)',
+          padding: '1.5rem 5%', zIndex: 99,
+          display: 'flex', flexDirection: 'column', gap: '1.2rem',
         }}>
-          {['features', 'how-it-works', 'pricing', 'waitlist'].map((item) => (
-            <span
-              key={item}
-              onClick={() => scrollTo(item)}
-              style={{ color: '#8A9E92', fontSize: '1rem', cursor: 'pointer', textTransform: 'capitalize' }}
-            >
-              {item.replace('-', ' ')}
+          {['features', 'how-it-works', 'pricing'].map(id => (
+            <span key={id} onClick={() => scrollTo(id)}
+              style={{ color: '#8A9E92', fontSize: '1rem', cursor: 'pointer', textTransform: 'capitalize' }}>
+              {id.replace('-', ' ')}
             </span>
           ))}
+          <Link to="/login" onClick={() => setMenuOpen(false)}
+            style={{ color: '#8A9E92', fontSize: '1rem', textDecoration: 'none' }}>
+            Login
+          </Link>
+          <Link to="/signup" onClick={() => setMenuOpen(false)}
+            style={{ color: '#00C566', fontSize: '1rem', fontWeight: 700, textDecoration: 'none' }}>
+            Get Started Free →
+          </Link>
         </div>
       )}
 
@@ -148,7 +97,7 @@ function Navbar() {
         }
       `}</style>
     </>
-  );
+  )
 }
 
-export default Navbar;
+export default Navbar
