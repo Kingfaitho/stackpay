@@ -4,6 +4,7 @@ import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
 import { generateInvoicePDF } from '../../lib/generatePDF'
 import { initializePayment } from '../../lib/paystack'
+import { sendInvoicePaidEmail } from '../../lib/sendEmail'
 
 function Invoices() {
   const { user } = useAuth()
@@ -120,12 +121,26 @@ function Invoices() {
   }
 
   const markAsPaid = async (id) => {
-    await supabase
-      .from('invoices')
-      .update({ status: 'paid' })
-      .eq('id', id)
-    loadInvoices()
+  await supabase
+    .from('invoices')
+    .update({ status: 'paid' })
+    .eq('id', id)
+
+  // Send email notification
+  const inv = invoices.find(i => i.id === id)
+  if (inv && user?.email) {
+    await sendInvoicePaidEmail({
+      ownerEmail: user.email,
+      ownerName: profile?.owner_name || '',
+      businessName: profile?.business_name || 'Your Business',
+      clientName: inv.clients?.name || 'Client',
+      invoiceNumber: inv.invoice_number,
+      amount: inv.total,
+    })
   }
+
+  loadInvoices()
+}
 
   const deleteInvoice = async (id) => {
     if (!window.confirm('Delete this invoice?')) return

@@ -12,6 +12,8 @@ import './styles/global.css'
 import Profile from './pages/app/Profile'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import Billing from './pages/app/Billing'
+import Reports from './pages/app/Reports'
 
 function App() {
   return (
@@ -22,6 +24,12 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 <Route path="/reset-password" element={<ResetPassword />} />
+<Route path="/reports" element={
+  <ProtectedRoute><Reports /></ProtectedRoute>
+} />
+<Route path="/billing" element={
+  <ProtectedRoute><Billing /></ProtectedRoute>
+} />
           <Route path="/profile" element={
   <ProtectedRoute><Profile /></ProtectedRoute>
 } />
