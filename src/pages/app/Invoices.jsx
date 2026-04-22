@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
 import { generateInvoicePDF } from '../../lib/generatePDF'
+import { initializePayment } from '../../lib/paystack'
 
 function Invoices() {
   const { user } = useAuth()
@@ -131,6 +132,29 @@ function Invoices() {
     await supabase.from('invoices').delete().eq('id', id)
     loadInvoices()
   }
+
+  const handlePaystackPayment = (inv) => {
+  if (!inv.clients?.email) {
+    alert('This client has no email. Add their email in Clients first.')
+    return
+  }
+  initializePayment({
+    email: inv.clients.email,
+    amount: Number(inv.total),
+    invoiceNumber: inv.invoice_number,
+    onSuccess: async (response) => {
+      await supabase
+        .from('invoices')
+        .update({
+          status: 'paid',
+          paystack_ref: response.reference,
+        })
+        .eq('id', inv.id)
+      loadInvoices()
+    },
+    onClose: () => console.log('Payment closed'),
+  })
+}
 
   const formatNaira = (amount) =>
     new Intl.NumberFormat('en-NG', {
@@ -569,9 +593,7 @@ function Invoices() {
 >
   WhatsApp
 </button>
-
-
-                <button
+              <button
                   onClick={() => deleteInvoice(inv.id)}
                   style={{
                     background: 'transparent',
@@ -586,6 +608,25 @@ function Invoices() {
                 >
                   Delete
                 </button>
+                {inv.status === 'unpaid' && (
+  <button
+    onClick={() => handlePaystackPayment(inv)}
+    style={{
+      padding: '0.3rem 0.75rem',
+      background: 'rgba(0,100,255,0.08)',
+      border: '1px solid rgba(0,100,255,0.2)',
+      color: '#4d9fff',
+      borderRadius: '6px',
+      fontSize: '0.78rem',
+      fontWeight: 600,
+      cursor: 'pointer',
+      fontFamily: 'Syne, sans-serif',
+    }}
+  >
+    💳 Pay Now
+  </button>
+)}
+
 
               </div>
             </div>            

@@ -41,7 +41,7 @@ function Navbar() {
                 color: '#8A9E92',
                 fontSize: '0.9rem',
                 fontWeight: 500,
-                cursor: 'pointer',
+                cursor:'pointer',
                 transition: 'color 0.2s',
                 textTransform: 'capitalize'
               }}
