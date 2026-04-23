@@ -18,6 +18,7 @@ import Team from './pages/app/Team'
 import Recurring from './pages/app/Recurring'
 import ClientPortal from './pages/ClientPortal'
 import Admin from './pages/Admin'
+import InstallPrompt from './components/InstallPrompt'
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
             <ProtectedRoute><Expenses /></ProtectedRoute>
           } />
         </Routes>
+        <InstallPrompt />
       </Router>
     </AuthProvider>
   )

@@ -3,42 +3,48 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
 import { generateInvoicePDF } from '../../lib/generatePDF'
-import { initializePayment } from '../../lib/paystack'
 import { sendInvoicePaidEmail } from '../../lib/sendEmail'
+import { initializePayment } from '../../lib/paystack'
 
 function Invoices() {
   const { user } = useAuth()
   const [invoices, setInvoices] = useState([])
-  const [profile, setProfile] = useState(null)
   const [clients, setClients] = useState([])
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [selected, setSelected] = useState([])
+  const [bulkLoading, setBulkLoading] = useState(false)
   const [form, setForm] = useState({
     client_id: '',
     due_date: '',
     notes: '',
-    items: [{ description: '', quantity: 1, price: 0 }]
+    vat_enabled: false,
+    items: [{ description: '', quantity: 1, price: 0 }],
   })
 
   useEffect(() => {
-  if (user) {
-    loadInvoices()
-    loadClients()
-    supabase
+    if (user) {
+      loadInvoices()
+      loadClients()
+      loadProfile()
+    }
+  }, [user])
+
+  const loadProfile = async () => {
+    const { data } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single()
-      .then(({ data }) => setProfile(data))
+    setProfile(data)
   }
-}, [user])
-
 
   const loadInvoices = async () => {
     const { data } = await supabase
       .from('invoices')
-      .select('*, clients(name)')
+      .select('*, clients(name, email)')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
     setInvoices(data || [])
@@ -48,7 +54,7 @@ function Invoices() {
   const loadClients = async () => {
     const { data } = await supabase
       .from('clients')
-      .select('id, name')
+      .select('id, name, email')
       .eq('user_id', user.id)
     setClients(data || [])
   }
@@ -56,13 +62,13 @@ function Invoices() {
   const generateInvoiceNumber = () => {
     const date = new Date()
     const rand = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-    return `INV-${date.getFullYear()}${(date.getMonth()+1).toString().padStart(2,'0')}${rand}`
+    return `INV-${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${rand}`
   }
 
   const addItem = () => {
     setForm({
       ...form,
-      items: [...form.items, { description: '', quantity: 1, price: 0 }]
+      items: [...form.items, { description: '', quantity: 1, price: 0 }],
     })
   }
 
@@ -70,7 +76,7 @@ function Invoices() {
     if (form.items.length === 1) return
     setForm({
       ...form,
-      items: form.items.filter((_, i) => i !== index)
+      items: form.items.filter((_, i) => i !== index),
     })
   }
 
@@ -81,17 +87,20 @@ function Invoices() {
     setForm({ ...form, items: updated })
   }
 
-  const getSubtotal = () => {
-    return form.items.reduce((sum, item) => {
-      return sum + (Number(item.quantity) * Number(item.price))
-    }, 0)
-  }
+  const getSubtotal = () =>
+    form.items.reduce(
+      (sum, item) => sum + Number(item.quantity) * Number(item.price),
+      0
+    )
+
+  const getVAT = () => (form.vat_enabled ? getSubtotal() * 0.075 : 0)
+
+  const getGrandTotal = () => getSubtotal() + getVAT()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
 
-    const subtotal = getSubtotal()
     const invoice_number = generateInvoiceNumber()
 
     const { error } = await supabase.from('invoices').insert({
@@ -101,9 +110,9 @@ function Invoices() {
       due_date: form.due_date || null,
       notes: form.notes,
       items: form.items,
-      subtotal,
-      tax: 0,
-      total: subtotal,
+      subtotal: getSubtotal(),
+      tax: getVAT(),
+      total: getGrandTotal(),
       status: 'unpaid',
     })
 
@@ -112,7 +121,8 @@ function Invoices() {
         client_id: '',
         due_date: '',
         notes: '',
-        items: [{ description: '', quantity: 1, price: 0 }]
+        vat_enabled: false,
+        items: [{ description: '', quantity: 1, price: 0 }],
       })
       setShowForm(false)
       loadInvoices()
@@ -121,26 +131,25 @@ function Invoices() {
   }
 
   const markAsPaid = async (id) => {
-  await supabase
-    .from('invoices')
-    .update({ status: 'paid' })
-    .eq('id', id)
+    await supabase
+      .from('invoices')
+      .update({ status: 'paid' })
+      .eq('id', id)
 
-  // Send email notification
-  const inv = invoices.find(i => i.id === id)
-  if (inv && user?.email) {
-    await sendInvoicePaidEmail({
-      ownerEmail: user.email,
-      ownerName: profile?.owner_name || '',
-      businessName: profile?.business_name || 'Your Business',
-      clientName: inv.clients?.name || 'Client',
-      invoiceNumber: inv.invoice_number,
-      amount: inv.total,
-    })
+    const inv = invoices.find(i => i.id === id)
+    if (inv && user?.email) {
+      await sendInvoicePaidEmail({
+        ownerEmail: user.email,
+        ownerName: profile?.owner_name || '',
+        businessName: profile?.business_name || 'Your Business',
+        clientName: inv.clients?.name || 'Client',
+        invoiceNumber: inv.invoice_number,
+        amount: inv.total,
+      })
+    }
+
+    loadInvoices()
   }
-
-  loadInvoices()
-}
 
   const deleteInvoice = async (id) => {
     if (!window.confirm('Delete this invoice?')) return
@@ -149,34 +158,85 @@ function Invoices() {
   }
 
   const handlePaystackPayment = (inv) => {
-  if (!inv.clients?.email) {
-    alert('This client has no email. Add their email in Clients first.')
-    return
+    if (!inv.clients?.email) {
+      alert('This client has no email address. Add their email in Clients first.')
+      return
+    }
+    initializePayment({
+      email: inv.clients.email,
+      amount: Number(inv.total),
+      invoiceNumber: inv.invoice_number,
+      onSuccess: async (response) => {
+        await supabase
+          .from('invoices')
+          .update({ status: 'paid', paystack_ref: response.reference })
+          .eq('id', inv.id)
+        loadInvoices()
+      },
+      onClose: () => console.log('Payment closed'),
+    })
   }
-  initializePayment({
-    email: inv.clients.email,
-    amount: Number(inv.total),
-    invoiceNumber: inv.invoice_number,
-    onSuccess: async (response) => {
-      await supabase
-        .from('invoices')
-        .update({
-          status: 'paid',
-          paystack_ref: response.reference,
-        })
-        .eq('id', inv.id)
-      loadInvoices()
-    },
-    onClose: () => console.log('Payment closed'),
-  })
-}
 
-  const formatNaira = (amount) =>
-    new Intl.NumberFormat('en-NG', {
+  const shareOnWhatsApp = (inv, clientName) => {
+    const message = encodeURIComponent(
+      `Hello ${clientName || 'there'},\n\n` +
+      `Please find your invoice details below:\n\n` +
+      `📋 Invoice: ${inv.invoice_number}\n` +
+      `💰 Amount: ${formatNaira(inv.total)}\n` +
+      `📅 Due: ${inv.due_date
+        ? new Date(inv.due_date).toLocaleDateString('en-NG')
+        : 'On receipt'}\n\n` +
+      `Kindly make payment at your earliest convenience.\n\n` +
+      `Thank you for your business! 🙏\n` +
+      `— ${profile?.business_name || 'StackPay'}`
+    )
+    window.open(`https://wa.me/?text=${message}`, '_blank')
+  }
+
+  const toggleSelect = (id) => {
+    setSelected(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    )
+  }
+
+  const selectAll = () => {
+    if (selected.length === invoices.length) {
+      setSelected([])
+    } else {
+      setSelected(invoices.map(inv => inv.id))
+    }
+  }
+
+  const bulkMarkPaid = async () => {
+    if (selected.length === 0) return
+    setBulkLoading(true)
+    await supabase
+      .from('invoices')
+      .update({ status: 'paid' })
+      .in('id', selected)
+    setSelected([])
+    loadInvoices()
+    setBulkLoading(false)
+  }
+
+  const bulkDelete = async () => {
+    if (selected.length === 0) return
+    if (!window.confirm(`Delete ${selected.length} invoice(s)?`)) return
+    setBulkLoading(true)
+    await supabase.from('invoices').delete().in('id', selected)
+    setSelected([])
+    loadInvoices()
+    setBulkLoading(false)
+  }
+
+  const formatNaira = (amount) => {
+    const currency = profile?.currency || 'NGN'
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'NGN',
+      currency,
       minimumFractionDigits: 0,
     }).format(amount)
+  }
 
   const inp = {
     padding: '0.7rem 0.9rem',
@@ -192,6 +252,7 @@ function Invoices() {
 
   return (
     <AppLayout>
+
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -252,6 +313,7 @@ function Invoices() {
           </h3>
 
           <form onSubmit={handleSubmit}>
+
             {/* Client + Due Date */}
             <div style={{
               display: 'grid',
@@ -260,7 +322,13 @@ function Invoices() {
               marginBottom: '1.5rem',
             }}>
               <div>
-                <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
+                <label style={{
+                  color: '#8A9E92',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  display: 'block',
+                  marginBottom: '0.4rem',
+                }}>
                   CLIENT
                 </label>
                 <select
@@ -275,7 +343,13 @@ function Invoices() {
                 </select>
               </div>
               <div>
-                <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
+                <label style={{
+                  color: '#8A9E92',
+                  fontSize: '0.78rem',
+                  fontWeight: 600,
+                  display: 'block',
+                  marginBottom: '0.4rem',
+                }}>
                   DUE DATE
                 </label>
                 <input
@@ -289,7 +363,13 @@ function Invoices() {
 
             {/* Line Items */}
             <div style={{ marginBottom: '1rem' }}>
-              <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.75rem' }}>
+              <label style={{
+                color: '#8A9E92',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                display: 'block',
+                marginBottom: '0.75rem',
+              }}>
                 ITEMS / SERVICES
               </label>
 
@@ -302,7 +382,11 @@ function Invoices() {
                 padding: '0 0.2rem',
               }}>
                 {['Description', 'Qty', 'Price (₦)', ''].map((h, i) => (
-                  <div key={i} style={{ color: '#8A9E92', fontSize: '0.75rem', fontWeight: 600 }}>
+                  <div key={i} style={{
+                    color: '#4A6055',
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                  }}>
                     {h}
                   </div>
                 ))}
@@ -381,30 +465,134 @@ function Invoices() {
               </button>
             </div>
 
-            {/* Total */}
+            {/* VAT + Total Block */}
             <div style={{
               background: '#0F1510',
               borderRadius: '10px',
               padding: '1rem 1.2rem',
               marginBottom: '1.2rem',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
             }}>
-              <span style={{ color: '#8A9E92', fontSize: '0.9rem' }}>Total Amount</span>
-              <span style={{
-                color: '#00C566',
-                fontFamily: 'Syne, sans-serif',
-                fontWeight: 800,
-                fontSize: '1.3rem',
+
+              {/* VAT Toggle Row */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '0.75rem',
+                paddingBottom: '0.75rem',
+                borderBottom: '1px solid rgba(255,255,255,0.05)',
               }}>
-                {formatNaira(getSubtotal())}
-              </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: '#8A9E92', fontSize: '0.88rem' }}>
+                    Add VAT (7.5%)
+                  </span>
+                  <span style={{
+                    background: 'rgba(245,166,35,0.1)',
+                    color: '#f5a623',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '100px',
+                    fontFamily: 'Syne, sans-serif',
+                  }}>
+                    Nigerian VAT
+                  </span>
+                </div>
+                {/* Toggle Switch */}
+                <div
+                  onClick={() => setForm({ ...form, vat_enabled: !form.vat_enabled })}
+                  style={{
+                    width: '42px',
+                    height: '22px',
+                    borderRadius: '11px',
+                    background: form.vat_enabled
+                      ? '#00C566'
+                      : 'rgba(255,255,255,0.1)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    transition: 'background 0.2s',
+                    flexShrink: 0,
+                  }}
+                >
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    background: '#fff',
+                    position: 'absolute',
+                    top: '3px',
+                    left: form.vat_enabled ? '23px' : '3px',
+                    transition: 'left 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+                  }} />
+                </div>
+              </div>
+
+              {/* Subtotal */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                marginBottom: '0.4rem',
+              }}>
+                <span style={{ color: '#8A9E92', fontSize: '0.85rem' }}>
+                  Subtotal
+                </span>
+                <span style={{ color: '#F0F5F2', fontSize: '0.85rem' }}>
+                  {formatNaira(getSubtotal())}
+                </span>
+              </div>
+
+              {/* VAT Line */}
+              {form.vat_enabled && (
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '0.4rem',
+                }}>
+                  <span style={{ color: '#f5a623', fontSize: '0.85rem' }}>
+                    VAT (7.5%)
+                  </span>
+                  <span style={{ color: '#f5a623', fontSize: '0.85rem' }}>
+                    +{formatNaira(getVAT())}
+                  </span>
+                </div>
+              )}
+
+              {/* Grand Total */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                paddingTop: '0.5rem',
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+                marginTop: '0.4rem',
+              }}>
+                <span style={{
+                  color: '#8A9E92',
+                  fontSize: '0.9rem',
+                  fontWeight: 600,
+                }}>
+                  Total
+                </span>
+                <span style={{
+                  color: '#00C566',
+                  fontFamily: 'Syne, sans-serif',
+                  fontWeight: 800,
+                  fontSize: '1.3rem',
+                }}>
+                  {formatNaira(getGrandTotal())}
+                </span>
+              </div>
             </div>
 
             {/* Notes */}
             <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.4rem' }}>
+              <label style={{
+                color: '#8A9E92',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                display: 'block',
+                marginBottom: '0.4rem',
+              }}>
                 NOTES (OPTIONAL)
               </label>
               <textarea
@@ -420,7 +608,7 @@ function Invoices() {
               />
             </div>
 
-            {/* Buttons */}
+            {/* Form Buttons */}
             <div style={{ display: 'flex', gap: '0.75rem' }}>
               <button
                 type="submit"
@@ -461,9 +649,84 @@ function Invoices() {
         </div>
       )}
 
+      {/* Bulk Actions Bar */}
+      {invoices.length > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1rem',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+          }}>
+            <input
+              type="checkbox"
+              checked={
+                selected.length === invoices.length && invoices.length > 0
+              }
+              onChange={selectAll}
+              style={{ cursor: 'pointer', accentColor: '#00C566' }}
+            />
+            <span style={{ color: '#8A9E92', fontSize: '0.85rem' }}>
+              {selected.length > 0
+                ? `${selected.length} selected`
+                : 'Select all'}
+            </span>
+          </div>
+
+          {selected.length > 0 && (
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={bulkMarkPaid}
+                disabled={bulkLoading}
+                style={{
+                  padding: '0.45rem 1rem',
+                  background: 'rgba(0,197,102,0.1)',
+                  border: '1px solid rgba(0,197,102,0.2)',
+                  color: '#00C566',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                }}
+              >
+                ✓ Mark Paid ({selected.length})
+              </button>
+              <button
+                onClick={bulkDelete}
+                disabled={bulkLoading}
+                style={{
+                  padding: '0.45rem 1rem',
+                  background: 'rgba(255,80,80,0.08)',
+                  border: '1px solid rgba(255,80,80,0.2)',
+                  color: '#ff8080',
+                  borderRadius: '8px',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'Syne, sans-serif',
+                }}
+              >
+                🗑 Delete ({selected.length})
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Invoices List */}
       {loading ? (
-        <div style={{ color: '#8A9E92', textAlign: 'center', marginTop: '3rem' }}>
+        <div style={{
+          color: '#8A9E92',
+          textAlign: 'center',
+          marginTop: '3rem',
+        }}>
           Loading invoices...
         </div>
       ) : invoices.length === 0 ? (
@@ -476,7 +739,9 @@ function Invoices() {
           color: '#8A9E92',
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📄</div>
-          <p style={{ marginBottom: '1rem' }}>No invoices yet. Create your first one!</p>
+          <p style={{ marginBottom: '1rem', fontSize: '0.95rem' }}>
+            No invoices yet. Create your first one!
+          </p>
           <button
             onClick={() => setShowForm(true)}
             style={{
@@ -510,16 +775,30 @@ function Invoices() {
               borderBottom: i < invoices.length - 1
                 ? '1px solid rgba(255,255,255,0.05)'
                 : 'none',
+              background: selected.includes(inv.id)
+                ? 'rgba(0,197,102,0.03)'
+                : 'transparent',
               flexWrap: 'wrap',
               gap: '0.75rem',
+              transition: 'background 0.2s',
             }}>
-              <div>
+
+              {/* Checkbox */}
+              <input
+                type="checkbox"
+                checked={selected.includes(inv.id)}
+                onChange={() => toggleSelect(inv.id)}
+                style={{ cursor: 'pointer', accentColor: '#00C566', flexShrink: 0 }}
+              />
+
+              {/* Invoice Info */}
+              <div style={{ flex: 1, minWidth: '120px' }}>
                 <div style={{
                   color: '#F0F5F2',
                   fontWeight: 600,
                   fontSize: '0.92rem',
-                  marginBottom: '0.2rem',
                   fontFamily: 'Syne, sans-serif',
+                  marginBottom: '0.2rem',
                 }}>
                   {inv.invoice_number}
                 </div>
@@ -529,7 +808,13 @@ function Invoices() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+              {/* Amount + Status + Actions */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.6rem',
+                flexWrap: 'wrap',
+              }}>
                 <div style={{
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 700,
@@ -539,6 +824,23 @@ function Invoices() {
                   {formatNaira(inv.total)}
                 </div>
 
+                {/* VAT badge */}
+                {inv.tax > 0 && (
+                  <span style={{
+                    background: 'rgba(245,166,35,0.08)',
+                    border: '1px solid rgba(245,166,35,0.15)',
+                    color: '#f5a623',
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    padding: '0.1rem 0.4rem',
+                    borderRadius: '100px',
+                    fontFamily: 'Syne, sans-serif',
+                  }}>
+                    +VAT
+                  </span>
+                )}
+
+                {/* Status badge */}
                 <div style={{
                   padding: '0.2rem 0.7rem',
                   borderRadius: '100px',
@@ -552,6 +854,7 @@ function Invoices() {
                   {inv.status}
                 </div>
 
+                {/* Mark Paid */}
                 {inv.status === 'unpaid' && (
                   <button
                     onClick={() => markAsPaid(inv.id)}
@@ -571,44 +874,69 @@ function Invoices() {
                   </button>
                 )}
 
+                {/* PDF */}
                 <button
-  onClick={() => generateInvoicePDF(
-    inv,
-    inv.clients?.name || 'Client',
-    profile?.business_name || 'My Business',
-    profile?.owner_name || ''
-  )}
-  style={{
-    padding: '0.3rem 0.75rem',
-    background: 'rgba(0,197,102,0.08)',
-    border: '1px solid rgba(0,197,102,0.15)',
-    color: '#00C566',
-    borderRadius: '6px',
-    fontSize: '0.78rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    fontFamily: 'Syne, sans-serif',
-  }}
->
-  ↓ PDF
-</button>
-<button
-  onClick={() => shareOnWhatsApp(inv, inv.clients?.name)}
-  style={{
-    padding: '0.3rem 0.75rem',
-    background: 'rgba(37,211,102,0.08)',
-    border: '1px solid rgba(37,211,102,0.2)',
-    color: '#25D366',
-    borderRadius: '6px',
-    fontSize: '0.78rem',
-    fontWeight: 600,
-    cursor: 'pointer',
-    fontFamily: 'Syne, sans-serif',
-  }}
->
-  WhatsApp
-</button>
-              <button
+                  onClick={() => generateInvoicePDF(
+                    inv,
+                    inv.clients?.name || 'Client',
+                    profile?.business_name || 'My Business',
+                    profile?.owner_name || ''
+                  )}
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    background: 'rgba(0,197,102,0.08)',
+                    border: '1px solid rgba(0,197,102,0.15)',
+                    color: '#00C566',
+                    borderRadius: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'Syne, sans-serif',
+                  }}
+                >
+                  ↓ PDF
+                </button>
+
+                {/* WhatsApp */}
+                <button
+                  onClick={() => shareOnWhatsApp(inv, inv.clients?.name)}
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    background: 'rgba(37,211,102,0.08)',
+                    border: '1px solid rgba(37,211,102,0.2)',
+                    color: '#25D366',
+                    borderRadius: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'Syne, sans-serif',
+                  }}
+                >
+                  WhatsApp
+                </button>
+
+                {/* Paystack Pay Now */}
+                {inv.status === 'unpaid' && (
+                  <button
+                    onClick={() => handlePaystackPayment(inv)}
+                    style={{
+                      padding: '0.3rem 0.75rem',
+                      background: 'rgba(0,100,255,0.08)',
+                      border: '1px solid rgba(0,100,255,0.2)',
+                      color: '#4d9fff',
+                      borderRadius: '6px',
+                      fontSize: '0.78rem',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontFamily: 'Syne, sans-serif',
+                    }}
+                  >
+                    💳 Pay Now
+                  </button>
+                )}
+
+                {/* Delete */}
+                <button
                   onClick={() => deleteInvoice(inv.id)}
                   style={{
                     background: 'transparent',
@@ -623,49 +951,13 @@ function Invoices() {
                 >
                   Delete
                 </button>
-                {inv.status === 'unpaid' && (
-  <button
-    onClick={() => handlePaystackPayment(inv)}
-    style={{
-      padding: '0.3rem 0.75rem',
-      background: 'rgba(0,100,255,0.08)',
-      border: '1px solid rgba(0,100,255,0.2)',
-      color: '#4d9fff',
-      borderRadius: '6px',
-      fontSize: '0.78rem',
-      fontWeight: 600,
-      cursor: 'pointer',
-      fontFamily: 'Syne, sans-serif',
-    }}
-  >
-    💳 Pay Now
-  </button>
-)}
-
-
               </div>
-            </div>            
+            </div>
           ))}
         </div>
       )}
     </AppLayout>
   )
-  const shareOnWhatsApp = (inv, clientName) => {
-  const message = encodeURIComponent(
-    `Hello ${clientName || 'there'},\n\n` +
-    `Please find your invoice details below:\n\n` +
-    `📋 Invoice: ${inv.invoice_number}\n` +
-    `💰 Amount: ${formatNaira(inv.total)}\n` +
-    `📅 Due: ${inv.due_date
-      ? new Date(inv.due_date).toLocaleDateString('en-NG')
-      : 'On receipt'}\n\n` +
-    `Kindly make payment at your earliest convenience.\n\n` +
-    `Thank you for your business! 🙏\n` +
-    `— ${profile?.business_name || 'StackPay'}`
-  )
-  window.open(`https://wa.me/?text=${message}`, '_blank')
-}
-
 }
 
 export default Invoices
