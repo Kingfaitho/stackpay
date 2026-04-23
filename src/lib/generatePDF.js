@@ -1,5 +1,9 @@
 import { jsPDF } from 'jspdf'
 
+export function generatePaymentUrl(invoiceId, invoiceNumber) {
+  const baseUrl = window.location.origin
+  return `${baseUrl}/pay/${invoiceId}`
+}
 export function generateInvoicePDF(invoice, clientName, businessName, ownerName) {
   const doc = new jsPDF()
   const green = [0, 197, 102]

@@ -6,11 +6,16 @@ function Signup() {
   const { signUp } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({
-    businessName: '', ownerName: '', email: '', password: ''
+    businessName: '',
+    ownerName: '',
+    email: '',
+    password: '',
+    phone: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [showPassword, setShowPassword] = useState(false)
 
   const checkStrength = (password) => {
     let score = 0
@@ -21,16 +26,40 @@ function Signup() {
     setPasswordStrength(score)
   }
 
+  const validateEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  const validatePhone = (phone) => {
+    if (!phone) return true
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '')
+    return /^(\+?234|0)[789][01]\d{8}$/.test(cleaned)
+  }
+
   const validatePassword = (password) => {
-    if (password.length < 8) return 'Password must be at least 8 characters'
-    if (!/[a-zA-Z]/.test(password)) return 'Password must contain at least one letter'
-    if (!/[0-9]/.test(password)) return 'Password must contain at least one number'
-    if (!/[^a-zA-Z0-9]/.test(password)) return 'Password must contain at least one special character (e.g. @, #, !)'
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters'
+    }
+    if (!/[a-zA-Z]/.test(password)) {
+      return 'Password must contain at least one letter'
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number'
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      return 'Password must contain at least one special character (@, #, !, etc.)'
+    }
     return null
   }
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    if (name === 'phone') {
+      const cleaned = value.replace(/[^0-9+\-\(\)\s]/g, '')
+      if (cleaned.replace(/\D/g, '').length > 13) return
+      setForm({ ...form, [name]: cleaned })
+      return
+    }
     setForm({ ...form, [name]: value })
     if (name === 'password') checkStrength(value)
   }
@@ -39,6 +68,18 @@ function Signup() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    if (!validateEmail(form.email)) {
+      setError('Please enter a valid email address.')
+      setLoading(false)
+      return
+    }
+
+    if (form.phone && !validatePhone(form.phone)) {
+      setError('Please enter a valid Nigerian phone number (e.g. 08012345678).')
+      setLoading(false)
+      return
+    }
 
     const passwordError = validatePassword(form.password)
     if (passwordError) {
@@ -55,14 +96,25 @@ function Signup() {
     )
 
     if (error) {
-      setError(error.message)
+      if (error.message.includes('already registered')) {
+        setError('An account with this email already exists. Try logging in.')
+      } else {
+        setError(error.message)
+      }
       setLoading(false)
     } else {
       navigate('/dashboard')
     }
   }
 
-  const strengthLabels = ['', 'Weak — needs letters, numbers & symbols', 'Fair — getting better', 'Good — almost there', 'Strong — great password ✓']
+  const strengthLabels = [
+    '',
+    'Weak — add numbers, letters & symbols',
+    'Fair — getting stronger',
+    'Good — almost there',
+    'Strong — excellent password ✓',
+  ]
+
   const strengthColors = ['', '#ff4444', '#f5a623', '#00C566', '#00ff88']
 
   const inp = {
@@ -99,8 +151,6 @@ function Signup() {
       position: 'relative',
       overflow: 'hidden',
     }}>
-
-      {/* Background glow */}
       <div style={{
         position: 'absolute',
         top: '30%',
@@ -112,9 +162,12 @@ function Signup() {
         pointerEvents: 'none',
       }} />
 
-      <div style={{ width: '100%', maxWidth: '480px', position: 'relative' }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '480px',
+        position: 'relative',
+      }}>
 
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <Link to="/" style={{
             fontFamily: 'Syne, sans-serif',
@@ -135,7 +188,6 @@ function Signup() {
           </p>
         </div>
 
-        {/* Card */}
         <div style={{
           background: '#111815',
           border: '1px solid rgba(255,255,255,0.06)',
@@ -144,7 +196,6 @@ function Signup() {
           boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
         }}>
 
-          {/* Error message */}
           {error && (
             <div style={{
               background: 'rgba(255,80,80,0.08)',
@@ -155,39 +206,40 @@ function Signup() {
               fontSize: '0.88rem',
               marginBottom: '1.5rem',
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'flex-start',
               gap: '0.5rem',
+              lineHeight: 1.5,
             }}>
-              ⚠️ {error}
+              <span style={{ flexShrink: 0 }}>⚠️</span>
+              {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit}>
 
-            {/* Business Name */}
-            <label style={labelStyle}>BUSINESS NAME</label>
+            <label style={labelStyle}>BUSINESS NAME *</label>
             <input
               name="businessName"
               placeholder="e.g. Adunola's Boutique"
               value={form.businessName}
               onChange={handleChange}
               required
+              maxLength={100}
               style={inp}
             />
 
-            {/* Owner Name */}
-            <label style={labelStyle}>YOUR NAME</label>
+            <label style={labelStyle}>YOUR NAME *</label>
             <input
               name="ownerName"
               placeholder="e.g. Adunola Bello"
               value={form.ownerName}
               onChange={handleChange}
               required
+              maxLength={80}
               style={inp}
             />
 
-            {/* Email */}
-            <label style={labelStyle}>EMAIL ADDRESS</label>
+            <label style={labelStyle}>EMAIL ADDRESS *</label>
             <input
               name="email"
               type="email"
@@ -195,28 +247,101 @@ function Signup() {
               value={form.email}
               onChange={handleChange}
               required
-              style={inp}
+              maxLength={150}
+              style={{
+                ...inp,
+                borderColor: form.email && !validateEmail(form.email)
+                  ? 'rgba(255,80,80,0.4)'
+                  : 'rgba(255,255,255,0.1)',
+              }}
             />
+            {form.email && !validateEmail(form.email) && (
+              <div style={{
+                color: '#ff8080',
+                fontSize: '0.78rem',
+                marginTop: '-0.75rem',
+                marginBottom: '1rem',
+              }}>
+                Please enter a valid email address
+              </div>
+            )}
 
-            {/* Password */}
-            <label style={labelStyle}>PASSWORD</label>
+            <label style={labelStyle}>
+              PHONE NUMBER{' '}
+              <span style={{ color: '#4A6055', fontWeight: 400 }}>
+                (optional)
+              </span>
+            </label>
             <input
-              name="password"
-              type="password"
-              placeholder="Min 8 chars, include number & symbol"
-              value={form.password}
+              name="phone"
+              type="tel"
+              placeholder="e.g. 08012345678"
+              value={form.phone}
               onChange={handleChange}
-              required
-              style={{ ...inp, marginBottom: '0.5rem' }}
+              maxLength={15}
+              style={{
+                ...inp,
+                borderColor: form.phone && !validatePhone(form.phone)
+                  ? 'rgba(255,80,80,0.4)'
+                  : 'rgba(255,255,255,0.1)',
+              }}
             />
+            {form.phone && !validatePhone(form.phone) && (
+              <div style={{
+                color: '#ff8080',
+                fontSize: '0.78rem',
+                marginTop: '-0.75rem',
+                marginBottom: '1rem',
+              }}>
+                Enter a valid Nigerian number (e.g. 08012345678)
+              </div>
+            )}
 
-            {/* Password strength bar */}
+            <label style={labelStyle}>PASSWORD *</label>
+            <div style={{ position: 'relative', marginBottom: '0.5rem' }}>
+              <input
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Min 8 chars, number & symbol"
+                value={form.password}
+                onChange={handleChange}
+                required
+                style={{
+                  ...inp,
+                  paddingRight: '3rem',
+                  marginBottom: 0,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: '#7A9485',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  padding: '0.25rem',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = '#00C566'}
+                onMouseLeave={e => e.currentTarget.style.color = '#7A9485'}
+              >
+                {showPassword ? '🙈' : '👁'}
+              </button>
+            </div>
+
+            {/* Strength Bar */}
             {form.password.length > 0 && (
-              <div style={{ marginBottom: '1.2rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
                 <div style={{
                   display: 'flex',
                   gap: '4px',
-                  marginBottom: '0.4rem',
+                  marginBottom: '0.35rem',
                 }}>
                   {[1, 2, 3, 4].map(i => (
                     <div key={i} style={{
@@ -233,35 +358,34 @@ function Signup() {
                 <div style={{
                   fontSize: '0.78rem',
                   color: strengthColors[passwordStrength] || '#7A9485',
-                  fontWeight: 500,
                 }}>
                   {strengthLabels[passwordStrength]}
                 </div>
               </div>
             )}
 
-            {/* Password requirements hint */}
+            {/* Password Requirements */}
             <div style={{
-              background: 'rgba(0,197,102,0.04)',
-              border: '1px solid rgba(0,197,102,0.1)',
-              borderRadius: '8px',
-              padding: '0.75rem 1rem',
+              background: 'rgba(0,197,102,0.03)',
+              border: '1px solid rgba(0,197,102,0.08)',
+              borderRadius: '10px',
+              padding: '0.85rem 1rem',
               marginBottom: '1.5rem',
             }}>
               <div style={{
                 color: '#4A6055',
-                fontSize: '0.78rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
-                marginBottom: '0.4rem',
+                marginBottom: '0.5rem',
                 letterSpacing: '0.3px',
               }}>
                 PASSWORD REQUIREMENTS
               </div>
               {[
                 { rule: 'At least 8 characters', met: form.password.length >= 8 },
-                { rule: 'At least one letter (a-z)', met: /[a-zA-Z]/.test(form.password) },
-                { rule: 'At least one number (0-9)', met: /[0-9]/.test(form.password) },
-                { rule: 'At least one symbol (@, #, !, etc.)', met: /[^a-zA-Z0-9]/.test(form.password) },
+                { rule: 'At least one letter', met: /[a-zA-Z]/.test(form.password) },
+                { rule: 'At least one number', met: /[0-9]/.test(form.password) },
+                { rule: 'At least one symbol (@, #, !)', met: /[^a-zA-Z0-9]/.test(form.password) },
               ].map((item, i) => (
                 <div key={i} style={{
                   display: 'flex',
@@ -272,7 +396,7 @@ function Signup() {
                   marginBottom: '0.25rem',
                   transition: 'color 0.2s',
                 }}>
-                  <span style={{ fontSize: '0.7rem' }}>
+                  <span style={{ fontSize: '0.7rem', flexShrink: 0 }}>
                     {item.met ? '✓' : '○'}
                   </span>
                   {item.rule}
@@ -280,7 +404,6 @@ function Signup() {
               ))}
             </div>
 
-            {/* Submit button */}
             <button
               type="submit"
               disabled={loading}
@@ -298,14 +421,17 @@ function Signup() {
                 transition: 'background 0.2s',
                 letterSpacing: '0.3px',
               }}
-              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#00A855' }}
-              onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#00C566' }}
+              onMouseEnter={e => {
+                if (!loading) e.currentTarget.style.background = '#00A855'
+              }}
+              onMouseLeave={e => {
+                if (!loading) e.currentTarget.style.background = '#00C566'
+              }}
             >
               {loading ? 'Creating your account...' : 'Create Free Account →'}
             </button>
           </form>
 
-          {/* Sign in link */}
           <p style={{
             textAlign: 'center',
             color: '#7A9485',
@@ -323,14 +449,13 @@ function Signup() {
           </p>
         </div>
 
-        {/* Bottom trust note */}
         <p style={{
           textAlign: 'center',
           color: '#4A6055',
-          fontSize: '0.78rem',
+          fontSize: '0.75rem',
           marginTop: '1.2rem',
         }}>
-          🔒 Your data is encrypted and secure. We never share your information.
+          🔒 Your data is encrypted. We never share your information.
         </p>
       </div>
     </div>

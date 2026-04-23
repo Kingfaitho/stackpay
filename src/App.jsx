@@ -19,6 +19,7 @@ import Recurring from './pages/app/Recurring'
 import ClientPortal from './pages/ClientPortal'
 import Admin from './pages/Admin'
 import InstallPrompt from './components/InstallPrompt'
+import InvoicePayment from './pages/InvoicePayment'
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
           <Route path="/invoices" element={
             <ProtectedRoute><Invoices /></ProtectedRoute>
           } />
+          <Route path="/pay/:invoiceId" element={<InvoicePayment />} />
           <Route path="/team" element={
   <ProtectedRoute><Team /></ProtectedRoute>
 } />

@@ -26,9 +26,17 @@
   --shadow-card: 0 4px 24px rgba(0,0,0,0.4);
   --radius: 16px;
   --radius-sm: 10px;
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: 2rem;
+  --space-xl: 3rem;
 }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   background-color: var(--black);
@@ -36,27 +44,62 @@ body {
   font-family: var(--font-body);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 a { text-decoration: none; color: inherit; }
-button { cursor: pointer; border: none; outline: none; font-family: var(--font-body); }
-img { max-width: 100%; }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: var(--black); }
-::-webkit-scrollbar-thumb { background: var(--green); border-radius: 3px; }
-
-/* Selection */
-::selection { background: rgba(0,197,102,0.25); color: var(--text-primary); }
-
-/* Input focus */
-input:focus, select:focus, textarea:focus {
-  border-color: rgba(0,197,102,0.4) !important;
-  box-shadow: 0 0 0 3px rgba(0,197,102,0.08) !important;
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* Animations */
+input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+img { max-width: 100%; display: block; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--black); }
+::-webkit-scrollbar-thumb { background: var(--green); border-radius: 2px; }
+
+/* Selection */
+::selection {
+  background: rgba(0,197,102,0.25);
+  color: var(--text-primary);
+}
+
+/* Input focus */
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(0,197,102,0.4) !important;
+  box-shadow: 0 0 0 3px rgba(0,197,102,0.08) !important;
+  transition: all 0.2s;
+}
+
+/* Date input color fix */
+input[type="date"],
+input[type="month"] {
+  color-scheme: dark;
+}
+
+/* Select option fix */
+select option {
+  background: #111815;
+  color: #EDF2EF;
+}
+
+/* ================================
+   ANIMATIONS
+================================ */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
@@ -87,22 +130,33 @@ input:focus, select:focus, textarea:focus {
   to { transform: rotate(360deg); }
 }
 
-@keyframes gradientMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-up {
   animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.fade-up-1 { opacity: 0; animation: fadeUp 0.8s 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.fade-up-2 { opacity: 0; animation: fadeUp 0.8s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.fade-up-3 { opacity: 0; animation: fadeUp 0.8s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-.fade-up-4 { opacity: 0; animation: fadeUp 0.8s 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.fade-up-1 {
+  opacity: 0;
+  animation: fadeUp 0.8s 0.1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
 
-.float { animation: float 4s ease-in-out infinite; }
+.fade-up-2 {
+  opacity: 0;
+  animation: fadeUp 0.8s 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fade-up-3 {
+  opacity: 0;
+  animation: fadeUp 0.8s 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
 
 .shimmer-text {
   background: linear-gradient(90deg, #00C566, #00ff99, #00C566);
@@ -113,7 +167,109 @@ input:focus, select:focus, textarea:focus {
   animation: shimmer 3s linear infinite;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  section { padding-left: 5% !important; padding-right: 5% !important; }
+/* ================================
+   APP LAYOUT — MOBILE FIXES
+================================ */
+
+/* Sidebar fixed on desktop */
+@media (min-width: 769px) {
+  .desktop-sidebar {
+    display: block !important;
+  }
+  .mobile-sidebar {
+    display: none !important;
+  }
+  .hamburger {
+    display: none !important;
+  }
 }
+
+/* Mobile layout fixes */
+@media (max-width: 768px) {
+  .desktop-sidebar {
+    display: none !important;
+  }
+  .hamburger {
+    display: flex !important;
+  }
+  .nav-links {
+    display: none !important;
+  }
+  .mobile-toggle {
+    display: flex !important;
+  }
+
+  /* Better touch targets on mobile */
+  button, a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Fix invoice row overflow on mobile */
+  .invoice-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  /* Fix stat cards on mobile */
+  .stat-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .stat-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ================================
+   LANDING PAGE MOBILE
+================================ */
+@media (max-width: 768px) {
+  section {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+
+  h1, h2 {
+    letter-spacing: -0.5px !important;
+  }
+}
+
+/* ================================
+   FORM IMPROVEMENTS
+================================ */
+.form-card {
+  background: #111815;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 24px;
+  padding: 2.5rem;
+}
+
+@media (max-width: 480px) {
+  .form-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+}
+
+/* ================================
+   TABLE / LIST OVERFLOW FIX
+================================ */
+.overflow-x-auto {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ================================
+   UTILITY CLASSES
+================================ */
+.text-green { color: var(--green); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }

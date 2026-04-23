@@ -178,20 +178,22 @@ function Invoices() {
   }
 
   const shareOnWhatsApp = (inv, clientName) => {
-    const message = encodeURIComponent(
-      `Hello ${clientName || 'there'},\n\n` +
-      `Please find your invoice details below:\n\n` +
-      `📋 Invoice: ${inv.invoice_number}\n` +
-      `💰 Amount: ${formatNaira(inv.total)}\n` +
-      `📅 Due: ${inv.due_date
-        ? new Date(inv.due_date).toLocaleDateString('en-NG')
-        : 'On receipt'}\n\n` +
-      `Kindly make payment at your earliest convenience.\n\n` +
-      `Thank you for your business! 🙏\n` +
-      `— ${profile?.business_name || 'StackPay'}`
-    )
-    window.open(`https://wa.me/?text=${message}`, '_blank')
-  }
+  const paymentUrl = `${window.location.origin}/pay/${inv.id}`
+  const message = encodeURIComponent(
+    `Hello ${clientName || 'there'} 👋\n\n` +
+    `Please find your invoice details below:\n\n` +
+    `📋 Invoice: ${inv.invoice_number}\n` +
+    `💰 Amount: ${formatNaira(inv.total)}\n` +
+    `📅 Due: ${inv.due_date
+      ? new Date(inv.due_date).toLocaleDateString('en-NG')
+      : 'On receipt'}\n\n` +
+    `Pay securely online:\n` +
+    `${paymentUrl}\n\n` +
+    `Thank you for your business! 🙏\n` +
+    `— ${profile?.business_name || 'StackPay'}`
+  )
+  window.open(`https://wa.me/?text=${message}`, '_blank')
+}
 
   const toggleSelect = (id) => {
     setSelected(prev =>

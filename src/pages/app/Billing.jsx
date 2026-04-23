@@ -74,9 +74,19 @@ function Billing() {
   }
 
   const handleSubscribe = (plan) => {
-    if (!plan.planCode) return
-    setLoading(true)
+  if (!plan.planCode) {
+    alert('This plan is not yet configured. Please contact support.')
+    return
+  }
 
+  if (!window.PaystackPop) {
+    alert('Payment system is loading. Please refresh the page and try again.')
+    return
+  }
+
+  setLoading(true)
+
+  try {
     const handler = window.PaystackPop.setup({
       key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
       email: user.email,
@@ -84,18 +94,28 @@ function Billing() {
       currency: 'NGN',
       ref: `STACKPAY-SUB-${Date.now()}`,
       callback: async (response) => {
-        await supabase
+        const { error } = await supabase
           .from('profiles')
           .update({ plan: plan.name })
           .eq('id', user.id)
-        setCurrentPlan(plan.name)
+
+        if (!error) {
+          setCurrentPlan(plan.name)
+          alert(`🎉 Welcome to StackPay ${plan.name}! Your subscription is now active.`)
+        }
         setLoading(false)
-        alert(`🎉 Welcome to StackPay ${plan.name}! Your subscription is active.`)
       },
-      onClose: () => setLoading(false),
+      onClose: () => {
+        setLoading(false)
+      },
     })
     handler.openIframe()
+  } catch (err) {
+    alert('Payment system error. Please try again.')
+    setLoading(false)
+    console.error(err)
   }
+}
 
   return (
     <AppLayout>
