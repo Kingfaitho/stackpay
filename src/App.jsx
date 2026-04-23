@@ -14,6 +14,10 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Billing from './pages/app/Billing'
 import Reports from './pages/app/Reports'
+import Team from './pages/app/Team'
+import Recurring from './pages/app/Recurring'
+import ClientPortal from './pages/ClientPortal'
+import Admin from './pages/Admin'
 
 function App() {
   return (
@@ -40,6 +44,14 @@ function App() {
           <Route path="/invoices" element={
             <ProtectedRoute><Invoices /></ProtectedRoute>
           } />
+          <Route path="/team" element={
+  <ProtectedRoute><Team /></ProtectedRoute>
+} />
+<Route path="/admin" element={<Admin />} />
+<Route path="/recurring" element={
+  <ProtectedRoute><Recurring /></ProtectedRoute>
+} />
+<Route path="/portal/:clientId" element={<ClientPortal />} />
           <Route path="/clients" element={
             <ProtectedRoute><Clients /></ProtectedRoute>
           } />

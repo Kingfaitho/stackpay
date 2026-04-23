@@ -47,6 +47,15 @@ function Clients() {
     loadClients()
   }
 
+  const copyPortalLink = (clientId) => {
+    const link = `${window.location.origin}/portal/${clientId}`
+    navigator.clipboard.writeText(link).then(() => {
+      alert(`Portal link copied!\n\n${link}\n\nShare this with your client so they can view all their invoices online.`)
+    }).catch(() => {
+      prompt('Copy this link and share with your client:', link)
+    })
+  }
+
   const inputStyle = {
     width: '100%',
     padding: '0.75rem 1rem',
@@ -58,6 +67,15 @@ function Clients() {
     fontFamily: 'DM Sans, sans-serif',
     outline: 'none',
     marginBottom: '0.75rem',
+  }
+
+  const labelStyle = {
+    color: '#8A9E92',
+    fontSize: '0.78rem',
+    fontWeight: 600,
+    display: 'block',
+    marginBottom: '0.3rem',
+    letterSpacing: '0.3px',
   }
 
   return (
@@ -96,7 +114,10 @@ function Clients() {
             fontSize: '0.9rem',
             border: 'none',
             cursor: 'pointer',
+            transition: 'background 0.2s',
           }}
+          onMouseEnter={e => e.currentTarget.style.background = '#00A855'}
+          onMouseLeave={e => e.currentTarget.style.background = '#00C566'}
         >
           + Add Client
         </button>
@@ -127,9 +148,7 @@ function Clients() {
               gap: '0.5rem',
             }}>
               <div>
-                <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
-                  CLIENT NAME *
-                </label>
+                <label style={labelStyle}>CLIENT NAME *</label>
                 <input
                   placeholder="e.g. Emeka Obi"
                   value={form.name}
@@ -139,9 +158,7 @@ function Clients() {
                 />
               </div>
               <div>
-                <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
-                  EMAIL
-                </label>
+                <label style={labelStyle}>EMAIL</label>
                 <input
                   type="email"
                   placeholder="client@email.com"
@@ -151,9 +168,7 @@ function Clients() {
                 />
               </div>
               <div>
-                <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
-                  PHONE
-                </label>
+                <label style={labelStyle}>PHONE</label>
                 <input
                   placeholder="080xxxxxxxx"
                   value={form.phone}
@@ -162,9 +177,7 @@ function Clients() {
                 />
               </div>
               <div>
-                <label style={{ color: '#8A9E92', fontSize: '0.78rem', fontWeight: 600, display: 'block', marginBottom: '0.3rem' }}>
-                  ADDRESS
-                </label>
+                <label style={labelStyle}>ADDRESS</label>
                 <input
                   placeholder="City, State"
                   value={form.address}
@@ -179,14 +192,14 @@ function Clients() {
                 disabled={saving}
                 style={{
                   padding: '0.7rem 1.5rem',
-                  background: '#00C566',
+                  background: saving ? '#005a30' : '#00C566',
                   color: '#080C0A',
                   borderRadius: '8px',
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 700,
                   fontSize: '0.9rem',
                   border: 'none',
-                  cursor: 'pointer',
+                  cursor: saving ? 'not-allowed' : 'pointer',
                 }}
               >
                 {saving ? 'Saving...' : 'Save Client'}
@@ -215,7 +228,11 @@ function Clients() {
 
       {/* Clients List */}
       {loading ? (
-        <div style={{ color: '#8A9E92', textAlign: 'center', marginTop: '3rem' }}>
+        <div style={{
+          color: '#8A9E92',
+          textAlign: 'center',
+          marginTop: '3rem',
+        }}>
           Loading clients...
         </div>
       ) : clients.length === 0 ? (
@@ -228,7 +245,9 @@ function Clients() {
           color: '#8A9E92',
         }}>
           <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>👥</div>
-          <p>No clients yet. Add your first client above.</p>
+          <p style={{ marginBottom: '1rem' }}>
+            No clients yet. Add your first client above.
+          </p>
         </div>
       ) : (
         <div style={{
@@ -247,12 +266,17 @@ function Clients() {
                 ? '1px solid rgba(255,255,255,0.05)'
                 : 'none',
               flexWrap: 'wrap',
-              gap: '0.5rem',
+              gap: '0.75rem',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {/* Left — Avatar + Info */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+              }}>
                 <div style={{
-                  width: '38px',
-                  height: '38px',
+                  width: '40px',
+                  height: '40px',
                   borderRadius: '50%',
                   background: 'rgba(0,197,102,0.1)',
                   border: '1px solid rgba(0,197,102,0.2)',
@@ -262,7 +286,7 @@ function Clients() {
                   color: '#00C566',
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 700,
-                  fontSize: '0.9rem',
+                  fontSize: '0.95rem',
                   flexShrink: 0,
                 }}>
                   {client.name[0].toUpperCase()}
@@ -272,32 +296,94 @@ function Clients() {
                     color: '#F0F5F2',
                     fontWeight: 600,
                     fontSize: '0.92rem',
+                    fontFamily: 'Syne, sans-serif',
                     marginBottom: '0.2rem',
                   }}>
                     {client.name}
                   </div>
-                  <div style={{ color: '#8A9E92', fontSize: '0.8rem' }}>
-                    {client.email || client.phone || 'No contact info'}
+                  <div style={{
+                    color: '#8A9E92',
+                    fontSize: '0.8rem',
+                    display: 'flex',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                  }}>
+                    {client.email && <span>{client.email}</span>}
+                    {client.email && client.phone && <span>•</span>}
+                    {client.phone && <span>{client.phone}</span>}
+                    {!client.email && !client.phone && (
+                      <span>No contact info</span>
+                    )}
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => handleDelete(client.id)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: '#8A9E92',
-                  fontSize: '0.82rem',
-                  cursor: 'pointer',
-                  padding: '0.3rem 0.6rem',
-                  borderRadius: '6px',
-                  fontFamily: 'DM Sans, sans-serif',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = '#ff8080'}
-                onMouseLeave={e => e.currentTarget.style.color = '#8A9E92'}
-              >
-                Delete
-              </button>
+
+              {/* Right — Action Buttons */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                flexWrap: 'wrap',
+              }}>
+                {/* Portal Link Button */}
+                <button
+                  onClick={() => copyPortalLink(client.id)}
+                  style={{
+                    background: 'rgba(0,197,102,0.06)',
+                    border: '1px solid rgba(0,197,102,0.15)',
+                    color: '#00C566',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '6px',
+                    fontFamily: 'Syne, sans-serif',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(0,197,102,0.12)'
+                    e.currentTarget.style.borderColor = 'rgba(0,197,102,0.3)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(0,197,102,0.06)'
+                    e.currentTarget.style.borderColor = 'rgba(0,197,102,0.15)'
+                  }}
+                >
+                  🔗 Portal
+                </button>
+
+                {/* Delete Button */}
+                <button
+                  onClick={() => handleDelete(client.id)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid transparent',
+                    color: '#8A9E92',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    padding: '0.35rem 0.75rem',
+                    borderRadius: '6px',
+                    fontFamily: 'DM Sans, sans-serif',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.color = '#ff8080'
+                    e.currentTarget.style.borderColor = 'rgba(255,80,80,0.2)'
+                    e.currentTarget.style.background = 'rgba(255,80,80,0.05)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.color = '#8A9E92'
+                    e.currentTarget.style.borderColor = 'transparent'
+                    e.currentTarget.style.background = 'transparent'
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           ))}
         </div>
