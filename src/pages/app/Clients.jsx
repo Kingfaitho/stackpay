@@ -8,6 +8,7 @@ function Clients() {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingClient, setEditingClient] = useState(null)
   const [form, setForm] = useState({
     name: '', email: '', phone: '', address: ''
   })
@@ -27,22 +28,56 @@ function Clients() {
     setLoading(false)
   }
 
-  const handleAdd = async (e) => {
+  const openAddForm = () => {
+    setEditingClient(null)
+    setForm({ name: '', email: '', phone: '', address: '' })
+    setShowForm(true)
+  }
+
+  const openEditForm = (client) => {
+    setEditingClient(client)
+    setForm({
+      name: client.name || '',
+      email: client.email || '',
+      phone: client.phone || '',
+      address: client.address || '',
+    })
+    setShowForm(true)
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
-    const { error } = await supabase
-      .from('clients')
-      .insert({ ...form, user_id: user.id })
-    if (!error) {
-      setForm({ name: '', email: '', phone: '', address: '' })
-      setShowForm(false)
-      loadClients()
+
+    if (editingClient) {
+      const { error } = await supabase
+        .from('clients')
+        .update(form)
+        .eq('id', editingClient.id)
+        .eq('user_id', user.id)
+
+      if (!error) {
+        setShowForm(false)
+        setEditingClient(null)
+        loadClients()
+      }
+    } else {
+      const { error } = await supabase
+        .from('clients')
+        .insert({ ...form, user_id: user.id })
+
+      if (!error) {
+        setForm({ name: '', email: '', phone: '', address: '' })
+        setShowForm(false)
+        loadClients()
+      }
     }
+
     setSaving(false)
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this client?')) return
+    if (!window.confirm('Delete this client? This cannot be undone.')) return
     await supabase.from('clients').delete().eq('id', id)
     loadClients()
   }
@@ -50,24 +85,33 @@ function Clients() {
   const copyPortalLink = (clientId) => {
     const link = `${window.location.origin}/portal/${clientId}`
     navigator.clipboard.writeText(link).then(() => {
-      alert(`Portal link copied!\n\n${link}\n\nShare this with your client so they can view all their invoices online.`)
+      alert(`Portal link copied!\n\n${link}\n\nShare with your client to let them view all their invoices.`)
     }).catch(() => {
-      prompt('Copy this link and share with your client:', link)
+      prompt('Copy this link:', link)
     })
   }
 
-  const inputStyle = {
+  const validatePhone = (phone) => {
+    if (!phone) return true
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '')
+    return /^(\+?234|0)[789][01]\d{8}$/.test(cleaned)
+  }
+
+  const inputStyle = (hasError) => ({
     width: '100%',
     padding: '0.75rem 1rem',
     borderRadius: '8px',
-    border: '1px solid rgba(255,255,255,0.1)',
+    border: `1px solid ${hasError
+      ? 'rgba(255,80,80,0.4)'
+      : 'rgba(255,255,255,0.1)'}`,
     background: '#0F1510',
     color: '#F0F5F2',
     fontSize: '0.9rem',
     fontFamily: 'DM Sans, sans-serif',
     outline: 'none',
     marginBottom: '0.75rem',
-  }
+    transition: 'border-color 0.2s',
+  })
 
   const labelStyle = {
     color: '#8A9E92',
@@ -80,6 +124,7 @@ function Clients() {
 
   return (
     <AppLayout>
+
       {/* Header */}
       <div style={{
         display: 'flex',
@@ -103,7 +148,7 @@ function Clients() {
           </p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={openAddForm}
           style={{
             padding: '0.7rem 1.3rem',
             background: '#00C566',
@@ -123,11 +168,13 @@ function Clients() {
         </button>
       </div>
 
-      {/* Add Client Form */}
+      {/* Add / Edit Form */}
       {showForm && (
         <div style={{
           background: '#141A16',
-          border: '1px solid rgba(0,197,102,0.2)',
+          border: `1px solid ${editingClient
+            ? 'rgba(124,106,247,0.3)'
+            : 'rgba(0,197,102,0.2)'}`,
           borderRadius: '16px',
           padding: '1.5rem',
           marginBottom: '2rem',
@@ -138,10 +185,24 @@ function Clients() {
             color: '#F0F5F2',
             marginBottom: '1.2rem',
             fontSize: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
           }}>
-            New Client
+            {editingClient ? (
+              <>
+                <span style={{ color: '#7C6AF7' }}>✏️</span>
+                Edit {editingClient.name}
+              </>
+            ) : (
+              <>
+                <span style={{ color: '#00C566' }}>+</span>
+                New Client
+              </>
+            )}
           </h3>
-          <form onSubmit={handleAdd}>
+
+          <form onSubmit={handleSubmit}>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
@@ -150,63 +211,119 @@ function Clients() {
               <div>
                 <label style={labelStyle}>CLIENT NAME *</label>
                 <input
-                  placeholder="e.g. Emeka Obi"
+                  placeholder="e.g. Tola Adeyemi"
                   value={form.name}
                   onChange={e => setForm({ ...form, name: e.target.value })}
                   required
-                  style={inputStyle}
+                  maxLength={80}
+                  style={inputStyle(false)}
                 />
               </div>
+
               <div>
-                <label style={labelStyle}>EMAIL</label>
+                <label style={labelStyle}>EMAIL ADDRESS</label>
                 <input
                   type="email"
-                  placeholder="client@email.com"
+                  placeholder="tola@email.com"
                   value={form.email}
                   onChange={e => setForm({ ...form, email: e.target.value })}
-                  style={inputStyle}
+                  style={inputStyle(
+                    form.email &&
+                    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
+                  )}
                 />
+                {form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email) && (
+                  <div style={{
+                    color: '#ff8080',
+                    fontSize: '0.75rem',
+                    marginTop: '-0.5rem',
+                    marginBottom: '0.5rem',
+                  }}>
+                    Enter a valid email address
+                  </div>
+                )}
               </div>
+
               <div>
-                <label style={labelStyle}>PHONE</label>
+                <label style={labelStyle}>PHONE NUMBER</label>
                 <input
-                  placeholder="080xxxxxxxx"
+                  type="tel"
+                  placeholder="e.g. 08012345678"
                   value={form.phone}
-                  onChange={e => setForm({ ...form, phone: e.target.value })}
-                  style={inputStyle}
+                  onChange={e => {
+                    const cleaned = e.target.value.replace(/[^0-9+\-\(\)\s]/g, '')
+                    if (cleaned.replace(/\D/g, '').length <= 13) {
+                      setForm({ ...form, phone: cleaned })
+                    }
+                  }}
+                  maxLength={15}
+                  style={inputStyle(
+                    form.phone && !validatePhone(form.phone)
+                  )}
                 />
+                {form.phone && !validatePhone(form.phone) && (
+                  <div style={{
+                    color: '#ff8080',
+                    fontSize: '0.75rem',
+                    marginTop: '-0.5rem',
+                    marginBottom: '0.5rem',
+                  }}>
+                    Enter a valid Nigerian number (e.g. 08012345678)
+                  </div>
+                )}
               </div>
+
               <div>
-                <label style={labelStyle}>ADDRESS</label>
+                <label style={labelStyle}>ADDRESS / LOCATION</label>
                 <input
-                  placeholder="City, State"
+                  placeholder="e.g. Ikeja, Lagos"
                   value={form.address}
                   onChange={e => setForm({ ...form, address: e.target.value })}
-                  style={inputStyle}
+                  maxLength={150}
+                  style={inputStyle(false)}
                 />
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+
+            <div style={{
+              display: 'flex',
+              gap: '0.75rem',
+              marginTop: '0.5rem',
+              flexWrap: 'wrap',
+            }}>
               <button
                 type="submit"
                 disabled={saving}
                 style={{
                   padding: '0.7rem 1.5rem',
-                  background: saving ? '#005a30' : '#00C566',
-                  color: '#080C0A',
+                  background: saving
+                    ? '#005a30'
+                    : editingClient
+                    ? '#7C6AF7'
+                    : '#00C566',
+                  color: '#fff',
                   borderRadius: '8px',
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 700,
                   fontSize: '0.9rem',
                   border: 'none',
                   cursor: saving ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.2s',
                 }}
               >
-                {saving ? 'Saving...' : 'Save Client'}
+                {saving
+                  ? 'Saving...'
+                  : editingClient
+                  ? '✓ Save Changes'
+                  : 'Add Client'}
               </button>
+
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false)
+                  setEditingClient(null)
+                }}
                 style={{
                   padding: '0.7rem 1.5rem',
                   background: 'transparent',
@@ -244,9 +361,12 @@ function Clients() {
           textAlign: 'center',
           color: '#8A9E92',
         }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>👥</div>
-          <p style={{ marginBottom: '1rem' }}>
-            No clients yet. Add your first client above.
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>👥</div>
+          <p style={{ marginBottom: '0.5rem', fontWeight: 500 }}>
+            No clients yet
+          </p>
+          <p style={{ fontSize: '0.85rem' }}>
+            Add your first client to start sending invoices
           </p>
         </div>
       ) : (
@@ -267,16 +387,26 @@ function Clients() {
                 : 'none',
               flexWrap: 'wrap',
               gap: '0.75rem',
-            }}>
-              {/* Left — Avatar + Info */}
+              transition: 'background 0.2s',
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.02)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'transparent'
+              }}
+            >
+              {/* Avatar + Info */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1rem',
+                flex: 1,
+                minWidth: '180px',
               }}>
                 <div style={{
-                  width: '40px',
-                  height: '40px',
+                  width: '42px',
+                  height: '42px',
                   borderRadius: '50%',
                   background: 'rgba(0,197,102,0.1)',
                   border: '1px solid rgba(0,197,102,0.2)',
@@ -285,8 +415,8 @@ function Clients() {
                   justifyContent: 'center',
                   color: '#00C566',
                   fontFamily: 'Syne, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
+                  fontWeight: 800,
+                  fontSize: '1rem',
                   flexShrink: 0,
                 }}>
                   {client.name[0].toUpperCase()}
@@ -303,28 +433,77 @@ function Clients() {
                   </div>
                   <div style={{
                     color: '#8A9E92',
-                    fontSize: '0.8rem',
+                    fontSize: '0.78rem',
                     display: 'flex',
                     gap: '0.5rem',
                     flexWrap: 'wrap',
+                    alignItems: 'center',
                   }}>
-                    {client.email && <span>{client.email}</span>}
+                    {client.email ? (
+                      <span>{client.email}</span>
+                    ) : (
+                      <span style={{
+                        color: '#4A6055',
+                        fontStyle: 'italic',
+                      }}>
+                        No email
+                      </span>
+                    )}
                     {client.email && client.phone && <span>•</span>}
-                    {client.phone && <span>{client.phone}</span>}
-                    {!client.email && !client.phone && (
-                      <span>No contact info</span>
+                    {client.phone ? (
+                      <span>{client.phone}</span>
+                    ) : (
+                      !client.email && (
+                        <span style={{
+                          color: '#4A6055',
+                          fontStyle: 'italic',
+                        }}>
+                          No contact info
+                        </span>
+                      )
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Right — Action Buttons */}
+              {/* Action Buttons */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
                 flexWrap: 'wrap',
               }}>
+
+                {/* Edit Button */}
+                <button
+                  onClick={() => openEditForm(client)}
+                  style={{
+                    background: 'rgba(124,106,247,0.06)',
+                    border: '1px solid rgba(124,106,247,0.15)',
+                    color: '#7C6AF7',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    padding: '0.4rem 0.85rem',
+                    borderRadius: '6px',
+                    fontFamily: 'Syne, sans-serif',
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'rgba(124,106,247,0.15)'
+                    e.currentTarget.style.borderColor = 'rgba(124,106,247,0.3)'
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'rgba(124,106,247,0.06)'
+                    e.currentTarget.style.borderColor = 'rgba(124,106,247,0.15)'
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+
                 {/* Portal Link Button */}
                 <button
                   onClick={() => copyPortalLink(client.id)}
@@ -335,7 +514,7 @@ function Clients() {
                     fontSize: '0.78rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    padding: '0.35rem 0.75rem',
+                    padding: '0.4rem 0.85rem',
                     borderRadius: '6px',
                     fontFamily: 'Syne, sans-serif',
                     transition: 'all 0.2s',
@@ -361,11 +540,11 @@ function Clients() {
                   style={{
                     background: 'transparent',
                     border: '1px solid transparent',
-                    color: '#8A9E92',
+                    color: '#4A6055',
                     fontSize: '0.78rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    padding: '0.35rem 0.75rem',
+                    padding: '0.4rem 0.85rem',
                     borderRadius: '6px',
                     fontFamily: 'DM Sans, sans-serif',
                     transition: 'all 0.2s',
@@ -376,7 +555,7 @@ function Clients() {
                     e.currentTarget.style.background = 'rgba(255,80,80,0.05)'
                   }}
                   onMouseLeave={e => {
-                    e.currentTarget.style.color = '#8A9E92'
+                    e.currentTarget.style.color = '#4A6055'
                     e.currentTarget.style.borderColor = 'transparent'
                     e.currentTarget.style.background = 'transparent'
                   }}

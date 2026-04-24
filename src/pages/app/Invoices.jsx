@@ -842,40 +842,69 @@ function Invoices() {
                   </span>
                 )}
 
-                {/* Status badge */}
-                <div style={{
-                  padding: '0.2rem 0.7rem',
-                  borderRadius: '100px',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  background: inv.status === 'paid'
-                    ? 'rgba(0,197,102,0.1)'
-                    : 'rgba(245,166,35,0.1)',
-                  color: inv.status === 'paid' ? '#00C566' : '#f5a623',
-                }}>
-                  {inv.status}
-                </div>
-
-                {/* Mark Paid */}
+                {/* Status Box — replaces the old pill badge */}
+<div style={{
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: '0.4rem',
+  padding: '0.35rem 0.85rem',
+  borderRadius: '8px',
+  fontSize: '0.78rem',
+  fontWeight: 700,
+  fontFamily: 'Syne, sans-serif',
+  letterSpacing: '0.3px',
+  background: inv.status === 'paid'
+    ? 'rgba(0,197,102,0.12)'
+    : 'rgba(245,166,35,0.1)',
+  border: inv.status === 'paid'
+    ? '1px solid rgba(0,197,102,0.3)'
+    : '1px solid rgba(245,166,35,0.3)',
+  color: inv.status === 'paid' ? '#00C566' : '#f5a623',
+}}>
+  <div style={{
+    width: '7px',
+    height: '7px',
+    borderRadius: '2px',
+    background: inv.status === 'paid' ? '#00C566' : '#f5a623',
+  }} />
+  {inv.status === 'paid' ? 'PAID' : 'UNPAID'}
+</div>
                 {inv.status === 'unpaid' && (
-                  <button
-                    onClick={() => markAsPaid(inv.id)}
-                    style={{
-                      padding: '0.3rem 0.75rem',
-                      background: 'rgba(0,197,102,0.1)',
-                      border: '1px solid rgba(0,197,102,0.2)',
-                      color: '#00C566',
-                      borderRadius: '6px',
-                      fontSize: '0.78rem',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      fontFamily: 'Syne, sans-serif',
-                    }}
-                  >
-                    Mark Paid
-                  </button>
-                )}
-
+  <button
+    onClick={() => markAsPaid(inv.id)}
+    style={{
+      padding: '0.35rem 0.85rem',
+      background: 'rgba(0,197,102,0.08)',
+      border: '1px solid rgba(0,197,102,0.2)',
+      color: '#00C566',
+      borderRadius: '8px',
+      fontSize: '0.78rem',
+      fontWeight: 700,
+      cursor: 'pointer',
+      fontFamily: 'Syne, sans-serif',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.35rem',
+      transition: 'all 0.2s',
+    }}
+    onMouseEnter={e => {
+      e.currentTarget.style.background = 'rgba(0,197,102,0.15)'
+      e.currentTarget.style.borderColor = 'rgba(0,197,102,0.4)'
+    }}
+    onMouseLeave={e => {
+      e.currentTarget.style.background = 'rgba(0,197,102,0.08)'
+      e.currentTarget.style.borderColor = 'rgba(0,197,102,0.2)'
+    }}
+  >
+    <div style={{
+      width: '8px',
+      height: '8px',
+      borderRadius: '2px',
+      border: '2px solid #00C566',
+    }} />
+    Mark as Paid
+  </button>
+)}
                 {/* PDF */}
                 <button
                   onClick={() => generateInvoicePDF(

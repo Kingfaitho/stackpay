@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import ThemeToggle from './ThemeToggle'
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -51,6 +52,10 @@ function Navbar() {
               {id.replace('-', ' ')}
             </li>
           ))}
+
+          <li>
+  <ThemeToggle compact={true} />
+</li>
 
           <li>
             <Link to="/login" style={{ color: '#8A9E92', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>

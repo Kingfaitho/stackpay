@@ -273,3 +273,134 @@ select option {
 .text-muted { color: var(--text-muted); }
 .font-display { font-family: var(--font-display); }
 .font-body { font-family: var(--font-body); }
+
+/* ================================
+   LIGHT THEME — Luxury White + Gold
+================================ */
+[data-theme="light"] {
+  --bg-primary: #FAFAF8;
+  --bg-secondary: #F4F1EB;
+  --bg-card: #FFFFFF;
+  --bg-card-2: #F9F7F2;
+  --border-color: rgba(0,0,0,0.08);
+  --border-green: rgba(0,150,80,0.25);
+  --text-primary: #1A1A18;
+  --text-secondary: #5A6355;
+  --text-muted: #9A9E96;
+  --green: #00A855;
+  --green-dark: #007A3D;
+  --gold: #C9A84C;
+  --gold-light: #F0D78A;
+  --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  --shadow-card: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+/* Apply light theme */
+[data-theme="light"] body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Landing page */
+[data-theme="light"] section {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3 {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] p {
+  color: var(--text-secondary) !important;
+}
+
+/* Cards */
+[data-theme="light"] .sp-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
+/* Inputs */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
+[data-theme="light"] input::placeholder,
+[data-theme="light"] textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* App layout */
+[data-theme="light"] .app-sidebar {
+  background: #FFFFFF !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] .app-topbar {
+  background: rgba(255,255,255,0.9) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] .app-main {
+  background: var(--bg-primary) !important;
+}
+
+/* Navbar */
+[data-theme="light"] nav {
+  background: rgba(250,250,248,0.92) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] nav a,
+[data-theme="light"] nav li {
+  color: #5A6355 !important;
+}
+
+/* Stats bar */
+[data-theme="light"] .stats-bar {
+  background: #F4F1EB !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+/* Footer */
+[data-theme="light"] footer {
+  background: #F0EDE5 !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+[data-theme="light"] footer * {
+  color: #5A6355 !important;
+}
+
+/* Luxury gold accent for light mode */
+[data-theme="light"] .green-accent {
+  color: var(--gold) !important;
+}
+
+[data-theme="light"] .green-bg {
+  background: var(--gold) !important;
+  color: #1A1A18 !important;
+}
+
+/* Scrollbar light */
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #F4F1EB;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: var(--gold);
+}
+
+/* Selection light */
+[data-theme="light"] ::selection {
+  background: rgba(201,168,76,0.25);
+  color: #1A1A18;
+}

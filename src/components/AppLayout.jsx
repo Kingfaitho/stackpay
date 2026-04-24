@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ThemeToggle from './ThemeToggle'
+import { useTheme } from '../context/ThemeContext'
 
 const navItems = [
   { path: '/dashboard', icon: '⊞', label: 'Dashboard' },
@@ -11,19 +13,25 @@ const navItems = [
   { path: '/team', icon: '🤝', label: 'Team' },
   { path: '/billing', icon: '💳', label: 'Billing' },
   { path: '/profile', icon: '⚙️', label: 'Settings' },
+  { path: '/recurring', icon: '🔄', label: 'Recurring' },
 ]
 
 function AppLayout({ children }) {
   const { user, signOut } = useAuth()
+  const { theme } = useTheme()
   const location = useLocation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  {/* Theme Toggle */}
+<div style={{ padding: '0 0.75rem', marginBottom: '0.5rem' }}>
+  <ThemeToggle />
+</div>
 
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
   }
-
   const Sidebar = () => (
     <div style={{
       width: '240px',
@@ -204,6 +212,16 @@ function AppLayout({ children }) {
               day: 'numeric',
             })}
           </div>
+          
+          {/* RIGHT SIDE CLUSTER */}
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.6rem',
+  }}></div>
+
+          <ThemeToggle compact={true} />
+          
           <div style={{
             width: '34px',
             height: '34px',

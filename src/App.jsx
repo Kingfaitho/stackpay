@@ -20,9 +20,11 @@ import ClientPortal from './pages/ClientPortal'
 import Admin from './pages/Admin'
 import InstallPrompt from './components/InstallPrompt'
 import InvoicePayment from './pages/InvoicePayment'
+import { ThemeProvider } from './context/ThemeContext'
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <Router>
         <Routes>
@@ -65,6 +67,7 @@ function App() {
         <InstallPrompt />
       </Router>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
 
