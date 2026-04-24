@@ -8,7 +8,7 @@ import {
   Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 import OnboardingBanner from '../../components/OnboardingBanner'
-import HealthScore from '../../components/HealthScore'
+import StackPayIntelligence from '../../components/StackPayIntelligence'
 
 function StatCard({ label, value, sub, color }) {
   return (
@@ -296,6 +296,9 @@ function Dashboard() {
     if (user) loadDashboard()
   }, [user])
 
+  const [allInvoices, setAllInvoices] = useState([])
+const [allExpenses, setAllExpenses] = useState([])
+
   const loadDashboard = async () => {
     try {
       const { data: profileData } = await supabase
@@ -314,6 +317,9 @@ function Dashboard() {
         .from('expenses')
         .select('*')
         .eq('user_id', user.id)
+
+        setAllInvoices(invoices || [])
+        setAllExpenses(expenses || [])
 
       const { data: clients } = await supabase
         .from('clients')
@@ -423,20 +429,16 @@ function Dashboard() {
         clientCount={stats.totalClients}
       />
 
-      <HealthScore
-        income={stats.totalIncome}
-        expenses={stats.totalExpenses}
-        unpaidInvoices={stats.unpaidInvoices}
-        totalClients={stats.totalClients}
-      />
-
-      <AIAdvisor
-        income={stats.totalIncome}
-        expenses={stats.totalExpenses}
-        unpaidInvoices={stats.unpaidInvoices}
-        totalClients={stats.totalClients}
-        businessName={profile?.business_name}
-      />
+     <StackPayIntelligence
+  invoices={allInvoices}
+  expenses={allExpenses}
+  totalIncome={stats.totalIncome}
+  totalExpenses={stats.totalExpenses}
+  unpaidInvoices={stats.unpaidInvoices}
+  totalClients={stats.totalClients}
+  businessName={profile?.business_name}
+  profile={profile}
+/>
 
       {/* Stat Cards */}
       <div style={{
