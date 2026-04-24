@@ -174,71 +174,78 @@ function AppLayout({ children }) {
 
       {/* Main content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Top bar */}
-        <div style={{
-          height: '60px',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 1.5rem',
-          background: '#080C0A',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-        }}>
-          <button
-            className="hamburger"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#F0F5F2',
-              fontSize: '1.3rem',
-              cursor: 'pointer',
-              display: 'none',
-            }}
-          >
-            ☰
-          </button>
-          <div style={{
-            color: '#8A9E92',
-            fontSize: '0.88rem',
-          }}>
-            {new Date().toLocaleDateString('en-NG', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </div>
-          
-          {/* RIGHT SIDE CLUSTER */}
+       {/* Top bar */}
+<div style={{
+  height: '60px',
+  borderBottom: '1px solid rgba(255,255,255,0.07)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '0 1.5rem',
+  background: '#080C0A',
+  position: 'sticky',
+  top: 0,
+  zIndex: 100,
+}}>
+
+  {/* LEFT — Hamburger (mobile only) */}
+  <button
+    className="hamburger"
+    onClick={() => setSidebarOpen(!sidebarOpen)}
+    style={{
+      background: 'transparent',
+      border: 'none',
+      color: '#F0F5F2',
+      fontSize: '1.3rem',
+      cursor: 'pointer',
+      display: 'none',
+      padding: '0.25rem',
+    }}
+  >
+    ☰
+  </button>
+
+  {/* CENTER — Date */}
+  <div style={{
+    color: '#8A9E92',
+    fontSize: '0.88rem',
+  }}>
+    {new Date().toLocaleDateString('en-NG', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })}
+  </div>
+
+  {/* RIGHT — Theme toggle + Avatar */}
   <div style={{
     display: 'flex',
     alignItems: 'center',
     gap: '0.6rem',
-  }}></div>
+  }}>
+    <ThemeToggle compact={true} />
 
-          <ThemeToggle compact={true} />
-          
-          <div style={{
-            width: '34px',
-            height: '34px',
-            borderRadius: '50%',
-            background: 'rgba(0,197,102,0.15)',
-            border: '1px solid rgba(0,197,102,0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#00C566',
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 700,
-            fontSize: '0.9rem',
-          }}>
-            {user?.email?.[0]?.toUpperCase()}
-          </div>
-        </div>
+    <div style={{
+      width: '34px',
+      height: '34px',
+      borderRadius: '50%',
+      background: 'rgba(0,197,102,0.15)',
+      border: '1px solid rgba(0,197,102,0.3)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#00C566',
+      fontFamily: 'Syne, sans-serif',
+      fontWeight: 700,
+      fontSize: '0.9rem',
+      flexShrink: 0,
+    }}>
+      {user?.email?.[0]?.toUpperCase()}
+    </div>
+  </div>
+
+</div>
 
         {/* Page content */}
         <div style={{ padding: '2rem 1.5rem' }}>
