@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
+import { useTheme } from '../../context/ThemeContext'
 import AppLayout from '../../components/AppLayout'
 import {
   BarChart, Bar, XAxis, YAxis,
@@ -11,16 +12,19 @@ import OnboardingBanner from '../../components/OnboardingBanner'
 import StackPayIntelligence from '../../components/StackPayIntelligence'
 
 function StatCard({ label, value, sub, color }) {
+  const { colors } = useTheme()
   return (
     <div style={{
-      background: '#141A16',
-      border: '1px solid rgba(255,255,255,0.07)',
+      background: colors.bgCard,
+      border: `1px solid ${colors.border}`,
       borderRadius: '16px',
       padding: '1.5rem',
+      transition: 'background 0.3s',
+      boxShadow: colors.name === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
     }}>
       <div style={{
-        color: '#8A9E92',
-        fontSize: '0.82rem',
+        color: colors.textLabel,
+        fontSize: '0.78rem',
         fontWeight: 600,
         letterSpacing: '0.5px',
         textTransform: 'uppercase',
@@ -31,15 +35,15 @@ function StatCard({ label, value, sub, color }) {
       <div style={{
         fontFamily: 'Syne, sans-serif',
         fontWeight: 800,
-        fontSize: 'clamp(1.5rem, 2.5vw, 2rem)',
-        color: color || '#F0F5F2',
+        fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
+        color: color || colors.textPrimary,
         letterSpacing: '-0.5px',
         marginBottom: '0.3rem',
       }}>
         {value}
       </div>
       {sub && (
-        <div style={{ color: '#8A9E92', fontSize: '0.82rem' }}>
+        <div style={{ color: colors.textMuted, fontSize: '0.78rem' }}>
           {sub}
         </div>
       )}
@@ -47,242 +51,15 @@ function StatCard({ label, value, sub, color }) {
   )
 }
 
-function AIAdvisor({ income, expenses, unpaidInvoices, totalClients, businessName }) {
-  const [advice, setAdvice] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [asked, setAsked] = useState(false)
-
-  const getAdvice = async () => {
-    setLoading(true)
-    setAsked(true)
-
-    const prompt = `You are a financial advisor for Nigerian small businesses.
-Analyze this data and give specific, actionable advice in 3 short paragraphs.
-Be direct, practical and use Nigerian business context.
-
-Business: ${businessName || 'Nigerian SME'}
-Total Income (paid invoices): ₦${income.toLocaleString()}
-Total Expenses: ₦${expenses.toLocaleString()}
-Net Profit: ₦${(income - expenses).toLocaleString()}
-Profit Margin: ${income > 0
-      ? (((income - expenses) / income) * 100).toFixed(1)
-      : 0}%
-Unpaid Invoices: ${unpaidInvoices}
-Total Clients: ${totalClients}
-
-Cover: current financial health, biggest risk, one action to grow revenue this month.
-Keep it under 150 words. Be conversational not formal.`
-
-    try {
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_XAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'grok-3-mini',
-          max_tokens: 300,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a concise financial advisor for Nigerian SMEs.',
-            },
-            {
-              role: 'user',
-              content: prompt,
-            },
-          ],
-        }),
-      })
-
-      const data = await response.json()
-      const text = data.choices?.[0]?.message?.content
-      setAdvice(text || 'Unable to generate advice at this time.')
-    } catch (err) {
-      setAdvice('Unable to connect to AI advisor right now. Please try again.')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div style={{
-      background: 'linear-gradient(135deg, #111815 0%, #0F1A15 100%)',
-      border: '1px solid rgba(124,106,247,0.2)',
-      borderRadius: '20px',
-      padding: '1.5rem',
-      marginBottom: '2rem',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        position: 'absolute',
-        top: '-40px', right: '-40px',
-        width: '200px', height: '200px',
-        background: 'radial-gradient(circle, rgba(124,106,247,0.08) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '1rem',
-        flexWrap: 'wrap',
-        gap: '0.75rem',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-          <div style={{
-            width: '36px', height: '36px',
-            borderRadius: '10px',
-            background: 'rgba(124,106,247,0.15)',
-            border: '1px solid rgba(124,106,247,0.25)',
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.1rem',
-          }}>
-            🤖
-          </div>
-          <div>
-            <div style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              fontSize: '0.95rem',
-              color: '#EDF2EF',
-            }}>
-              AI Business Advisor
-            </div>
-            <div style={{
-              color: '#7C6AF7',
-              fontSize: '0.72rem',
-              fontWeight: 600,
-            }}>
-              Powered by Grok AI
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={getAdvice}
-          disabled={loading}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.6rem 1.2rem',
-            borderRadius: '10px',
-            background: 'rgba(124,106,247,0.15)',
-            border: '1px solid rgba(124,106,247,0.3)',
-            color: '#7C6AF7',
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 700,
-            fontSize: '0.85rem',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'all 0.2s',
-          }}
-        >
-          {loading ? (
-            <>
-              <span style={{
-                width: '12px', height: '12px',
-                borderRadius: '50%',
-                border: '2px solid rgba(124,106,247,0.3)',
-                borderTopColor: '#7C6AF7',
-                animation: 'spin 0.8s linear infinite',
-                display: 'inline-block',
-              }} />
-              Analyzing...
-            </>
-          ) : (
-            <>{asked ? '↻ Refresh' : '✦ Get AI Advice'}</>
-          )}
-        </button>
-      </div>
-
-      {!asked && !loading && (
-        <div style={{
-          background: 'rgba(124,106,247,0.04)',
-          borderRadius: '12px',
-          padding: '1.2rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem',
-        }}>
-          <div style={{ fontSize: '1.5rem' }}>💡</div>
-          <p style={{
-            color: '#7A9485',
-            fontSize: '0.88rem',
-            lineHeight: 1.7,
-          }}>
-            Click <strong style={{ color: '#7C6AF7' }}>Get AI Advice</strong> and
-            Grok AI will analyze your real business numbers and tell you
-            exactly what to do next.
-          </p>
-        </div>
-      )}
-
-      {loading && (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '0.5rem',
-          padding: '0.5rem 0',
-        }}>
-          {[100, 85, 92, 70].map((width, i) => (
-            <div key={i} style={{
-              height: '12px',
-              borderRadius: '6px',
-              background: 'rgba(255,255,255,0.05)',
-              width: `${width}%`,
-              animation: 'pulse 1.5s ease-in-out infinite',
-              animationDelay: `${i * 0.15}s`,
-            }} />
-          ))}
-        </div>
-      )}
-
-      {advice && !loading && (
-        <div style={{
-          background: 'rgba(124,106,247,0.04)',
-          borderRadius: '12px',
-          padding: '1.2rem',
-        }}>
-          <p style={{
-            color: '#C8D5CE',
-            fontSize: '0.9rem',
-            lineHeight: 1.8,
-            whiteSpace: 'pre-wrap',
-          }}>
-            {advice}
-          </p>
-          <div style={{
-            marginTop: '0.75rem',
-            color: '#4A6055',
-            fontSize: '0.72rem',
-          }}>
-            ✦ Generated by Grok AI based on your live business data
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  )
-}
-
 function Dashboard() {
   const { user } = useAuth()
+  const { colors, isDark } = useTheme()
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [chartData, setChartData] = useState([])
+  const [allInvoices, setAllInvoices] = useState([])
+  const [allExpenses, setAllExpenses] = useState([])
   const [stats, setStats] = useState({
     totalIncome: 0,
     totalExpenses: 0,
@@ -295,9 +72,6 @@ function Dashboard() {
   useEffect(() => {
     if (user) loadDashboard()
   }, [user])
-
-  const [allInvoices, setAllInvoices] = useState([])
-const [allExpenses, setAllExpenses] = useState([])
 
   const loadDashboard = async () => {
     try {
@@ -318,13 +92,13 @@ const [allExpenses, setAllExpenses] = useState([])
         .select('*')
         .eq('user_id', user.id)
 
-        setAllInvoices(invoices || [])
-        setAllExpenses(expenses || [])
-
       const { data: clients } = await supabase
         .from('clients')
         .select('id')
         .eq('user_id', user.id)
+
+      setAllInvoices(invoices || [])
+      setAllExpenses(expenses || [])
 
       const totalIncome = invoices
         ?.filter(i => i.status === 'paid')
@@ -381,17 +155,19 @@ const [allExpenses, setAllExpenses] = useState([])
     }
   }
 
-  const formatNaira = (amount) =>
-    new Intl.NumberFormat('en-NG', {
+  const formatNaira = (amount) => {
+    const currency = profile?.currency || 'NGN'
+    return new Intl.NumberFormat('en-NG', {
       style: 'currency',
-      currency: 'NGN',
+      currency,
       minimumFractionDigits: 0,
     }).format(amount)
+  }
 
   if (loading) return (
     <AppLayout>
       <div style={{
-        color: '#8A9E92',
+        color: colors.textMuted,
         textAlign: 'center',
         marginTop: '3rem',
         fontFamily: 'DM Sans, sans-serif',
@@ -404,46 +180,47 @@ const [allExpenses, setAllExpenses] = useState([])
   return (
     <AppLayout>
 
-      {/* Welcome Header */}
+      {/* Welcome */}
       <div style={{ marginBottom: '1.5rem' }}>
         <h1 style={{
           fontFamily: 'Syne, sans-serif',
           fontWeight: 800,
           fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
-          color: '#F0F5F2',
+          color: colors.textPrimary,
           marginBottom: '0.3rem',
         }}>
           Welcome back{profile?.owner_name
             ? `, ${profile.owner_name.split(' ')[0]}`
             : ''} 👋
         </h1>
-        <p style={{ color: '#8A9E92', fontSize: '0.9rem' }}>
+        <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>
           Here's how {profile?.business_name || 'your business'} is doing
         </p>
       </div>
 
-      {/* Onboarding + Health Score + AI — all after state is declared */}
+      {/* Onboarding */}
       <OnboardingBanner
         profile={profile}
         invoiceCount={stats.recentInvoices.length}
         clientCount={stats.totalClients}
       />
 
-     <StackPayIntelligence
-  invoices={allInvoices}
-  expenses={allExpenses}
-  totalIncome={stats.totalIncome}
-  totalExpenses={stats.totalExpenses}
-  unpaidInvoices={stats.unpaidInvoices}
-  totalClients={stats.totalClients}
-  businessName={profile?.business_name}
-  profile={profile}
-/>
+      {/* StackPay Intelligence */}
+      <StackPayIntelligence
+        invoices={allInvoices}
+        expenses={allExpenses}
+        totalIncome={stats.totalIncome}
+        totalExpenses={stats.totalExpenses}
+        unpaidInvoices={stats.unpaidInvoices}
+        totalClients={stats.totalClients}
+        businessName={profile?.business_name}
+        profile={profile}
+      />
 
       {/* Stat Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
         gap: '1rem',
         marginBottom: '2rem',
       }}>
@@ -451,30 +228,31 @@ const [allExpenses, setAllExpenses] = useState([])
           label="Total Income"
           value={formatNaira(stats.totalIncome)}
           sub="From paid invoices"
-          color="#00C566"
+          color={colors.green}
         />
         <StatCard
           label="Total Expenses"
           value={formatNaira(stats.totalExpenses)}
           sub="All logged costs"
-          color="#ff8080"
+          color={colors.danger}
         />
         <StatCard
           label="Net Profit"
           value={formatNaira(stats.profit)}
           sub="Income minus expenses"
-          color={stats.profit >= 0 ? '#00C566' : '#ff8080'}
+          color={stats.profit >= 0 ? colors.green : colors.danger}
         />
         <StatCard
           label="Unpaid Invoices"
           value={stats.unpaidInvoices}
           sub="Awaiting payment"
-          color="#f5a623"
+          color={colors.warning}
         />
         <StatCard
           label="Total Clients"
           value={stats.totalClients}
           sub="Active clients"
+          color={colors.purple}
         />
       </div>
 
@@ -484,41 +262,18 @@ const [allExpenses, setAllExpenses] = useState([])
           fontFamily: 'Syne, sans-serif',
           fontWeight: 700,
           fontSize: '1rem',
-          color: '#F0F5F2',
+          color: colors.textPrimary,
           marginBottom: '1rem',
         }}>
           Quick Actions
         </h2>
-        <div style={{
-          display: 'flex',
-          gap: '0.75rem',
-          flexWrap: 'wrap',
-        }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {[
-            {
-              label: '+ New Invoice',
-              path: '/invoices',
-              bg: '#00C566',
-              color: '#080C0A',
-            },
-            {
-              label: '+ Add Client',
-              path: '/clients',
-              bg: 'transparent',
-              color: '#F0F5F2',
-            },
-            {
-              label: '+ Log Expense',
-              path: '/expenses',
-              bg: 'transparent',
-              color: '#F0F5F2',
-            },
-            {
-              label: '⚙️ Settings',
-              path: '/profile',
-              bg: 'transparent',
-              color: '#F0F5F2',
-            },
+            { label: '+ New Invoice', path: '/invoices', primary: true },
+            { label: '+ Add Client', path: '/clients', primary: false },
+            { label: '+ Log Expense', path: '/expenses', primary: false },
+            { label: '🎯 Budget', path: '/budget', primary: false },
+            { label: '⚙️ Settings', path: '/profile', primary: false },
           ].map((action) => (
             <Link
               key={action.path}
@@ -526,16 +281,21 @@ const [allExpenses, setAllExpenses] = useState([])
               style={{
                 padding: '0.65rem 1.2rem',
                 borderRadius: '10px',
-                background: action.bg,
-                color: action.color,
-                border: action.bg === 'transparent'
-                  ? '1px solid rgba(255,255,255,0.1)'
-                  : 'none',
+                background: action.primary ? colors.accent : colors.bgCard,
+                color: action.primary ? colors.accentText : colors.textPrimary,
+                border: action.primary
+                  ? 'none'
+                  : `1px solid ${colors.border}`,
                 fontFamily: 'Syne, sans-serif',
                 fontWeight: 600,
                 fontSize: '0.88rem',
                 textDecoration: 'none',
                 transition: 'all 0.2s',
+                boxShadow: action.primary
+                  ? 'none'
+                  : colors.name === 'light'
+                  ? '0 1px 4px rgba(0,0,0,0.06)'
+                  : 'none',
               }}
             >
               {action.label}
@@ -550,38 +310,42 @@ const [allExpenses, setAllExpenses] = useState([])
           fontFamily: 'Syne, sans-serif',
           fontWeight: 700,
           fontSize: '1rem',
-          color: '#F0F5F2',
+          color: colors.textPrimary,
           marginBottom: '1rem',
         }}>
           Income vs Expenses — Last 6 Months
         </h2>
         <div style={{
-          background: '#141A16',
-          border: '1px solid rgba(255,255,255,0.07)',
+          background: colors.bgCard,
+          border: `1px solid ${colors.border}`,
           borderRadius: '16px',
           padding: '1.5rem 1rem',
+          boxShadow: colors.name === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
+          transition: 'background 0.3s',
         }}>
           {chartData.every(d => d.Income === 0 && d.Expenses === 0) ? (
             <div style={{
               textAlign: 'center',
-              color: '#8A9E92',
+              color: colors.textMuted,
               padding: '2rem',
               fontSize: '0.9rem',
             }}>
-              Chart will appear once you have invoices and expenses recorded.
+              Chart appears once you have invoices and expenses recorded.
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} barGap={4}>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.04)"
+                  stroke={isDark
+                    ? 'rgba(255,255,255,0.04)'
+                    : 'rgba(0,0,0,0.06)'}
                   vertical={false}
                 />
                 <XAxis
                   dataKey="month"
                   tick={{
-                    fill: '#8A9E92',
+                    fill: colors.textMuted,
                     fontSize: 12,
                     fontFamily: 'DM Sans',
                   }}
@@ -590,7 +354,7 @@ const [allExpenses, setAllExpenses] = useState([])
                 />
                 <YAxis
                   tick={{
-                    fill: '#8A9E92',
+                    fill: colors.textMuted,
                     fontSize: 11,
                     fontFamily: 'DM Sans',
                   }}
@@ -602,27 +366,31 @@ const [allExpenses, setAllExpenses] = useState([])
                 />
                 <Tooltip
                   contentStyle={{
-                    background: '#0F1510',
-                    border: '1px solid rgba(0,197,102,0.2)',
+                    background: colors.bgCard2,
+                    border: `1px solid ${colors.borderGreen}`,
                     borderRadius: '10px',
-                    color: '#EDF2EF',
+                    color: colors.textPrimary,
                     fontFamily: 'DM Sans',
                     fontSize: '0.85rem',
                   }}
-                  formatter={(value) => [
-                    `₦${value.toLocaleString()}`, '',
-                  ]}
-                  cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+                  formatter={(value) => [`₦${value.toLocaleString()}`, '']}
+                  cursor={{
+                    fill: isDark
+                      ? 'rgba(255,255,255,0.02)'
+                      : 'rgba(0,0,0,0.03)',
+                  }}
                 />
                 <Bar
                   dataKey="Income"
-                  fill="#00C566"
+                  fill={colors.green}
                   radius={[6, 6, 0, 0]}
                   maxBarSize={32}
                 />
                 <Bar
                   dataKey="Expenses"
-                  fill="rgba(255,80,80,0.6)"
+                  fill={isDark
+                    ? 'rgba(255,80,80,0.6)'
+                    : 'rgba(204,34,0,0.5)'}
                   radius={[6, 6, 0, 0]}
                   maxBarSize={32}
                 />
@@ -637,8 +405,8 @@ const [allExpenses, setAllExpenses] = useState([])
             marginTop: '1rem',
           }}>
             {[
-              { color: '#00C566', label: 'Income' },
-              { color: 'rgba(255,80,80,0.6)', label: 'Expenses' },
+              { color: colors.green, label: 'Income' },
+              { color: isDark ? 'rgba(255,80,80,0.6)' : 'rgba(204,34,0,0.5)', label: 'Expenses' },
             ].map(item => (
               <div key={item.label} style={{
                 display: 'flex',
@@ -646,11 +414,12 @@ const [allExpenses, setAllExpenses] = useState([])
                 gap: '0.4rem',
               }}>
                 <div style={{
-                  width: '10px', height: '10px',
+                  width: '10px',
+                  height: '10px',
                   borderRadius: '2px',
                   background: item.color,
                 }} />
-                <span style={{ color: '#8A9E92', fontSize: '0.8rem' }}>
+                <span style={{ color: colors.textMuted, fontSize: '0.8rem' }}>
                   {item.label}
                 </span>
               </div>
@@ -671,12 +440,12 @@ const [allExpenses, setAllExpenses] = useState([])
             fontFamily: 'Syne, sans-serif',
             fontWeight: 700,
             fontSize: '1rem',
-            color: '#F0F5F2',
+            color: colors.textPrimary,
           }}>
             Recent Invoices
           </h2>
           <Link to="/invoices" style={{
-            color: '#00C566',
+            color: colors.green,
             fontSize: '0.85rem',
             fontWeight: 600,
             textDecoration: 'none',
@@ -687,24 +456,25 @@ const [allExpenses, setAllExpenses] = useState([])
 
         {stats.recentInvoices.length === 0 ? (
           <div style={{
-            background: '#141A16',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: colors.bgCard,
+            border: `1px solid ${colors.border}`,
             borderRadius: '16px',
             padding: '3rem',
             textAlign: 'center',
-            color: '#8A9E92',
+            color: colors.textMuted,
+            boxShadow: colors.name === 'light'
+              ? '0 2px 12px rgba(0,0,0,0.06)'
+              : 'none',
           }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>
-              📄
-            </div>
+            <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📄</div>
             <p style={{ marginBottom: '1rem', fontSize: '0.95rem' }}>
               No invoices yet. Create your first one!
             </p>
             <Link to="/invoices" style={{
               display: 'inline-block',
               padding: '0.6rem 1.2rem',
-              background: '#00C566',
-              color: '#080C0A',
+              background: colors.accent,
+              color: colors.accentText,
               borderRadius: '8px',
               fontFamily: 'Syne, sans-serif',
               fontWeight: 700,
@@ -716,10 +486,13 @@ const [allExpenses, setAllExpenses] = useState([])
           </div>
         ) : (
           <div style={{
-            background: '#141A16',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: colors.bgCard,
+            border: `1px solid ${colors.border}`,
             borderRadius: '16px',
             overflow: 'hidden',
+            boxShadow: colors.name === 'light'
+              ? '0 2px 12px rgba(0,0,0,0.06)'
+              : 'none',
           }}>
             {stats.recentInvoices.map((inv, i) => (
               <div key={inv.id} style={{
@@ -728,47 +501,75 @@ const [allExpenses, setAllExpenses] = useState([])
                 alignItems: 'center',
                 padding: '1rem 1.5rem',
                 borderBottom: i < stats.recentInvoices.length - 1
-                  ? '1px solid rgba(255,255,255,0.05)'
+                  ? `1px solid ${colors.border}`
                   : 'none',
-              }}>
+                transition: 'background 0.2s',
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = isDark
+                    ? 'rgba(255,255,255,0.02)'
+                    : 'rgba(0,0,0,0.02)'
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'transparent'
+                }}
+              >
                 <div>
                   <div style={{
-                    color: '#F0F5F2',
+                    color: colors.textPrimary,
                     fontSize: '0.92rem',
                     fontWeight: 600,
                     marginBottom: '0.2rem',
+                    fontFamily: 'Syne, sans-serif',
                   }}>
                     {inv.invoice_number}
                   </div>
-                  <div style={{ color: '#8A9E92', fontSize: '0.8rem' }}>
-                    {new Date(inv.created_at)
-                      .toLocaleDateString('en-NG')}
+                  <div style={{ color: colors.textMuted, fontSize: '0.8rem' }}>
+                    {new Date(inv.created_at).toLocaleDateString('en-NG')}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{
-                    color: '#F0F5F2',
+                    color: colors.textPrimary,
                     fontFamily: 'Syne, sans-serif',
                     fontWeight: 700,
                     fontSize: '0.92rem',
-                    marginBottom: '0.2rem',
+                    marginBottom: '0.3rem',
                   }}>
                     {formatNaira(inv.total)}
                   </div>
                   <div style={{
-                    display: 'inline-block',
-                    padding: '0.15rem 0.6rem',
-                    borderRadius: '100px',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '6px',
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    fontFamily: 'Syne, sans-serif',
                     background: inv.status === 'paid'
-                      ? 'rgba(0,197,102,0.1)'
-                      : 'rgba(245,166,35,0.1)',
+                      ? isDark
+                        ? 'rgba(0,197,102,0.12)'
+                        : 'rgba(0,120,60,0.08)'
+                      : isDark
+                      ? 'rgba(245,166,35,0.1)'
+                      : 'rgba(184,122,0,0.08)',
                     color: inv.status === 'paid'
-                      ? '#00C566'
-                      : '#f5a623',
+                      ? colors.green
+                      : colors.warning,
+                    border: `1px solid ${inv.status === 'paid'
+                      ? colors.borderGreen
+                      : 'rgba(184,122,0,0.25)'}`,
                   }}>
-                    {inv.status}
+                    <div style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '2px',
+                      background: inv.status === 'paid'
+                        ? colors.green
+                        : colors.warning,
+                    }} />
+                    {inv.status === 'paid' ? 'PAID' : 'UNPAID'}
                   </div>
                 </div>
               </div>

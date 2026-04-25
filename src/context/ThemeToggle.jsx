@@ -1,8 +1,7 @@
 import { useTheme } from '../context/ThemeContext'
 
 function ThemeToggle({ compact = false }) {
-  const { theme, toggleTheme } = useTheme()
-  const isDark = theme === 'dark'
+  const { theme, toggleTheme, colors, isDark } = useTheme()
 
   if (compact) {
     return (
@@ -13,12 +12,8 @@ function ThemeToggle({ compact = false }) {
           width: '36px',
           height: '36px',
           borderRadius: '10px',
-          background: isDark
-            ? 'rgba(255,255,255,0.06)'
-            : 'rgba(0,0,0,0.06)',
-          border: isDark
-            ? '1px solid rgba(255,255,255,0.1)'
-            : '1px solid rgba(0,0,0,0.1)',
+          background: colors.bgCard,
+          border: `1px solid ${colors.border}`,
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -26,16 +21,7 @@ function ThemeToggle({ compact = false }) {
           fontSize: '1rem',
           transition: 'all 0.2s',
           flexShrink: 0,
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.background = isDark
-            ? 'rgba(255,255,255,0.12)'
-            : 'rgba(0,0,0,0.1)'
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.background = isDark
-            ? 'rgba(255,255,255,0.06)'
-            : 'rgba(0,0,0,0.06)'
+          color: colors.textSecondary,
         }}
       >
         {isDark ? '☀️' : '🌙'}
@@ -44,23 +30,22 @@ function ThemeToggle({ compact = false }) {
   }
 
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.75rem',
-      padding: '0.75rem 1rem',
-      borderRadius: '12px',
-      background: isDark
-        ? 'rgba(255,255,255,0.03)'
-        : 'rgba(0,0,0,0.03)',
-      border: isDark
-        ? '1px solid rgba(255,255,255,0.07)'
-        : '1px solid rgba(0,0,0,0.08)',
-      cursor: 'pointer',
-    }}
+    <div
       onClick={toggleTheme}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.75rem',
+        padding: '0.75rem 0.85rem',
+        borderRadius: '12px',
+        background: colors.bgCard,
+        border: `1px solid ${colors.border}`,
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+        marginBottom: '0.5rem',
+      }}
     >
-      <span style={{ fontSize: '1rem' }}>
+      <span style={{ fontSize: '1rem', flexShrink: 0 }}>
         {isDark ? '☀️' : '🌙'}
       </span>
       <div style={{ flex: 1 }}>
@@ -68,25 +53,21 @@ function ThemeToggle({ compact = false }) {
           fontFamily: 'Syne, sans-serif',
           fontWeight: 600,
           fontSize: '0.85rem',
-          color: isDark ? '#EDF2EF' : '#1a1a1a',
+          color: colors.textPrimary,
           marginBottom: '0.1rem',
         }}>
           {isDark ? 'Light Mode' : 'Dark Mode'}
         </div>
-        <div style={{
-          fontSize: '0.72rem',
-          color: isDark ? '#7A9485' : '#666',
-        }}>
+        <div style={{ fontSize: '0.72rem', color: colors.textMuted }}>
           {isDark ? 'Switch to white theme' : 'Switch to dark theme'}
         </div>
       </div>
 
-      {/* Toggle pill */}
       <div style={{
         width: '44px',
         height: '24px',
         borderRadius: '12px',
-        background: isDark ? 'rgba(255,255,255,0.1)' : '#C9A84C',
+        background: isDark ? 'rgba(255,255,255,0.1)' : colors.accent,
         position: 'relative',
         transition: 'background 0.3s',
         flexShrink: 0,
