@@ -27,52 +27,63 @@ function CashFlow() {
   const loadData = async () => {
     setLoading(true)
 
-    const { data: constraintData } = await supabase
-      .from('business_constraints')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
+    try {
+      const { data: constraintData } = await supabase
+        .from('business_constraints')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
 
-    const { data: invoices } = await supabase
-      .from('invoices')
-      .select('*, clients(name)')
-      .eq('user_id', user.id)
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select('*, clients(name)')
+        .eq('user_id', user.id)
 
-    const { data: expenses } = await supabase
-      .from('expenses')
-      .select('*')
-      .eq('user_id', user.id)
+      const { data: expenses } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('user_id', user.id)
 
-    const { data: clientBehavior } = await supabase
-      .from('client_payment_behavior')
-      .select('*')
-      .eq('user_id', user.id)
+      const { data: clientBehavior } = await supabase
+        .from('client_payment_behavior')
+        .select('*')
+        .eq('user_id', user.id)
 
-    if (constraintData) {
-      setConstraints(constraintData)
-      setSetupForm({
-        minimum_cash_buffer: constraintData.minimum_cash_buffer || '',
-        risk_tolerance: constraintData.risk_tolerance || 'moderate',
-        monthly_fixed_costs: constraintData.monthly_fixed_costs || [],
-      })
-    } else {
+      if (constraintData) {
+        setConstraints(constraintData)
+        setSetupForm({
+          minimum_cash_buffer: constraintData.minimum_cash_buffer || '',
+          risk_tolerance: constraintData.risk_tolerance || 'moderate',
+          monthly_fixed_costs: constraintData.monthly_fixed_costs || [],
+        })
+        setShowSetup(false)
+      } else {
+        setConstraints(null)
+        setShowSetup(true)
+      }
+
+      const totalPaid = (invoices || [])
+        .filter(i => i.status === 'paid')
+        .reduce((sum, i) => sum + Number(i.total), 0)
+
+      const totalExpenses = (expenses || [])
+        .reduce((sum, e) => sum + Number(e.amount), 0)
+
+      const cashPosition = totalPaid - totalExpenses
+      setCurrentCash(cashPosition)
+
+      if (constraintData) {
+        buildForecast(
+          invoices || [],
+          expenses || [],
+          constraintData,
+          clientBehavior || [],
+          cashPosition
+        )
+      }
+    } catch (err) {
+      console.error('Cash flow load error:', err)
       setShowSetup(true)
-    }
-
-    // Calculate current cash position
-    const totalPaid = invoices
-      ?.filter(i => i.status === 'paid')
-      .reduce((sum, i) => sum + Number(i.total), 0) || 0
-
-    const totalExpenses = expenses
-      ?.reduce((sum, e) => sum + Number(e.amount), 0) || 0
-
-    const cashPosition = totalPaid - totalExpenses
-    setCurrentCash(cashPosition)
-
-    // Build forecast
-    if (constraintData) {
-      buildForecast(invoices || [], expenses || [], constraintData, clientBehavior || [], cashPosition)
     }
 
     setLoading(false)
@@ -82,16 +93,12 @@ function CashFlow() {
     const today = new Date()
     const days = []
 
-    // Build client delay map
     const delayMap = {}
     clientBehavior.forEach(cb => {
       delayMap[cb.client_id] = cb.average_payment_delay_days || 0
     })
 
-    // Expected inflows from unpaid invoices
     const unpaidInvoices = invoices.filter(i => i.status === 'unpaid')
-
-    // Fixed monthly outflows
     const fixedMonthly = (constraints.monthly_fixed_costs || [])
       .reduce((sum, c) => sum + Number(c.amount || 0), 0)
     const fixedDaily = fixedMonthly / 30
@@ -111,11 +118,8 @@ function CashFlow() {
       const inflows = []
       const outflows = []
 
-      // Check unpaid invoices expected to come in on this day
       unpaidInvoices.forEach(inv => {
-        const dueDate = inv.due_date
-          ? new Date(inv.due_date)
-          : new Date(inv.created_at)
+        const dueDate = inv.due_date ? new Date(inv.due_date) : new Date(inv.created_at)
         const delay = delayMap[inv.client_id] || 0
         const expectedDate = new Date(dueDate)
         expectedDate.setDate(expectedDate.getDate() + delay)
@@ -130,19 +134,14 @@ function CashFlow() {
         }
       })
 
-      // Outflows from fixed costs
       if (d % 30 === 0 && d > 0) {
         ;(constraints.monthly_fixed_costs || []).forEach(cost => {
-          outflows.push({
-            label: cost.label,
-            amount: Number(cost.amount),
-          })
+          outflows.push({ label: cost.label, amount: Number(cost.amount) })
         })
       }
 
       runningBalance += dayInflow - dayOutflow
 
-      // Check runway
       if (runningBalance <= minimumBuffer && runwayDays === null && d > 0) {
         runwayDays = d
         criticalDate = dateStr
@@ -259,8 +258,8 @@ function CashFlow() {
         </p>
       </div>
 
-      {/* Setup CTA if no constraints */}
-      {!constraints && !loading && (
+      {/* Show setup when no constraints exist */}
+      {!constraints && !loading && !showSetup && (
         <div style={{
           ...card,
           background: isDark
@@ -289,12 +288,12 @@ function CashFlow() {
             margin: '0 auto 1.5rem',
           }}>
             Tell StackPay your minimum cash buffer and fixed monthly costs.
-            This is what makes our forecasting accurate instead of generic.
+            This makes our forecasting accurate and personal to your business.
           </p>
           <button
             onClick={() => setShowSetup(true)}
             style={{
-              padding: '0.8rem 2rem',
+              padding: '0.85rem 2rem',
               background: colors.accent,
               color: colors.accentText,
               border: 'none',
@@ -303,14 +302,16 @@ function CashFlow() {
               fontWeight: 700,
               fontSize: '0.95rem',
               cursor: 'pointer',
+              transition: 'opacity 0.2s',
             }}
+            onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+            onMouseLeave={e => e.currentTarget.style.opacity = '1'}
           >
             Configure Now →
           </button>
         </div>
       )}
 
-      {/* Setup Form */}
       {showSetup && (
         <div style={{ ...card, border: `1px solid ${colors.borderGreen}` }}>
           <div style={{
@@ -405,21 +406,15 @@ function CashFlow() {
                     ? colors.borderGreen
                     : colors.border}`,
                   background: setupForm.risk_tolerance === r.value
-                    ? isDark
-                      ? 'rgba(0,197,102,0.06)'
-                      : 'rgba(0,120,60,0.04)'
+                    ? isDark ? 'rgba(0,197,102,0.06)' : 'rgba(0,120,60,0.04)'
                     : colors.bgCard2,
                   cursor: 'pointer',
                   textAlign: 'center',
                   transition: 'all 0.2s',
                 }}
               >
-                <div style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>
-                  {r.label}
-                </div>
-                <div style={{ color: colors.textMuted, fontSize: '0.72rem' }}>
-                  {r.desc}
-                </div>
+                <div style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{r.label}</div>
+                <div style={{ color: colors.textMuted, fontSize: '0.72rem' }}>{r.desc}</div>
               </div>
             ))}
           </div>
@@ -447,45 +442,23 @@ function CashFlow() {
               marginBottom: '0.5rem',
             }}>
               <div>
-                <span style={{
-                  color: colors.textPrimary,
-                  fontWeight: 600,
-                  fontSize: '0.88rem',
-                }}>
+                <span style={{ color: colors.textPrimary, fontWeight: 600, fontSize: '0.88rem' }}>
                   {cost.label}
                 </span>
-                <span style={{
-                  color: colors.green,
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '0.88rem',
-                  marginLeft: '0.75rem',
-                }}>
+                <span style={{ color: colors.green, fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.88rem', marginLeft: '0.75rem' }}>
                   {formatNaira(cost.amount)}
                 </span>
               </div>
               <button
                 onClick={() => removeFixedCost(i)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: colors.danger,
-                  cursor: 'pointer',
-                  fontSize: '0.85rem',
-                }}
+                style={{ background: 'transparent', border: 'none', color: colors.danger, cursor: 'pointer', fontSize: '0.85rem' }}
               >
                 ✕
               </button>
             </div>
           ))}
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr auto',
-            gap: '0.5rem',
-            marginBottom: '1.5rem',
-            alignItems: 'start',
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '0.5rem', marginBottom: '1.5rem', alignItems: 'start' }}>
             <input
               placeholder="e.g. Office Rent"
               value={newFixedCost.label}
@@ -503,18 +476,7 @@ function CashFlow() {
             />
             <button
               onClick={addFixedCost}
-              style={{
-                padding: '0.75rem 1rem',
-                background: colors.accent,
-                color: colors.accentText,
-                border: 'none',
-                borderRadius: '8px',
-                fontFamily: 'Syne, sans-serif',
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
+              style={{ padding: '0.75rem 1rem', background: colors.accent, color: colors.accentText, border: 'none', borderRadius: '8px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap' }}
             >
               + Add
             </button>
@@ -523,28 +485,15 @@ function CashFlow() {
           <button
             onClick={saveConstraints}
             disabled={savingSetup}
-            style={{
-              width: '100%',
-              padding: '0.9rem',
-              background: savingSetup ? colors.greenDark : colors.accent,
-              color: colors.accentText,
-              border: 'none',
-              borderRadius: '10px',
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              fontSize: '1rem',
-              cursor: savingSetup ? 'not-allowed' : 'pointer',
-            }}
+            style={{ width: '100%', padding: '0.9rem', background: savingSetup ? colors.greenDark : colors.accent, color: colors.accentText, border: 'none', borderRadius: '10px', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1rem', cursor: savingSetup ? 'not-allowed' : 'pointer' }}
           >
             {savingSetup ? 'Saving...' : '✓ Save & Generate Forecast'}
           </button>
         </div>
       )}
 
-      {/* Forecast Display */}
       {forecast && !showSetup && (
         <>
-          {/* Runway Card — The Most Important Number */}
           <div style={{
             ...card,
             background: forecast.runwayDays !== null && forecast.runwayDays <= 30
@@ -558,22 +507,9 @@ function CashFlow() {
               ? colors.warning + '40'
               : colors.borderGreen}`,
           }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '1rem',
-            }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
               <div>
-                <div style={{
-                  color: colors.textLabel,
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.5px',
-                  textTransform: 'uppercase',
-                  marginBottom: '0.5rem',
-                }}>
+                <div style={{ color: colors.textLabel, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
                   BUSINESS RUNWAY
                 </div>
                 <div style={{
@@ -581,179 +517,64 @@ function CashFlow() {
                   fontWeight: 800,
                   fontSize: 'clamp(2rem, 4vw, 3rem)',
                   letterSpacing: '-1px',
-                  color: forecast.runwayDays === null
-                    ? colors.green
-                    : forecast.runwayDays <= 30
-                    ? colors.danger
-                    : forecast.runwayDays <= 60
-                    ? colors.warning
-                    : colors.green,
+                  color: forecast.runwayDays === null ? colors.green : forecast.runwayDays <= 30 ? colors.danger : forecast.runwayDays <= 60 ? colors.warning : colors.green,
                   lineHeight: 1,
                   marginBottom: '0.25rem',
                 }}>
-                  {forecast.runwayDays === null
-                    ? '90+ days'
-                    : `${forecast.runwayDays} days`}
+                  {forecast.runwayDays === null ? '90+ days' : `${forecast.runwayDays} days`}
                 </div>
                 <div style={{ color: colors.textSecondary, fontSize: '0.85rem' }}>
-                  {forecast.runwayDays === null
-                    ? 'No cash crunch expected in the next 90 days'
-                    : `Expected to breach your ₦${Number(forecast.minimumBuffer).toLocaleString()} buffer`}
+                  {forecast.runwayDays === null ? 'No cash crunch expected in the next 90 days' : `Expected to breach your ₦${Number(forecast.minimumBuffer).toLocaleString()} buffer`}
                 </div>
               </div>
 
               <div style={{ textAlign: 'right' }}>
-                <div style={{
-                  color: colors.textLabel,
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.5px',
-                  textTransform: 'uppercase',
-                  marginBottom: '0.4rem',
-                }}>
+                <div style={{ color: colors.textLabel, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
                   CURRENT POSITION
                 </div>
-                <div style={{
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 800,
-                  fontSize: '1.4rem',
-                  color: currentCash >= 0 ? colors.green : colors.danger,
-                }}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.4rem', color: currentCash >= 0 ? colors.green : colors.danger }}>
                   {formatNaira(currentCash)}
                 </div>
-                <div style={{ color: colors.textMuted, fontSize: '0.78rem' }}>
-                  Income minus expenses
-                </div>
+                <div style={{ color: colors.textMuted, fontSize: '0.78rem' }}>Income minus expenses</div>
               </div>
             </div>
-
-            {forecast.runwayDays !== null && forecast.runwayDays <= 30 && (
-              <div style={{
-                marginTop: '1rem',
-                padding: '0.85rem 1rem',
-                background: `${colors.danger}10`,
-                border: `1px solid ${colors.danger}25`,
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-              }}>
-                <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>🚨</span>
-                <p style={{
-                  color: colors.danger,
-                  fontSize: '0.85rem',
-                  lineHeight: 1.5,
-                }}>
-                  <strong>Urgent:</strong> Based on your constraints and expected
-                  payments, you will reach your minimum buffer in {forecast.runwayDays} days.
-                  Send invoice reminders now or review upcoming expenses.
-                </p>
-              </div>
-            )}
           </div>
 
-          {/* Key Numbers */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-            gap: '1rem',
-            marginBottom: '1.25rem',
-          }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
             {[
-              {
-                label: 'Expected (30 days)',
-                value: formatNaira(forecast.expectedIn30),
-                color: colors.green,
-                icon: '📥',
-              },
-              {
-                label: 'Unpaid Invoices',
-                value: formatNaira(forecast.unpaidTotal),
-                color: colors.warning,
-                icon: '⏳',
-              },
-              {
-                label: 'Unpaid Count',
-                value: `${forecast.unpaidCount} invoice${forecast.unpaidCount !== 1 ? 's' : ''}`,
-                color: colors.textPrimary,
-                icon: '📋',
-              },
+              { label: 'Expected (30 days)', value: formatNaira(forecast.expectedIn30), color: colors.green, icon: '📥' },
+              { label: 'Unpaid Invoices', value: formatNaira(forecast.unpaidTotal), color: colors.warning, icon: '⏳' },
+              { label: 'Unpaid Count', value: `${forecast.unpaidCount} invoice${forecast.unpaidCount !== 1 ? 's' : ''}`, color: colors.textPrimary, icon: '📋' },
             ].map((item, i) => (
-              <div key={i} style={{
-                ...card,
-                marginBottom: 0,
-                padding: '1.1rem',
-              }}>
-                <div style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>
-                  {item.icon}
-                </div>
-                <div style={{
-                  color: colors.textLabel,
-                  fontSize: '0.72rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.5px',
-                  textTransform: 'uppercase',
-                  marginBottom: '0.35rem',
-                }}>
+              <div key={i} style={{ ...card, marginBottom: 0, padding: '1.1rem' }}>
+                <div style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>{item.icon}</div>
+                <div style={{ color: colors.textLabel, fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
                   {item.label}
                 </div>
-                <div style={{
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 800,
-                  fontSize: '1.1rem',
-                  color: item.color,
-                }}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '1.1rem', color: item.color }}>
                   {item.value}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Timeline */}
           <div style={card}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.25rem',
-              flexWrap: 'wrap',
-              gap: '0.5rem',
-            }}>
-              <h3 style={{
-                fontFamily: 'Syne, sans-serif',
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                color: colors.textPrimary,
-              }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: colors.textPrimary }}>
                 90-Day Cash Flow Timeline
               </h3>
               <button
                 onClick={() => setShowSetup(true)}
-                style={{
-                  padding: '0.4rem 0.85rem',
-                  background: 'transparent',
-                  border: `1px solid ${colors.border}`,
-                  color: colors.textMuted,
-                  borderRadius: '8px',
-                  fontSize: '0.78rem',
-                  cursor: 'pointer',
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 600,
-                }}
+                style={{ padding: '0.4rem 0.85rem', background: 'transparent', border: `1px solid ${colors.border}`, color: colors.textMuted, borderRadius: '8px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 600 }}
               >
                 ⚙️ Edit Constraints
               </button>
             </div>
 
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-            }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {forecast.days.slice(0, 12).map((day, i) => {
                 const isToday = day.day === 0
                 const hasInflow = day.inflow > 0
-
                 return (
                   <div key={i} style={{
                     display: 'flex',
@@ -761,109 +582,35 @@ function CashFlow() {
                     gap: '1rem',
                     padding: '0.75rem 1rem',
                     borderRadius: '10px',
-                    background: day.isCritical
-                      ? isDark ? 'rgba(255,80,80,0.06)' : 'rgba(204,34,0,0.04)'
-                      : day.isWarning
-                      ? isDark ? 'rgba(245,166,35,0.06)' : 'rgba(184,122,0,0.04)'
-                      : isToday
-                      ? isDark ? 'rgba(0,197,102,0.06)' : 'rgba(0,120,60,0.04)'
-                      : 'transparent',
-                    border: `1px solid ${day.isCritical
-                      ? colors.danger + '30'
-                      : day.isWarning
-                      ? colors.warning + '30'
-                      : isToday
-                      ? colors.borderGreen
-                      : colors.border}`,
+                    background: day.isCritical ? (isDark ? 'rgba(255,80,80,0.06)' : 'rgba(204,34,0,0.04)') : day.isWarning ? (isDark ? 'rgba(245,166,35,0.06)' : 'rgba(184,122,0,0.04)') : isToday ? (isDark ? 'rgba(0,197,102,0.06)' : 'rgba(0,120,60,0.04)') : 'transparent',
+                    border: `1px solid ${day.isCritical ? colors.danger + '30' : day.isWarning ? colors.warning + '30' : isToday ? colors.borderGreen : colors.border}`,
                     flexWrap: 'wrap',
                   }}>
-                    {/* Day label */}
-                    <div style={{
-                      width: '60px',
-                      flexShrink: 0,
-                    }}>
-                      <div style={{
-                        fontFamily: 'Syne, sans-serif',
-                        fontWeight: 700,
-                        fontSize: '0.78rem',
-                        color: isToday ? colors.green : colors.textMuted,
-                      }}>
+                    <div style={{ width: '60px', flexShrink: 0 }}>
+                      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem', color: isToday ? colors.green : colors.textMuted }}>
                         {isToday ? 'TODAY' : `Day ${day.day}`}
                       </div>
-                      <div style={{
-                        color: colors.textMuted,
-                        fontSize: '0.68rem',
-                      }}>
-                        {new Date(day.date).toLocaleDateString('en-NG', {
-                          month: 'short', day: 'numeric'
-                        })}
+                      <div style={{ color: colors.textMuted, fontSize: '0.68rem' }}>
+                        {new Date(day.date).toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })}
                       </div>
                     </div>
-
-                    {/* Balance */}
                     <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontFamily: 'Syne, sans-serif',
-                        fontWeight: 800,
-                        fontSize: '0.95rem',
-                        color: day.isCritical
-                          ? colors.danger
-                          : day.balance >= 0
-                          ? colors.textPrimary
-                          : colors.danger,
-                        marginBottom: '0.15rem',
-                      }}>
+                      <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '0.95rem', color: day.isCritical ? colors.danger : day.balance >= 0 ? colors.textPrimary : colors.danger, marginBottom: '0.15rem' }}>
                         {formatNaira(day.balance)}
                       </div>
                       {hasInflow && (
-                        <div style={{
-                          color: colors.green,
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                        }}>
-                          + {formatNaira(day.inflow)} expected
-                          {day.inflows.map(inf => ` (${inf.label})`).join('')}
-                        </div>
-                      )}
-                      {day.isCritical && (
-                        <div style={{
-                          color: colors.danger,
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                        }}>
-                          ⚠️ Below minimum buffer
+                        <div style={{ color: colors.green, fontSize: '0.75rem', fontWeight: 600 }}>
+                          + {formatNaira(day.inflow)} expected {day.inflows.map(inf => ` (${inf.label})`).join('')}
                         </div>
                       )}
                     </div>
-
-                    {/* Status dot */}
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: day.isCritical
-                        ? colors.danger
-                        : day.isWarning
-                        ? colors.warning
-                        : colors.green,
-                      flexShrink: 0,
-                    }} />
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: day.isCritical ? colors.danger : day.isWarning ? colors.warning : colors.green }} />
                   </div>
                 )
               })}
             </div>
           </div>
         </>
-      )}
-
-      {loading && (
-        <div style={{
-          textAlign: 'center',
-          color: colors.textMuted,
-          padding: '3rem',
-        }}>
-          Calculating your cash flow...
-        </div>
       )}
     </AppLayout>
   )

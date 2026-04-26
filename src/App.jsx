@@ -23,6 +23,7 @@ import InvoicePayment from './pages/InvoicePayment'
 import { ThemeProvider } from './context/ThemeContext'
 import Budget from './pages/app/Budget'
 import CashFlow from './pages/app/CashFlow'
+import Collections from './pages/app/Collections'
 
 function App() {
   return (
@@ -45,6 +46,9 @@ function App() {
 } />
           <Route path="/profile" element={
   <ProtectedRoute><Profile /></ProtectedRoute>
+} />
+<Route path="/collections" element={
+  <ProtectedRoute><Collections /></ProtectedRoute>
 } />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={

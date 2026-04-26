@@ -13,6 +13,7 @@ function Clients() {
   const [editingClient, setEditingClient] = useState(null)
   const [saving, setSaving] = useState(false)
   const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [form, setForm] = useState({
     name: '',
     company: '',
@@ -28,31 +29,42 @@ function Clients() {
   }, [user])
 
   const loadClients = async () => {
-    const { data } = await supabase
+    setLoading(true)
+    const { data, error } = await supabase
       .from('clients')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-    setClients(data || [])
+    if (!error) setClients(data || [])
     setLoading(false)
+  }
+
+  const resetForm = () => {
+    setForm({
+      name: '',
+      company: '',
+      email: '',
+      phone: '',
+      address: '',
+      bio: '',
+      logo_url: '',
+    })
+    setSaveError('')
   }
 
   const openAddForm = () => {
     setEditingClient(null)
-    setForm({
-      name: '', company: '', email: '',
-      phone: '', address: '', bio: '', logo_url: '',
-    })
+    resetForm()
     setShowForm(true)
     setTimeout(() => {
-      document.getElementById('client-form')?.scrollIntoView({
-        behavior: 'smooth', block: 'start',
-      })
+      document.getElementById('client-form-top')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 100)
   }
 
   const openEditForm = (client) => {
     setEditingClient(client)
+    setSaveError('')
     setForm({
       name: client.name || '',
       company: client.company || '',
@@ -64,37 +76,53 @@ function Clients() {
     })
     setShowForm(true)
     setTimeout(() => {
-      document.getElementById('client-form')?.scrollIntoView({
-        behavior: 'smooth', block: 'start',
-      })
+      document.getElementById('client-form-top')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }, 100)
   }
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files[0]
     if (!file) return
+
     if (file.size > 2 * 1024 * 1024) {
-      alert('Logo must be under 2MB')
+      setSaveError('Logo must be under 2MB')
       return
     }
 
     setUploadingLogo(true)
-    const ext = file.name.split('.').pop()
+    setSaveError('')
+
+    const ext = file.name.split('.').pop().toLowerCase()
+    const allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
+    if (!allowed.includes(ext)) {
+      setSaveError('Only image files are allowed (JPG, PNG, SVG, GIF, WEBP)')
+      setUploadingLogo(false)
+      return
+    }
+
     const fileName = `client-logos/${user.id}-${Date.now()}.${ext}`
 
-    const { data, error } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('logos')
       .upload(fileName, file, { upsert: true })
 
-    if (!error) {
-      const { data: urlData } = supabase.storage
-        .from('logos')
-        .getPublicUrl(fileName)
-      setForm({ ...form, logo_url: urlData.publicUrl })
-    } else {
-      console.error('Upload error:', error)
-      alert('Upload failed. Make sure you created a "logos" storage bucket in Supabase.')
+    if (uploadError) {
+      console.error('Upload error:', uploadError)
+      setSaveError(
+        uploadError.message.includes('Bucket not found')
+          ? 'Storage bucket "logos" not found. Please create it in Supabase Storage.'
+          : `Upload failed: ${uploadError.message}`
+      )
+      setUploadingLogo(false)
+      return
     }
+
+    const { data: urlData } = supabase.storage
+      .from('logos')
+      .getPublicUrl(fileName)
+
+    setForm(prev => ({ ...prev, logo_url: urlData.publicUrl }))
     setUploadingLogo(false)
   }
 
@@ -106,28 +134,104 @@ function Clients() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSaveError('')
+
+    if (!form.name.trim()) {
+      setSaveError('Client name is required')
+      return
+    }
+
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setSaveError('Please enter a valid email address')
+      return
+    }
+
+    if (form.phone && !validatePhone(form.phone)) {
+      setSaveError('Please enter a valid Nigerian phone number (e.g. 08012345678)')
+      return
+    }
+
     setSaving(true)
 
+    // Only include columns that exist — logo_url and others may need migration
+    const payload = {
+      name: form.name.trim(),
+      email: form.email.trim() || null,
+      phone: form.phone.trim() || null,
+      address: form.address.trim() || null,
+    }
+
+    // Try to add optional columns — they may not exist yet
+    try {
+      payload.company = form.company.trim() || null
+    } catch {}
+    try {
+      payload.bio = form.bio.trim() || null
+    } catch {}
+    try {
+      if (form.logo_url) payload.logo_url = form.logo_url
+    } catch {}
+
+    let error
+
     if (editingClient) {
-      await supabase
+      const result = await supabase
         .from('clients')
-        .update(form)
+        .update(payload)
         .eq('id', editingClient.id)
         .eq('user_id', user.id)
+      error = result.error
     } else {
-      await supabase
+      const result = await supabase
         .from('clients')
-        .insert({ ...form, user_id: user.id })
+        .insert({ ...payload, user_id: user.id })
+      error = result.error
+    }
+
+    if (error) {
+      console.error('Save error:', error)
+      // If column doesn't exist, try without optional columns
+      if (error.code === '42703') {
+        const basicPayload = {
+          name: form.name.trim(),
+          email: form.email.trim() || null,
+          phone: form.phone.trim() || null,
+          address: form.address.trim() || null,
+          user_id: editingClient ? undefined : user.id,
+        }
+        if (editingClient) {
+          delete basicPayload.user_id
+          await supabase
+            .from('clients')
+            .update(basicPayload)
+            .eq('id', editingClient.id)
+            .eq('user_id', user.id)
+        } else {
+          await supabase
+            .from('clients')
+            .insert(basicPayload)
+        }
+        setShowForm(false)
+        setEditingClient(null)
+        resetForm()
+        loadClients()
+        setSaving(false)
+        return
+      }
+      setSaveError(`Failed to save: ${error.message}`)
+      setSaving(false)
+      return
     }
 
     setShowForm(false)
     setEditingClient(null)
+    resetForm()
     loadClients()
     setSaving(false)
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this client?')) return
+    if (!window.confirm('Delete this client? This cannot be undone.')) return
     await supabase.from('clients').delete().eq('id', id)
     loadClients()
   }
@@ -135,7 +239,7 @@ function Clients() {
   const copyPortalLink = (clientId) => {
     const link = `${window.location.origin}/portal/${clientId}`
     navigator.clipboard.writeText(link).then(() => {
-      alert(`Portal link copied!\n\n${link}`)
+      alert(`Portal link copied!\n\n${link}\n\nShare with your client so they can view all their invoices online.`)
     }).catch(() => {
       prompt('Copy this link:', link)
     })
@@ -152,10 +256,11 @@ function Clients() {
     fontFamily: 'DM Sans, sans-serif',
     outline: 'none',
     marginBottom: '0.75rem',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.2s, background 0.3s',
+    boxSizing: 'border-box',
   }
 
-  const label = {
+  const lbl = {
     color: colors.textLabel,
     fontSize: '0.78rem',
     fontWeight: 600,
@@ -201,7 +306,10 @@ function Clients() {
             fontSize: '0.9rem',
             border: 'none',
             cursor: 'pointer',
+            transition: 'opacity 0.2s',
           }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
           + Add Client
         </button>
@@ -210,11 +318,11 @@ function Clients() {
       {/* Form */}
       {showForm && (
         <div
-          id="client-form"
+          id="client-form-top"
           style={{
             background: colors.bgCard,
             border: `1px solid ${editingClient
-              ? colors.purple + '50'
+              ? `${colors.purple}50`
               : colors.borderGreen}`,
             borderRadius: '16px',
             padding: '1.5rem',
@@ -228,100 +336,121 @@ function Clients() {
             color: colors.textPrimary,
             marginBottom: '1.5rem',
             fontSize: '1.05rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
           }}>
-            {editingClient ? '✏️ Edit Client' : '+ New Client'}
+            {editingClient ? `✏️ Edit — ${editingClient.name}` : '+ New Client'}
           </h3>
+
+          {/* Error */}
+          {saveError && (
+            <div style={{
+              background: isDark ? 'rgba(255,80,80,0.08)' : 'rgba(204,34,0,0.06)',
+              border: `1px solid ${colors.danger}40`,
+              borderRadius: '8px',
+              padding: '0.75rem 1rem',
+              color: colors.danger,
+              fontSize: '0.85rem',
+              marginBottom: '1rem',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.5rem',
+            }}>
+              ⚠️ {saveError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
 
             {/* Logo Upload */}
             <div style={{ marginBottom: '1.25rem' }}>
-              <label style={label}>
-                CLIENT / COMPANY LOGO
-              </label>
+              <label style={lbl}>CLIENT / COMPANY LOGO</label>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1rem',
                 flexWrap: 'wrap',
+                padding: '1rem',
+                background: colors.bgCard2,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '12px',
               }}>
-                {form.logo_url ? (
-                  <img
-                    src={form.logo_url}
-                    alt="Client logo"
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      borderRadius: '12px',
-                      objectFit: 'cover',
-                      border: `1px solid ${colors.border}`,
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    width: '60px',
-                    height: '60px',
-                    borderRadius: '12px',
-                    background: colors.bgInput,
-                    border: `2px dashed ${colors.border}`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: colors.textMuted,
-                    fontSize: '1.5rem',
-                  }}>
-                    🏢
-                  </div>
-                )}
+                {/* Preview */}
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  background: colors.bgInput,
+                  border: `2px dashed ${form.logo_url
+                    ? colors.borderGreen
+                    : colors.border}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '1.5rem',
+                }}>
+                  {form.logo_url ? (
+                    <img
+                      src={form.logo_url}
+                      alt="Logo"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : '🏢'}
+                </div>
+
                 <div>
                   <label
-                    htmlFor="logo-upload"
+                    htmlFor={`logo-upload-${editingClient?.id || 'new'}`}
                     style={{
+                      display: 'inline-block',
                       padding: '0.5rem 1rem',
-                      borderRadius: '8px',
-                      background: colors.bgCard2,
+                      background: uploadingLogo ? colors.bgInput : colors.bgCard,
                       border: `1px solid ${colors.border}`,
+                      borderRadius: '8px',
                       color: colors.textSecondary,
                       fontFamily: 'Syne, sans-serif',
                       fontWeight: 600,
                       fontSize: '0.82rem',
-                      cursor: 'pointer',
-                      display: 'inline-block',
-                      transition: 'all 0.2s',
+                      cursor: uploadingLogo ? 'not-allowed' : 'pointer',
+                      marginBottom: '0.35rem',
                     }}
                   >
                     {uploadingLogo
-                      ? 'Uploading...'
+                      ? '⏳ Uploading...'
                       : form.logo_url
-                      ? 'Change Logo'
-                      : 'Upload Logo'}
+                      ? '🔄 Change Logo'
+                      : '📤 Upload Logo'}
                   </label>
                   <input
-                    id="logo-upload"
+                    id={`logo-upload-${editingClient?.id || 'new'}`}
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,image/svg+xml"
                     onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
                     style={{ display: 'none' }}
                   />
                   <div style={{
                     color: colors.textMuted,
-                    fontSize: '0.72rem',
-                    marginTop: '0.3rem',
+                    fontSize: '0.7rem',
+                    lineHeight: 1.5,
+                    marginTop: '0.1rem',
                   }}>
-                    PNG, JPG up to 2MB. Appears on invoices.
+                    PNG, JPG or SVG · Max 2MB<br />
+                    Appears on invoices and PDF exports
                   </div>
                   {form.logo_url && (
                     <button
                       type="button"
-                      onClick={() => setForm({ ...form, logo_url: '' })}
+                      onClick={() => setForm(prev => ({ ...prev, logo_url: '' }))}
                       style={{
                         background: 'transparent',
                         border: 'none',
                         color: colors.danger,
-                        fontSize: '0.75rem',
+                        fontSize: '0.72rem',
                         cursor: 'pointer',
                         padding: 0,
                         marginTop: '0.3rem',
@@ -329,25 +458,25 @@ function Clients() {
                         fontFamily: 'DM Sans, sans-serif',
                       }}
                     >
-                      Remove logo
+                      ✕ Remove logo
                     </button>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Fields Grid */}
+            {/* Fields */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: '0.5rem',
             }}>
               <div>
-                <label style={label}>CONTACT NAME *</label>
+                <label style={lbl}>CONTACT NAME *</label>
                 <input
                   placeholder="e.g. Tola Adeyemi"
                   value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
                   required
                   maxLength={80}
                   style={inp}
@@ -355,70 +484,72 @@ function Clients() {
               </div>
 
               <div>
-                <label style={label}>COMPANY NAME</label>
+                <label style={lbl}>COMPANY NAME</label>
                 <input
                   placeholder="e.g. Tola Designs Ltd"
                   value={form.company}
-                  onChange={e => setForm({ ...form, company: e.target.value })}
+                  onChange={e => setForm(prev => ({ ...prev, company: e.target.value }))}
                   maxLength={100}
                   style={inp}
                 />
               </div>
 
               <div>
-                <label style={label}>EMAIL ADDRESS</label>
+                <label style={lbl}>EMAIL ADDRESS</label>
                 <input
                   type="email"
                   placeholder="tola@company.com"
                   value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  onChange={e => setForm(prev => ({ ...prev, email: e.target.value }))}
+                  maxLength={150}
                   style={{
                     ...inp,
                     borderColor: form.email &&
                       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)
-                      ? '#cc3300'
+                      ? colors.danger
                       : colors.border,
                   }}
                 />
               </div>
 
               <div>
-                <label style={label}>PHONE NUMBER</label>
+                <label style={lbl}>PHONE NUMBER</label>
                 <input
                   type="tel"
                   placeholder="08012345678"
                   value={form.phone}
                   onChange={e => {
-                    const cleaned = e.target.value.replace(/[^0-9+\-\(\)\s]/g, '')
-                    if (cleaned.replace(/\D/g, '').length <= 13) {
-                      setForm({ ...form, phone: cleaned })
+                    const val = e.target.value.replace(/[^0-9+\-\(\)\s]/g, '')
+                    if (val.replace(/\D/g, '').length <= 13) {
+                      setForm(prev => ({ ...prev, phone: val }))
                     }
                   }}
+                  maxLength={15}
                   style={{
                     ...inp,
                     borderColor: form.phone && !validatePhone(form.phone)
-                      ? '#cc3300'
+                      ? colors.danger
                       : colors.border,
                   }}
                 />
                 {form.phone && !validatePhone(form.phone) && (
                   <div style={{
                     color: colors.danger,
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     marginTop: '-0.5rem',
                     marginBottom: '0.5rem',
                   }}>
-                    Enter a valid Nigerian number
+                    Enter a valid Nigerian number (e.g. 08012345678)
                   </div>
                 )}
               </div>
 
               <div>
-                <label style={label}>ADDRESS / LOCATION</label>
+                <label style={lbl}>ADDRESS / LOCATION</label>
                 <input
                   placeholder="e.g. Ikeja, Lagos"
                   value={form.address}
-                  onChange={e => setForm({ ...form, address: e.target.value })}
+                  onChange={e => setForm(prev => ({ ...prev, address: e.target.value }))}
                   maxLength={150}
                   style={inp}
                 />
@@ -426,29 +557,31 @@ function Clients() {
             </div>
 
             {/* Bio */}
-            <div style={{ marginTop: '0.25rem' }}>
-              <label style={label}>
-                CLIENT BIO / NOTES
+            <div>
+              <label style={lbl}>
+                NOTES / BIO{' '}
+                <span style={{ color: colors.textMuted, fontWeight: 400 }}>
+                  (optional)
+                </span>
               </label>
               <textarea
-                placeholder="e.g. Fashion designer based in Lagos. Prefers invoice due within 7 days. Met at Lagos Fashion Week 2024."
+                placeholder="e.g. Fashion designer. Prefers invoice within 7 days. Met at Lagos Fashion Week 2024."
                 value={form.bio}
-                onChange={e => setForm({ ...form, bio: e.target.value })}
+                onChange={e => setForm(prev => ({ ...prev, bio: e.target.value }))}
                 rows={3}
                 maxLength={500}
                 style={{
                   ...inp,
                   resize: 'vertical',
                   lineHeight: 1.6,
-                  marginBottom: '1.5rem',
+                  marginBottom: '0.25rem',
                 }}
               />
               <div style={{
                 color: colors.textMuted,
-                fontSize: '0.72rem',
-                marginTop: '-1.2rem',
-                marginBottom: '1rem',
+                fontSize: '0.7rem',
                 textAlign: 'right',
+                marginBottom: '1.25rem',
               }}>
                 {form.bio.length}/500
               </div>
@@ -460,7 +593,7 @@ function Clients() {
                 type="submit"
                 disabled={saving || uploadingLogo}
                 style={{
-                  padding: '0.7rem 1.8rem',
+                  padding: '0.75rem 1.8rem',
                   background: saving
                     ? colors.greenDark
                     : editingClient
@@ -472,20 +605,30 @@ function Clients() {
                   fontWeight: 700,
                   fontSize: '0.9rem',
                   border: 'none',
-                  cursor: saving ? 'not-allowed' : 'pointer',
+                  cursor: saving || uploadingLogo ? 'not-allowed' : 'pointer',
+                  opacity: saving || uploadingLogo ? 0.7 : 1,
+                  transition: 'all 0.2s',
+                  minWidth: '130px',
                 }}
               >
                 {saving
                   ? 'Saving...'
+                  : uploadingLogo
+                  ? 'Uploading...'
                   : editingClient
                   ? '✓ Save Changes'
                   : 'Add Client'}
               </button>
+
               <button
                 type="button"
-                onClick={() => { setShowForm(false); setEditingClient(null) }}
+                onClick={() => {
+                  setShowForm(false)
+                  setEditingClient(null)
+                  resetForm()
+                }}
                 style={{
-                  padding: '0.7rem 1.5rem',
+                  padding: '0.75rem 1.5rem',
                   background: 'transparent',
                   color: colors.textMuted,
                   borderRadius: '8px',
@@ -493,6 +636,7 @@ function Clients() {
                   cursor: 'pointer',
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 600,
+                  fontSize: '0.9rem',
                 }}
               >
                 Cancel
@@ -502,9 +646,14 @@ function Clients() {
         </div>
       )}
 
-      {/* Clients List */}
+      {/* List */}
       {loading ? (
-        <div style={{ color: colors.textMuted, textAlign: 'center', marginTop: '3rem' }}>
+        <div style={{
+          color: colors.textMuted,
+          textAlign: 'center',
+          marginTop: '3rem',
+          fontFamily: 'DM Sans, sans-serif',
+        }}>
           Loading clients...
         </div>
       ) : clients.length === 0 ? (
@@ -514,13 +663,17 @@ function Clients() {
           borderRadius: '16px',
           padding: '3rem',
           textAlign: 'center',
-          color: colors.textMuted,
+          boxShadow: isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
         }}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>👥</div>
-          <p style={{ fontWeight: 500, marginBottom: '0.5rem', color: colors.textPrimary }}>
+          <p style={{
+            color: colors.textPrimary,
+            fontWeight: 500,
+            marginBottom: '0.4rem',
+          }}>
             No clients yet
           </p>
-          <p style={{ fontSize: '0.85rem' }}>
+          <p style={{ color: colors.textMuted, fontSize: '0.85rem' }}>
             Add your first client to start sending invoices
           </p>
         </div>
@@ -533,18 +686,20 @@ function Clients() {
           boxShadow: isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
         }}>
           {clients.map((client, i) => (
-            <div key={client.id} style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '1rem 1.5rem',
-              borderBottom: i < clients.length - 1
-                ? `1px solid ${colors.border}`
-                : 'none',
-              flexWrap: 'wrap',
-              gap: '0.75rem',
-              transition: 'background 0.2s',
-            }}
+            <div
+              key={client.id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '1rem 1.5rem',
+                borderBottom: i < clients.length - 1
+                  ? `1px solid ${colors.border}`
+                  : 'none',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
+                transition: 'background 0.2s',
+              }}
               onMouseEnter={e => {
                 e.currentTarget.style.background = isDark
                   ? 'rgba(255,255,255,0.02)'
@@ -554,7 +709,7 @@ function Clients() {
                 e.currentTarget.style.background = 'transparent'
               }}
             >
-              {/* Logo + Info */}
+              {/* Avatar + Info */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -562,7 +717,6 @@ function Clients() {
                 flex: 1,
                 minWidth: '200px',
               }}>
-                {/* Avatar/Logo */}
                 {client.logo_url ? (
                   <img
                     src={client.logo_url}
@@ -598,21 +752,24 @@ function Clients() {
                   </div>
                 )}
 
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{
                     color: colors.textPrimary,
                     fontWeight: 700,
                     fontSize: '0.92rem',
                     fontFamily: 'Syne, sans-serif',
                     marginBottom: '0.15rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    flexWrap: 'wrap',
                   }}>
                     {client.name}
                     {client.company && (
                       <span style={{
                         color: colors.textMuted,
                         fontWeight: 400,
-                        fontSize: '0.82rem',
-                        marginLeft: '0.5rem',
+                        fontSize: '0.8rem',
                       }}>
                         · {client.company}
                       </span>
@@ -626,9 +783,18 @@ function Clients() {
                     flexWrap: 'wrap',
                     alignItems: 'center',
                   }}>
-                    {client.email && <span>{client.email}</span>}
+                    {client.email ? (
+                      <span style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '180px',
+                      }}>
+                        {client.email}
+                      </span>
+                    ) : null}
                     {client.email && client.phone && <span>·</span>}
-                    {client.phone && <span>{client.phone}</span>}
+                    {client.phone ? <span>{client.phone}</span> : null}
                     {!client.email && !client.phone && (
                       <span style={{
                         color: colors.textMuted,
@@ -641,13 +807,13 @@ function Clients() {
                   {client.bio && (
                     <div style={{
                       color: colors.textMuted,
-                      fontSize: '0.75rem',
-                      marginTop: '0.2rem',
+                      fontSize: '0.72rem',
+                      marginTop: '0.15rem',
                       fontStyle: 'italic',
-                      maxWidth: '300px',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
+                      maxWidth: '280px',
                     }}>
                       {client.bio}
                     </div>
@@ -659,8 +825,9 @@ function Clients() {
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
+                gap: '0.4rem',
                 flexWrap: 'wrap',
+                flexShrink: 0,
               }}>
                 <button
                   onClick={() => openEditForm(client)}
@@ -679,6 +846,7 @@ function Clients() {
                     borderRadius: '6px',
                     fontFamily: 'Syne, sans-serif',
                     transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   ✏️ Edit
@@ -699,6 +867,7 @@ function Clients() {
                     borderRadius: '6px',
                     fontFamily: 'Syne, sans-serif',
                     transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   🔗 Portal
@@ -716,6 +885,7 @@ function Clients() {
                     borderRadius: '6px',
                     fontFamily: 'DM Sans, sans-serif',
                     transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.color = colors.danger

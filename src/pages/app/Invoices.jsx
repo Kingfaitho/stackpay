@@ -5,6 +5,7 @@ import AppLayout from '../../components/AppLayout'
 import { generateInvoicePDF } from '../../lib/generatePDF'
 import { sendInvoicePaidEmail } from '../../lib/sendEmail'
 import { initializePayment } from '../../lib/paystack'
+import { useTheme } from '../../context/ThemeContext'
 
 function Invoices() {
   const { user } = useAuth()
@@ -15,6 +16,7 @@ function Invoices() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const { colors, isDark } = useTheme()
   const [selected, setSelected] = useState([])
   const [bulkLoading, setBulkLoading] = useState(false)
   const [form, setForm] = useState({

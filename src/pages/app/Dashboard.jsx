@@ -12,44 +12,56 @@ import OnboardingBanner from '../../components/OnboardingBanner'
 import StackPayIntelligence from '../../components/StackPayIntelligence'
 
 function StatCard({ label, value, sub, color }) {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
   return (
     <div style={{
       background: colors.bgCard,
       border: `1px solid ${colors.border}`,
       borderRadius: '16px',
-      padding: '1.5rem',
+      padding: '1.25rem',
       transition: 'background 0.3s',
-      boxShadow: colors.name === 'light' ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
+      boxShadow: isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
+      minWidth: 0,
+      overflow: 'hidden',
     }}>
       <div style={{
         color: colors.textLabel,
-        fontSize: '0.78rem',
+        fontSize: '0.72rem',
         fontWeight: 600,
         letterSpacing: '0.5px',
         textTransform: 'uppercase',
-        marginBottom: '0.75rem',
+        marginBottom: '0.6rem',
       }}>
         {label}
       </div>
       <div style={{
         fontFamily: 'Syne, sans-serif',
         fontWeight: 800,
-        fontSize: 'clamp(1.4rem, 2.5vw, 1.9rem)',
+        fontSize: 'clamp(1.1rem, 2vw, 1.5rem)',
         color: color || colors.textPrimary,
-        letterSpacing: '-0.5px',
-        marginBottom: '0.3rem',
+        letterSpacing: '-0.3px',
+        marginBottom: '0.25rem',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
       }}>
         {value}
       </div>
       {sub && (
-        <div style={{ color: colors.textMuted, fontSize: '0.78rem' }}>
+        <div style={{
+          color: colors.textMuted,
+          fontSize: '0.75rem',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>
           {sub}
         </div>
       )}
     </div>
   )
 }
+
 
 function Dashboard() {
   const { user } = useAuth()
@@ -220,8 +232,8 @@ function Dashboard() {
       {/* Stat Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-        gap: '1rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '0.85rem',
         marginBottom: '2rem',
       }}>
         <StatCard
