@@ -1,132 +1,193 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
+import { useTheme } from '../context/ThemeContext'
 import ThemeToggle from './ThemeToggle'
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const { colors, isDark } = useTheme()
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
     setMenuOpen(false)
   }
 
-  const navItems = ['features', 'how-it-works', 'marketplace', 'pricing']
-
   return (
     <>
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        padding: '0 5%', height: '70px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: 'rgba(8,12,10,0.85)', backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        padding: '0 5%',
+        height: '70px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: colors.bgNav,
+        backdropFilter: 'blur(12px)',
+        borderBottom: `1px solid ${colors.border}`,
+        transition: 'background 0.3s, border-color 0.3s',
       }}>
+
+        {/* Logo */}
         <Link to="/" style={{
-          fontFamily: 'Syne, sans-serif', fontWeight: 800,
-          fontSize: '1.4rem', color: '#F0F5F2', textDecoration: 'none',
+          fontFamily: 'Syne, sans-serif',
+          fontWeight: 800,
+          fontSize: '1.4rem',
+          color: colors.textPrimary,
+          textDecoration: 'none',
+          letterSpacing: '-0.5px',
+          transition: 'color 0.3s',
         }}>
-          Stack<span style={{ color: '#00C566' }}>Pay</span>
+          Stack<span style={{ color: colors.green }}>Pay</span>
         </Link>
 
+        {/* Desktop Nav */}
         <ul className="nav-links" style={{
-          display: 'flex', gap: '2rem', listStyle: 'none', alignItems: 'center',
+          display: 'flex',
+          gap: '1.5rem',
+          listStyle: 'none',
+          alignItems: 'center',
         }}>
-          
-          {navItems.map(id => (
+          {['features', 'how-it-works', 'marketplace', 'pricing'].map(id => (
             <li
               key={id}
               onClick={() => scrollTo(id)}
               style={{
-                color: '#8A9E92',
+                color: colors.textSecondary,
                 fontSize: '0.9rem',
                 fontWeight: 500,
-                cursor:'pointer',
+                cursor: 'pointer',
                 transition: 'color 0.2s',
-                textTransform: 'capitalize'
+                textTransform: 'capitalize',
+                whiteSpace: 'nowrap',
               }}
-              onMouseEnter={e => e.currentTarget.style.color = '#F0F5F2'}
-              onMouseLeave={e => e.currentTarget.style.color = '#8A9E92'}
+              onMouseEnter={e => e.currentTarget.style.color = colors.textPrimary}
+              onMouseLeave={e => e.currentTarget.style.color = colors.textSecondary}
             >
               {id.replace('-', ' ')}
             </li>
           ))}
 
           <li>
-  <ThemeToggle compact={true} />
-</li>
+            <ThemeToggle compact={true} />
+          </li>
 
           <li>
-            <Link to="/login" style={{ color: '#8A9E92', fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' }}>
+            <Link
+              to="/login"
+              style={{
+                color: colors.textSecondary,
+                fontSize: '0.9rem',
+                fontWeight: 500,
+                textDecoration: 'none',
+                transition: 'color 0.2s',
+              }}
+            >
               Login
             </Link>
           </li>
 
           <li>
-            <Link to="/signup" style={{
-              background: '#00C566',
-              color: '#080C0A',
-              padding: '0.5rem 1.2rem',
-              borderRadius: '8px',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              fontFamily: 'Syne, sans-serif',
-              textDecoration: 'none',
-            }}>
+            <Link
+              to="/signup"
+              style={{
+                background: colors.accent,
+                color: colors.accentText,
+                padding: '0.5rem 1.2rem',
+                borderRadius: '8px',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                fontFamily: 'Syne, sans-serif',
+                textDecoration: 'none',
+                transition: 'opacity 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
               Get Started Free
             </Link>
           </li>
         </ul>
 
+        {/* Mobile Hamburger */}
         <button
           className="mobile-toggle"
           onClick={() => setMenuOpen(!menuOpen)}
           style={{
             background: 'transparent',
             border: 'none',
-            color: '#F0F5F2',
+            color: colors.textPrimary,
             cursor: 'pointer',
-            display: 'none'
+            display: 'none',
+            padding: '4px',
           }}
         >
-          {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          {menuOpen
+            ? <X size={24} />
+            : <Menu size={24} />}
         </button>
       </nav>
 
+      {/* Mobile Menu */}
       {menuOpen && (
         <div style={{
           position: 'fixed',
           top: '70px',
           left: 0,
           right: 0,
-          background: '#0F1510',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: colors.bgCard,
+          borderBottom: `1px solid ${colors.border}`,
           padding: '1.5rem 5%',
           zIndex: 99,
           display: 'flex',
           flexDirection: 'column',
-          gap: '1.2rem',
+          gap: '1rem',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
         }}>
-          {navItems.map(id => (
+          {['features', 'how-it-works', 'marketplace', 'pricing'].map(id => (
             <span
               key={id}
               onClick={() => scrollTo(id)}
               style={{
-                color: '#8A9E92',
+                color: colors.textSecondary,
                 fontSize: '1rem',
                 cursor: 'pointer',
-                textTransform: 'capitalize'
+                textTransform: 'capitalize',
+                fontFamily: 'DM Sans, sans-serif',
               }}
             >
               {id.replace('-', ' ')}
             </span>
           ))}
 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}>
+            <span style={{
+              color: colors.textSecondary,
+              fontSize: '0.9rem',
+            }}>
+              {isDark ? 'Switch to Light' : 'Switch to Dark'}
+            </span>
+            <ThemeToggle compact={true} />
+          </div>
+
           <Link
             to="/login"
             onClick={() => setMenuOpen(false)}
-            style={{ color: '#8A9E92', fontSize: '1rem', textDecoration: 'none' }}
+            style={{
+              color: colors.textSecondary,
+              fontSize: '1rem',
+              textDecoration: 'none',
+            }}
           >
             Login
           </Link>
@@ -135,10 +196,11 @@ function Navbar() {
             to="/signup"
             onClick={() => setMenuOpen(false)}
             style={{
-              color: '#00C566',
+              color: colors.green,
               fontSize: '1rem',
               fontWeight: 700,
-              textDecoration: 'none'
+              textDecoration: 'none',
+              fontFamily: 'Syne, sans-serif',
             }}
           >
             Get Started Free →

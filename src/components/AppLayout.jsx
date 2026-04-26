@@ -1,21 +1,22 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { supabase } from '../supabaseClient'
 import ThemeToggle from './ThemeToggle'
 
 const navItems = [
   { path: '/dashboard', icon: '⊞', label: 'Dashboard' },
   { path: '/invoices', icon: '📄', label: 'Invoices' },
   { path: '/clients', icon: '👥', label: 'Clients' },
-  { path: '/expenses', icon: '💸', label: 'Expenses' },
-  { path: '/reports', icon: '📊', label: 'Reports' },
   { path: '/budget', icon: '🎯', label: 'Budget' },
+  { path: '/expenses', icon: '💸', label: 'Expenses' },
   { path: '/recurring', icon: '🔄', label: 'Recurring' },
+  { path: '/cashflow', icon: '💧', label: 'Cash Flow' },
+  { path: '/reports', icon: '📊', label: 'Reports' },
   { path: '/team', icon: '🤝', label: 'Team' },
   { path: '/billing', icon: '💳', label: 'Billing' },
   { path: '/profile', icon: '⚙️', label: 'Settings' },
-  { path: '/cashflow', icon: '💧', label: 'Cash Flow' },
 ]
 
 function AppLayout({ children }) {
@@ -24,6 +25,18 @@ function AppLayout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [profile, setProfile] = useState(null)
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('logo_url, business_name')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => setProfile(data))
+    }
+  }, [user])
 
   const handleSignOut = async () => {
     await signOut()
@@ -61,7 +74,7 @@ function AppLayout({ children }) {
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
         }}>
-          {user?.email}
+          {profile?.business_name || user?.email}
         </div>
       </div>
 
@@ -274,26 +287,57 @@ function AppLayout({ children }) {
           }}>
             <ThemeToggle compact={true} />
 
-            <div style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '50%',
-              background: isDark
-                ? 'rgba(0,197,102,0.15)'
-                : 'rgba(201,168,76,0.15)',
-              border: isDark
-                ? '1px solid rgba(0,197,102,0.3)'
-                : '1px solid rgba(201,168,76,0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: colors.green,
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-            }}>
-              {user?.email?.[0]?.toUpperCase()}
-            </div>
+            {/* Avatar — clickable, goes to profile */}
+            <Link
+              to="/profile"
+              title="Go to Settings"
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                background: isDark
+                  ? 'rgba(0,197,102,0.15)'
+                  : 'rgba(201,168,76,0.15)',
+                border: `1px solid ${isDark
+                  ? 'rgba(0,197,102,0.3)'
+                  : 'rgba(201,168,76,0.4)'}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: colors.green,
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                textDecoration: 'none',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                flexShrink: 0,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'scale(1.08)'
+                e.currentTarget.style.boxShadow = `0 0 0 3px ${colors.green}30`
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'scale(1)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}
+            >
+              {profile?.logo_url ? (
+                <img
+                  src={profile.logo_url}
+                  alt="Business logo"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '50%',
+                  }}
+                />
+              ) : (
+                user?.email?.[0]?.toUpperCase()
+              )}
+            </Link>
           </div>
         </div>
 

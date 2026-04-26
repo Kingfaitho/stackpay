@@ -1,3 +1,4 @@
+import { useTheme } from '../context/ThemeContext'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import StatsBar from '../components/StatsBar'
@@ -10,8 +11,15 @@ import FinalCTA from '../components/FinalCTA'
 import Footer from '../components/Footer'
 
 function LandingPage() {
+  const { colors } = useTheme()
+
   return (
-    <main>
+    <main style={{
+      background: colors.bgPrimary,
+      color: colors.textPrimary,
+      transition: 'background 0.3s, color 0.3s',
+      minHeight: '100vh',
+    }}>
       <Navbar />
       <Hero />
       <StatsBar />

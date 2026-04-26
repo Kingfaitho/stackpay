@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
 
 function Profile() {
   const { user } = useAuth()
+  const { colors, isDark } = useTheme()
   const [form, setForm] = useState({
     business_name: '',
     owner_name: '',
     phone: '',
     address: '',
     currency: 'NGN',
+    logo_url: '',
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
 
   useEffect(() => {
     if (user) loadProfile()
@@ -33,9 +37,37 @@ function Profile() {
         phone: data.phone || '',
         address: data.address || '',
         currency: data.currency || 'NGN',
+        logo_url: data.logo_url || '',
       })
     }
     setLoading(false)
+  }
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Logo must be under 2MB')
+      return
+    }
+    setUploadingLogo(true)
+    const ext = file.name.split('.').pop()
+    const fileName = `business-logos/${user.id}-${Date.now()}.${ext}`
+
+    const { error } = await supabase.storage
+      .from('logos')
+      .upload(fileName, file, { upsert: true })
+
+    if (!error) {
+      const { data: urlData } = supabase.storage
+        .from('logos')
+        .getPublicUrl(fileName)
+      setForm({ ...form, logo_url: urlData.publicUrl })
+    } else {
+      alert('Upload failed. Please check your Supabase storage bucket.')
+      console.error(error)
+    }
+    setUploadingLogo(false)
   }
 
   const handleSave = async (e) => {
@@ -56,9 +88,9 @@ function Profile() {
     width: '100%',
     padding: '0.85rem 1.2rem',
     borderRadius: '10px',
-    border: '1px solid rgba(255,255,255,0.1)',
-    background: '#0F1510',
-    color: '#F0F5F2',
+    border: `1px solid ${colors.border}`,
+    background: colors.bgInput || '#0F1510',
+    color: colors.textPrimary || '#F0F5F2',
     fontSize: '0.95rem',
     fontFamily: 'DM Sans, sans-serif',
     outline: 'none',
@@ -66,7 +98,7 @@ function Profile() {
   }
 
   const labelStyle = {
-    color: '#8A9E92',
+    color: colors.textMuted || '#8A9E92',
     fontSize: '0.78rem',
     fontWeight: 600,
     display: 'block',
@@ -90,13 +122,13 @@ function Profile() {
           fontFamily: 'Syne, sans-serif',
           fontWeight: 800,
           fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
-          color: '#F0F5F2',
+          color: colors.textPrimary,
           marginBottom: '0.3rem',
         }}>
           Business Profile
         </h1>
         <p style={{
-          color: '#8A9E92',
+          color: colors.textSecondary,
           fontSize: '0.9rem',
           marginBottom: '2rem',
         }}>
@@ -104,23 +136,22 @@ function Profile() {
         </p>
 
         {loading ? (
-          <div style={{ color: '#8A9E92' }}>Loading profile...</div>
+          <div style={{ color: colors.textMuted }}>Loading profile...</div>
         ) : (
           <div style={{
-            background: '#141A16',
-            border: '1px solid rgba(255,255,255,0.07)',
+            background: colors.bgCard || '#141A16',
+            border: `1px solid ${colors.border}`,
             borderRadius: '20px',
             padding: '2rem',
           }}>
 
-            {/* Success Banner */}
             {saved && (
               <div style={{
                 background: 'rgba(0,197,102,0.08)',
                 border: '1px solid rgba(0,197,102,0.2)',
                 borderRadius: '10px',
                 padding: '0.85rem 1rem',
-                color: '#00C566',
+                color: colors.green || '#00C566',
                 fontSize: '0.9rem',
                 marginBottom: '1.5rem',
                 fontWeight: 600,
@@ -133,7 +164,6 @@ function Profile() {
             )}
 
             <form onSubmit={handleSave}>
-
               <label style={labelStyle}>BUSINESS NAME</label>
               <input
                 placeholder="e.g. Chidi's Electronics"
@@ -149,6 +179,109 @@ function Profile() {
                 onChange={e => setForm({ ...form, owner_name: e.target.value })}
                 style={inp}
               />
+
+              {/* Business Logo Upload */}
+              <label style={{ ...labelStyle, marginBottom: '0.75rem' }}>
+                BUSINESS LOGO
+              </label>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1.25rem',
+                marginBottom: '1.5rem',
+                padding: '1rem',
+                background: colors.bgSidebar || 'rgba(255,255,255,0.02)',
+                border: `1px solid ${colors.border}`,
+                borderRadius: '12px',
+              }}>
+                {/* Logo preview */}
+                <div style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '14px',
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                  background: colors.bgInput,
+                  border: `2px dashed ${form.logo_url ? colors.green : colors.border}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {form.logo_url ? (
+                    <img
+                      src={form.logo_url}
+                      alt="Business logo"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <span style={{ fontSize: '1.8rem' }}>🏢</span>
+                  )}
+                </div>
+
+                <div style={{ flex: 1 }}>
+                  <label
+                    htmlFor="business-logo-upload"
+                    style={{
+                      display: 'inline-block',
+                      padding: '0.5rem 1rem',
+                      background: colors.bgCard,
+                      border: `1px solid ${colors.border}`,
+                      borderRadius: '8px',
+                      color: colors.textPrimary,
+                      fontFamily: 'Syne, sans-serif',
+                      fontWeight: 600,
+                      fontSize: '0.82rem',
+                      cursor: uploadingLogo ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s',
+                      marginBottom: '0.4rem',
+                    }}
+                  >
+                    {uploadingLogo
+                      ? 'Uploading...'
+                      : form.logo_url
+                        ? '🔄 Change Logo'
+                        : '📤 Upload Logo'}
+                  </label>
+                  <input
+                    id="business-logo-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                    style={{ display: 'none' }}
+                  />
+                  <div style={{
+                    color: colors.textMuted,
+                    fontSize: '0.72rem',
+                    lineHeight: 1.5,
+                  }}>
+                    Appears on invoices and PDF exports.<br />
+                    PNG or JPG, max 2MB.
+                  </div>
+                  {form.logo_url && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, logo_url: '' })}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: colors.danger,
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        padding: 0,
+                        marginTop: '0.3rem',
+                        fontFamily: 'DM Sans, sans-serif',
+                      }}
+                    >
+                      Remove logo
+                    </button>
+                  )}
+                </div>
+              </div>
 
               <label style={labelStyle}>PHONE NUMBER</label>
               <input
@@ -184,11 +317,11 @@ function Profile() {
                       padding: '0.75rem 0.5rem',
                       borderRadius: '10px',
                       border: form.currency === cur.code
-                        ? '1px solid rgba(0,197,102,0.4)'
-                        : '1px solid rgba(255,255,255,0.07)',
+                        ? `1px solid ${colors.green}60`
+                        : `1px solid ${colors.border}`,
                       background: form.currency === cur.code
-                        ? 'rgba(0,197,102,0.06)'
-                        : '#0F1510',
+                        ? `${colors.green}15`
+                        : colors.bgInput,
                       cursor: 'pointer',
                       textAlign: 'center',
                       transition: 'all 0.2s',
@@ -199,25 +332,23 @@ function Profile() {
                       fontWeight: 800,
                       fontSize: '1.1rem',
                       color: form.currency === cur.code
-                        ? '#00C566'
-                        : '#8A9E92',
+                        ? colors.green
+                        : colors.textMuted,
                       marginBottom: '0.2rem',
-                      transition: 'color 0.2s',
                     }}>
                       {cur.symbol}
                     </div>
                     <div style={{
                       color: form.currency === cur.code
-                        ? '#00C566'
-                        : '#4A6055',
+                        ? colors.green
+                        : colors.textSecondary,
                       fontSize: '0.72rem',
                       fontWeight: 600,
-                      transition: 'color 0.2s',
                     }}>
                       {cur.code}
                     </div>
                     <div style={{
-                      color: '#4A6055',
+                      color: colors.textMuted,
                       fontSize: '0.65rem',
                       marginTop: '0.1rem',
                     }}>
@@ -229,14 +360,14 @@ function Profile() {
 
               {/* Account Info — Read Only */}
               <div style={{
-                background: '#0F1510',
+                background: colors.bgSidebar,
                 borderRadius: '10px',
                 padding: '1rem 1.2rem',
                 marginBottom: '1.8rem',
-                border: '1px solid rgba(255,255,255,0.05)',
+                border: `1px solid ${colors.border}`,
               }}>
                 <div style={{
-                  color: '#4A6055',
+                  color: colors.textMuted,
                   fontSize: '0.78rem',
                   fontWeight: 600,
                   marginBottom: '0.4rem',
@@ -245,7 +376,7 @@ function Profile() {
                   EMAIL ADDRESS (CANNOT BE CHANGED)
                 </div>
                 <div style={{
-                  color: '#F0F5F2',
+                  color: colors.textPrimary,
                   fontSize: '0.95rem',
                 }}>
                   {user?.email}
@@ -259,7 +390,7 @@ function Profile() {
                   width: '100%',
                   padding: '0.9rem',
                   borderRadius: '10px',
-                  background: saving ? '#005a30' : '#00C566',
+                  background: saving ? colors.green + '80' : colors.green,
                   color: '#080C0A',
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 700,
@@ -269,10 +400,10 @@ function Profile() {
                   transition: 'background 0.2s',
                 }}
                 onMouseEnter={e => {
-                  if (!saving) e.currentTarget.style.background = '#00A855'
+                  if (!saving) e.currentTarget.style.filter = 'brightness(0.9)'
                 }}
                 onMouseLeave={e => {
-                  if (!saving) e.currentTarget.style.background = '#00C566'
+                  if (!saving) e.currentTarget.style.filter = 'none'
                 }}
               >
                 {saving ? 'Saving...' : 'Save Profile'}
