@@ -9,6 +9,7 @@ import { initializePayment } from '../../lib/paystack'
 function Invoices() {
   const { user } = useAuth()
   const [invoices, setInvoices] = useState([])
+  const [invoiceStyle, setInvoiceStyle] = useState('modern')
   const [clients, setClients] = useState([])
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -722,6 +723,55 @@ function Invoices() {
         </div>
       )}
 
+      {/* Invoice Style Picker */}
+<div style={{
+  display: 'flex',
+  alignItems: 'center',
+  gap: '0.75rem',
+  marginBottom: '1rem',
+  flexWrap: 'wrap',
+}}>
+  <span style={{
+    color: colors.textMuted,
+    fontSize: '0.78rem',
+    fontWeight: 600,
+    letterSpacing: '0.3px',
+  }}>
+    PDF STYLE:
+  </span>
+  {[
+    { id: 'modern', label: '🟢 Modern', desc: 'Green & White' },
+    { id: 'dark', label: '⚫️ Dark', desc: 'Professional Dark' },
+    { id: 'minimal', label: '✨ Minimal', desc: 'Gold & Clean' },
+  ].map(s => (
+    <button
+      key={s.id}
+      onClick={() => setInvoiceStyle(s.id)}
+      style={{
+        padding: '0.4rem 0.9rem',
+        borderRadius: '8px',
+        border: `1px solid ${invoiceStyle === s.id
+          ? colors.borderGreen
+          : colors.border}`,
+        background: invoiceStyle === s.id
+          ? colors.sidebarActive
+          : colors.bgCard,
+        color: invoiceStyle === s.id
+          ? colors.green
+          : colors.textMuted,
+        fontFamily: 'Syne, sans-serif',
+        fontWeight: invoiceStyle === s.id ? 700 : 500,
+        fontSize: '0.78rem',
+        cursor: 'pointer',
+        transition: 'all 0.2s',
+      }}
+    >
+      {s.label}
+    </button>
+  ))}
+</div>
+
+
       {/* Invoices List */}
       {loading ? (
         <div style={{
@@ -911,7 +961,9 @@ function Invoices() {
                     inv,
                     inv.clients?.name || 'Client',
                     profile?.business_name || 'My Business',
-                    profile?.owner_name || ''
+                    profile?.owner_name || '',
+                    invoiceStyle,
+                    profile?.logo_url || null
                   )}
                   style={{
                     padding: '0.3rem 0.75rem',

@@ -22,6 +22,7 @@ import InstallPrompt from './components/InstallPrompt'
 import InvoicePayment from './pages/InvoicePayment'
 import { ThemeProvider } from './context/ThemeContext'
 import Budget from './pages/app/Budget'
+import CashFlow from './pages/app/CashFlow'
 
 function App() {
   return (
@@ -38,6 +39,9 @@ function App() {
 } />
 <Route path="/billing" element={
   <ProtectedRoute><Billing /></ProtectedRoute>
+} />
+<Route path="/cashflow" element={
+  <ProtectedRoute><CashFlow /></ProtectedRoute>
 } />
           <Route path="/profile" element={
   <ProtectedRoute><Profile /></ProtectedRoute>

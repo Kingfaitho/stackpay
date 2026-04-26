@@ -15,6 +15,7 @@ const navItems = [
   { path: '/team', icon: '🤝', label: 'Team' },
   { path: '/billing', icon: '💳', label: 'Billing' },
   { path: '/profile', icon: '⚙️', label: 'Settings' },
+  { path: '/cashflow', icon: '💧', label: 'Cash Flow' },
 ]
 
 function AppLayout({ children }) {
