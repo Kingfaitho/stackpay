@@ -133,25 +133,78 @@ function Clients() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSaveError('')
+  e.preventDefault()
+  setSaveError('')
 
-    if (!form.name.trim()) {
-      setSaveError('Client name is required')
+  if (!form.name.trim()) {
+    setSaveError('Client name is required')
+    return
+  }
+
+  if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    setSaveError('Please enter a valid email address')
+    return
+  }
+
+  if (form.phone && !validatePhone(form.phone)) {
+    setSaveError('Please enter a valid Nigerian phone number (e.g. 08012345678)')
+    return
+  }
+
+  setSaving(true)
+
+  try {
+    const basePayload = {
+      name: form.name.trim(),
+      email: form.email?.trim() || null,
+      phone: form.phone?.trim() || null,
+      address: form.address?.trim() || null,
+    }
+
+    const fullPayload = {
+      ...basePayload,
+      company: form.company?.trim() || null,
+      bio: form.bio?.trim() || null,
+      logo_url: form.logo_url || null,
+    }
+
+    const save = async (payload) => {
+      if (editingClient) {
+        return supabase
+          .from('clients')
+          .update(payload)
+          .eq('id', editingClient.id)
+          .eq('user_id', user.id)
+      } else {
+        return supabase
+          .from('clients')
+          .insert({ ...payload, user_id: user.id })
+      }
+    }
+
+    let { error } = await save(fullPayload)
+
+    if (error && (error.code === 'PGRST204' || error.code === '42703')) {
+      console.warn('Extended columns not found, saving base data only:', error.message)
+      const result = await save(basePayload)
+      error = result.error
+    }
+
+    if (error) {
+      console.error('Save error:', error)
+      setSaveError(`Failed to save: ${error.message}`)
       return
     }
 
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      setSaveError('Please enter a valid email address')
-      return
-    }
+    // success
+    setShowForm(false)
+    setEditingClient(null)
+    resetForm()
+    loadClients()
 
-    if (form.phone && !validatePhone(form.phone)) {
-      setSaveError('Please enter a valid Nigerian phone number (e.g. 08012345678)')
-      return
-    }
-
-    setSaving(true)
+  } finally {
+    setSaving(false)
+  }
 
     // Only include columns that exist — logo_url and others may need migration
     const payload = {
