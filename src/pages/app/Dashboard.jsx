@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
@@ -10,47 +9,106 @@ import {
 } from 'recharts'
 import OnboardingBanner from '../../components/OnboardingBanner'
 import StackPayIntelligence from '../../components/StackPayIntelligence'
+import { useEffect, useState } from 'react'
 
 function StatCard({ label, value, sub, color }) {
   const { colors, isDark } = useTheme()
+  const [expanded, setExpanded] = useState(false)
+
+  // Extract raw number for full display
+  const isMoneyValue = typeof value === 'string' && value.includes('₦')
+
   return (
-    <div style={{
-      background: colors.bgCard,
-      border: `1px solid ${colors.border}`,
-      borderRadius: '16px',
-      padding: '1.25rem',
-      transition: 'background 0.3s',
-      boxShadow: isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
-      minWidth: 0,
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        background: colors.bgCard,
+        border: `1px solid ${colors.border}`,
+        borderRadius: '16px',
+        padding: '1.25rem',
+        transition: 'background 0.3s, border-color 0.2s, box-shadow 0.2s',
+        boxShadow: isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
+        minWidth: 0,
+        overflow: 'visible',
+        position: 'relative',
+        cursor: isMoneyValue ? 'pointer' : 'default',
+      }}
+      onMouseEnter={e => {
+        setExpanded(true)
+        e.currentTarget.style.borderColor = colors.borderGreen
+        e.currentTarget.style.zIndex = '10'
+      }}
+      onMouseLeave={e => {
+        setExpanded(false)
+        e.currentTarget.style.borderColor = colors.border
+        e.currentTarget.style.zIndex = '1'
+      }}
+      onClick={() => setExpanded(prev => !prev)}
+    >
       <div style={{
         color: colors.textLabel,
-        fontSize: '0.72rem',
+        fontSize: '0.7rem',
         fontWeight: 600,
         letterSpacing: '0.5px',
         textTransform: 'uppercase',
-        marginBottom: '0.6rem',
+        marginBottom: '0.5rem',
       }}>
         {label}
       </div>
+
+      {/* Value — shrinks font to fit, expands on hover */}
       <div style={{
         fontFamily: 'Syne, sans-serif',
         fontWeight: 800,
-        fontSize: 'clamp(1.1rem, 2vw, 1.5rem)',
+        fontSize: expanded ? '1.1rem' : 'clamp(0.95rem, 1.8vw, 1.3rem)',
         color: color || colors.textPrimary,
         letterSpacing: '-0.3px',
         marginBottom: '0.25rem',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
+        transition: 'font-size 0.2s',
+        wordBreak: 'break-all',
+        lineHeight: 1.2,
       }}>
         {value}
       </div>
+
+      {/* Expanded tooltip for full number */}
+      {expanded && isMoneyValue && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          background: colors.bgCard2,
+          border: `1px solid ${colors.borderGreen}`,
+          borderRadius: '10px',
+          padding: '0.75rem 1rem',
+          marginTop: '4px',
+          boxShadow: isDark
+            ? '0 8px 24px rgba(0,0,0,0.5)'
+            : '0 8px 24px rgba(0,0,0,0.15)',
+        }}>
+          <div style={{
+            fontFamily: 'Syne, sans-serif',
+            fontWeight: 800,
+            fontSize: '1rem',
+            color: color || colors.textPrimary,
+            marginBottom: '0.2rem',
+          }}>
+            {value}
+          </div>
+          <div style={{
+            color: colors.textMuted,
+            fontSize: '0.72rem',
+          }}>
+            {sub}
+          </div>
+        </div>
+      )}
+
       {sub && (
         <div style={{
           color: colors.textMuted,
-          fontSize: '0.75rem',
+          fontSize: '0.72rem',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -61,7 +119,6 @@ function StatCard({ label, value, sub, color }) {
     </div>
   )
 }
-
 
 function Dashboard() {
   const { user } = useAuth()
