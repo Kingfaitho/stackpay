@@ -132,8 +132,13 @@ function Clients() {
     return /^(\+?234|0)[789][01]\d{8}$/.test(cleaned)
   }
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
   e.preventDefault()
+  e.stopPropagation()
+
+  // Prevent double submission
+  if (saving) return
+
   setSaveError('')
 
   if (!form.name.trim()) {
@@ -147,141 +152,79 @@ function Clients() {
   }
 
   if (form.phone && !validatePhone(form.phone)) {
-    setSaveError('Please enter a valid Nigerian phone number (e.g. 08012345678)')
+    setSaveError('Please enter a valid Nigerian phone number')
     return
   }
 
   setSaving(true)
 
-  try {
-    const basePayload = {
-      name: form.name.trim(),
-      email: form.email?.trim() || null,
-      phone: form.phone?.trim() || null,
-      address: form.address?.trim() || null,
-    }
-
-    const fullPayload = {
-      ...basePayload,
-      company: form.company?.trim() || null,
-      bio: form.bio?.trim() || null,
-      logo_url: form.logo_url || null,
-    }
-
-    const save = async (payload) => {
-      if (editingClient) {
-        return supabase
-          .from('clients')
-          .update(payload)
-          .eq('id', editingClient.id)
-          .eq('user_id', user.id)
-      } else {
-        return supabase
-          .from('clients')
-          .insert({ ...payload, user_id: user.id })
-      }
-    }
-
-    let { error } = await save(fullPayload)
-
-    if (error && (error.code === 'PGRST204' || error.code === '42703')) {
-      console.warn('Extended columns not found, saving base data only:', error.message)
-      const result = await save(basePayload)
-      error = result.error
-    }
-
-    if (error) {
-      console.error('Save error:', error)
-      setSaveError(`Failed to save: ${error.message}`)
-      return
-    }
-
-    // success
-    setShowForm(false)
-    setEditingClient(null)
-    resetForm()
-    loadClients()
-
-  } finally {
-    setSaving(false)
+  // Full payload with all columns
+  const fullPayload = {
+    name: form.name.trim(),
+    email: form.email?.trim() || null,
+    phone: form.phone?.trim() || null,
+    address: form.address?.trim() || null,
+    company: form.company?.trim() || null,
+    bio: form.bio?.trim() || null,
+    logo_url: form.logo_url || null,
   }
 
-    // Only include columns that exist — logo_url and others may need migration
-    const payload = {
-      name: form.name.trim(),
-      email: form.email.trim() || null,
-      phone: form.phone.trim() || null,
-      address: form.address.trim() || null,
-    }
+  // Base payload (original columns only — fallback)
+  const basePayload = {
+    name: form.name.trim(),
+    email: form.email?.trim() || null,
+    phone: form.phone?.trim() || null,
+    address: form.address?.trim() || null,
+  }
 
-    // Try to add optional columns — they may not exist yet
-    try {
-      payload.company = form.company.trim() || null
-    } catch {}
-    try {
-      payload.bio = form.bio.trim() || null
-    } catch {}
-    try {
-      if (form.logo_url) payload.logo_url = form.logo_url
-    } catch {}
+  let error = null
 
-    let error
+  if (editingClient) {
+    const result = await supabase
+      .from('clients')
+      .update(fullPayload)
+      .eq('id', editingClient.id)
+      .eq('user_id', user.id)
+    error = result.error
+  } else {
+    const result = await supabase
+      .from('clients')
+      .insert({ ...fullPayload, user_id: user.id })
+    error = result.error
+  }
 
+  // If schema error on extended columns, retry with base columns
+  if (error && error.code === 'PGRST204') {
+    console.warn('Falling back to base columns:', error.message)
+    let retryResult
     if (editingClient) {
-      const result = await supabase
+      retryResult = await supabase
         .from('clients')
-        .update(payload)
+        .update(basePayload)
         .eq('id', editingClient.id)
         .eq('user_id', user.id)
-      error = result.error
     } else {
-      const result = await supabase
+      retryResult = await supabase
         .from('clients')
-        .insert({ ...payload, user_id: user.id })
-      error = result.error
+        .insert({ ...basePayload, user_id: user.id })
     }
-
-    if (error) {
-      console.error('Save error:', error)
-      // If column doesn't exist, try without optional columns
-      if (error.code === '42703') {
-        const basicPayload = {
-          name: form.name.trim(),
-          email: form.email.trim() || null,
-          phone: form.phone.trim() || null,
-          address: form.address.trim() || null,
-          user_id: editingClient ? undefined : user.id,
-        }
-        if (editingClient) {
-          delete basicPayload.user_id
-          await supabase
-            .from('clients')
-            .update(basicPayload)
-            .eq('id', editingClient.id)
-            .eq('user_id', user.id)
-        } else {
-          await supabase
-            .from('clients')
-            .insert(basicPayload)
-        }
-        setShowForm(false)
-        setEditingClient(null)
-        resetForm()
-        loadClients()
-        setSaving(false)
-        return
-      }
-      setSaveError(`Failed to save: ${error.message}`)
-      setSaving(false)
-      return
-    }
-
-    setShowForm(false)
-    setEditingClient(null)
-    resetForm()
-    loadClients()
-    setSaving(false)
+    error = retryResult.error
   }
+
+  if (error) {
+    console.error('Client save error:', error)
+    setSaveError(`Failed to save: ${error.message}`)
+    setSaving(false)
+    return
+  }
+
+  // Success
+  setShowForm(false)
+  setEditingClient(null)
+  resetForm()
+  await loadClients()
+  setSaving(false)
+}
 
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this client? This cannot be undone.')) return
