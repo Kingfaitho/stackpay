@@ -343,6 +343,8 @@ function Dashboard() {
             { label: '+ Log Expense', path: '/expenses', primary: false },
             { label: '🎯 Budget', path: '/budget', primary: false },
             { label: '⚙️ Settings', path: '/profile', primary: false },
+            { label: '💵 Log Cash Receipt', path: '/expenses', primary: false },
+            
           ].map((action) => (
             <Link
               key={action.path}

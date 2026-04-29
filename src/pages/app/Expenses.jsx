@@ -14,9 +14,19 @@ function Expenses() {
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [entryType, setEntryType] = useState('expense') // 'expense' or 'cash_receipt'
   const [form, setForm] = useState({
     title: '', amount: '', category: 'Other', date: new Date().toISOString().split('T')[0], notes: ''
   })
+
+  // Define local colors since they are used in the snippet but weren't in your original code
+  const colors = {
+    bgCard: '#0F1510',
+    bgCard2: '#141A16',
+    border: 'rgba(255,255,255,0.1)',
+    textPrimary: '#F0F5F2',
+    textMuted: '#8A9E92'
+  }
 
   useEffect(() => {
     if (user) loadExpenses()
@@ -133,6 +143,41 @@ function Expenses() {
             New Expense
           </h3>
           <form onSubmit={handleAdd}>
+            <div style={{
+              display: 'flex',
+              gap: '0.5rem',
+              marginBottom: '1rem',
+              background: colors.bgCard2,
+              border: `1px solid ${colors.border}`,
+              borderRadius: '10px',
+              padding: '4px',
+            }}>
+              {[
+                { id: 'expense', label: '💸 Log Expense' },
+                { id: 'cash_receipt', label: '💵 Cash Receipt' },
+              ].map(type => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setEntryType(type.id)}
+                  style={{
+                    flex: 1,
+                    padding: '0.6rem',
+                    borderRadius: '7px',
+                    border: 'none',
+                    background: entryType === type.id ? colors.bgCard : 'transparent',
+                    color: entryType === type.id ? colors.textPrimary : colors.textMuted,
+                    fontFamily: 'Syne, sans-serif',
+                    fontWeight: entryType === type.id ? 700 : 500,
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {type.label}
+                </button>
+              ))}
+            </div>
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
