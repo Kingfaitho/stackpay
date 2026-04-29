@@ -24,6 +24,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import Budget from './pages/app/Budget'
 import CashFlow from './pages/app/CashFlow'
 import Collections from './pages/app/Collections'
+import CashReceipts from './pages/app/CashReceipts'
 
 function App() {
   return (
@@ -49,6 +50,9 @@ function App() {
 } />
 <Route path="/collections" element={
   <ProtectedRoute><Collections /></ProtectedRoute>
+} />
+<Route path="/cash-receipts" element={
+  <ProtectedRoute><CashReceipts /></ProtectedRoute>
 } />
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={

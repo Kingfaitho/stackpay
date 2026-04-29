@@ -363,7 +363,7 @@ Total under 120 words.`
           'X-Title': 'StackPay',
         },
         body: JSON.stringify({
-          model: 'mistralai/mistral-7b-instruct:free',
+          model: 'meta-llama/llama-3.2-3b-instruct:free',
           max_tokens: 300,
           messages: [
             {

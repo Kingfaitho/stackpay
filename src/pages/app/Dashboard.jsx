@@ -151,27 +151,29 @@ function Dashboard() {
         .single()
       setProfile(profileData)
 
-      const { data: invoices } = await supabase
-        .from('invoices')
-        .select('*')
-        .eq('user_id', user.id)
-
-      const { data: expenses } = await supabase
-        .from('expenses')
-        .select('*')
-        .eq('user_id', user.id)
-
-      const { data: clients } = await supabase
-        .from('clients')
-        .select('id')
-        .eq('user_id', user.id)
+     const [
+  { data: invoices },
+  { data: expenses },
+  { data: cashReceiptsData },
+  { data: clients },
+] = await Promise.all([
+  supabase.from('invoices').select('*').eq('user_id', user.id),
+  supabase.from('expenses').select('*').eq('user_id', user.id),
+  supabase.from('cash_receipts').select('amount').eq('user_id', user.id),
+  supabase.from('clients').select('id').eq('user_id', user.id),
+])
 
       setAllInvoices(invoices || [])
       setAllExpenses(expenses || [])
 
-      const totalIncome = invoices
-        ?.filter(i => i.status === 'paid')
-        .reduce((sum, i) => sum + Number(i.total), 0) || 0
+     const invoiceIncome = (invoices || [])
+  .filter(i => i.status === 'paid')
+  .reduce((sum, i) => sum + Number(i.total), 0)
+
+const cashIncome = (cashReceiptsData || [])
+  .reduce((sum, r) => sum + Number(r.amount), 0)
+
+const totalIncome = invoiceIncome + cashIncome
 
       const totalExpenses = expenses
         ?.reduce((sum, e) => sum + Number(e.amount), 0) || 0
@@ -344,7 +346,8 @@ function Dashboard() {
             { label: '🎯 Budget', path: '/budget', primary: false },
             { label: '⚙️ Settings', path: '/profile', primary: false },
             { label: '💵 Log Cash Receipt', path: '/expenses', primary: false },
-            
+            { label: '💵 Log Cash', path: '/cash-receipts', primary: false },
+
           ].map((action) => (
             <Link
               key={action.path}

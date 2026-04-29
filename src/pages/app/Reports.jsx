@@ -31,10 +31,12 @@ function Reports() {
 
   const generateReport = async () => {
     setLoading(true)
-    const [year, month] = selectedMonth.split('-').map(Number)
-    const startDate = new Date(year, month - 1, 1).toISOString()
-    const endDate = new Date(year, month, 0, 23, 59, 59).toISOString()
+    const [year, monthNumMinusOne] = selectedMonth.split('-').map(Number)
+    const monthNum = monthNumMinusOne - 1 // JS Months are 0-indexed
+    const startDate = new Date(year, monthNum, 1).toISOString()
+    const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59).toISOString()
 
+    // Fetch Invoices
     const { data: invoices } = await supabase
       .from('invoices')
       .select('*, clients(name)')
@@ -42,6 +44,15 @@ function Reports() {
       .gte('created_at', startDate)
       .lte('created_at', endDate)
 
+    // Fetch Cash Receipts
+    const { data: cashReceiptsData } = await supabase
+      .from('cash_receipts')
+      .select('amount, received_date')
+      .eq('user_id', user.id)
+      .gte('received_date', startDate.split('T')[0])
+      .lte('received_date', endDate.split('T')[0])
+
+    // Fetch Expenses
     const { data: expenses } = await supabase
       .from('expenses')
       .select('*')
@@ -49,9 +60,32 @@ function Reports() {
       .gte('date', startDate.split('T')[0])
       .lte('date', endDate.split('T')[0])
 
-    const totalIncome = invoices
-      ?.filter(i => i.status === 'paid')
-      .reduce((sum, i) => sum + Number(i.total), 0) || 0
+    // Compute Income Breakdown
+    const invoiceIncome = (invoices || [])
+      .filter(i => i.status === 'paid')
+      .reduce((sum, i) => sum + Number(i.total), 0)
+
+    const cashIncome = (cashReceiptsData || [])
+      .reduce((sum, r) => sum + Number(r.amount), 0)
+
+    const totalIncome = invoiceIncome + cashIncome
+
+    // Monthly Calculation logic for consistency
+    const invoiceMonthIncome = (invoices || [])
+      .filter(inv => {
+        const d = new Date(inv.created_at)
+        return inv.status === 'paid' &&
+          d.getMonth() === monthNum &&
+          d.getFullYear() === year
+      })
+      .reduce((sum, inv) => sum + Number(inv.total), 0)
+
+    const cashMonthIncome = (cashReceiptsData || [])
+      .filter(r => {
+        const d = new Date(r.received_date)
+        return d.getMonth() === monthNum && d.getFullYear() === year
+      })
+      .reduce((sum, r) => sum + Number(r.amount), 0)
 
     const totalExpenses = expenses
       ?.reduce((sum, e) => sum + Number(e.amount), 0) || 0
@@ -64,7 +98,7 @@ function Reports() {
     setReport({
       invoices: invoices || [],
       expenses: expenses || [],
-      totalIncome,
+      totalIncome, // Combined Invoice (Paid) + Cash Receipts
       totalExpenses,
       profit: totalIncome - totalExpenses,
       paidCount: invoices?.filter(i => i.status === 'paid').length || 0,
