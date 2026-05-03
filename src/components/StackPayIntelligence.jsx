@@ -293,7 +293,8 @@ Total under 120 words.`
           'X-Title': 'StackPay Intelligence',
         },
         body: JSON.stringify({
-          model: 'meta-llama/llama-3.2-3b-instruct:free',
+          model: 'openrouter/auto',
+
           max_tokens: 300,
           messages: [
             {

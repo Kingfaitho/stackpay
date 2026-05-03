@@ -172,14 +172,14 @@ function Budget() {
       .reduce((a, b) => a + Number(b || 0), 0)
 
     try {
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_XAI_API_KEY}`,
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'grok-3-mini',
+          model: 'openrouter/auto',
           max_tokens: 400,
           messages: [
             {
