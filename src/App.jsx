@@ -25,6 +25,8 @@ import Budget from './pages/app/Budget'
 import CashFlow from './pages/app/CashFlow'
 import Collections from './pages/app/Collections'
 import CashReceipts from './pages/app/CashReceipts'
+import Inventory from './pages/app/Inventory'
+import Notes from './pages/app/Notes'
 
 function App() {
   return (
@@ -58,6 +60,12 @@ function App() {
           <Route path="/dashboard" element={
             <ProtectedRoute><Dashboard /></ProtectedRoute>
           } />
+          <Route path="/inventory" element={
+  <ProtectedRoute><Inventory /></ProtectedRoute>
+} />
+<Route path="/notes" element={
+  <ProtectedRoute><Notes /></ProtectedRoute>
+} />
           <Route path="/invoices" element={
             <ProtectedRoute><Invoices /></ProtectedRoute>
           } />
