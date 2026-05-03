@@ -20,6 +20,7 @@ const navItems = [
   { path: '/recurring', icon: '🔄', label: 'Recurring' },
   { path: '/team', icon: '🤝', label: 'Team' },
   { path: '/billing', icon: '💳', label: 'Billing' },
+  { path: '/help', icon: '🆘', label: 'Help & Feedback' },
   { path: '/profile', icon: '⚙️', label: 'Settings' },
 ]
 

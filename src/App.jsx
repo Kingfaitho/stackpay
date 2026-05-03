@@ -32,6 +32,7 @@ import Team from './pages/app/Team'
 import Billing from './pages/app/Billing'
 import Profile from './pages/app/Profile'
 import Admin from './pages/Admin'
+import Help from './pages/app/Help'
 
 // Protected route wrapper
 import { useAuth } from './context/AuthContext'
@@ -118,6 +119,9 @@ function App() {
               <Route path="/billing" element={
                 <ProtectedRoute><Billing /></ProtectedRoute>
               } />
+              <Route path="/help" element={
+  <ProtectedRoute><Help /></ProtectedRoute>
+} />
               <Route path="/profile" element={
                 <ProtectedRoute><Profile /></ProtectedRoute>
               } />
