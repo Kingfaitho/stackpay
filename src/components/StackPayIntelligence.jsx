@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from '../context/ThemeContext'
+import { supabase } from '../supabaseClient'
 
 // ─── Prediction card — outside to avoid hooks violation ──────────────────────
 function PredictionCard({ pred, colors, isDark }) {
@@ -479,35 +480,22 @@ function StackPayIntelligence({
   }, [invoices, expenses, totalIncome, totalExpenses, totalClients, overdueCount])
 
   // ─── AI Advisor ─────────────────────────────────────────────────────────
-  const getAIAdvice = async () => {
-    setLoadingAdvice(true)
-    setAdvice('')
+const getAIAdvice = async () => {
+  setLoadingAdvice(true)
+  setAdvice('')
 
-    const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY
-
-    if (!apiKey) {
-      setAdvice('OpenRouter API key not configured. Add VITE_OPENROUTER_API_KEY to your Vercel environment variables.')
-      setLoadingAdvice(false)
-      return
-    }
-
-    const emergencyPrompt = `EMERGENCY MODE. Nigerian business in financial distress.
-
+  const emergencyPrompt = `EMERGENCY MODE. Nigerian business in financial distress.
 Net cash position: NGN ${netCash.toLocaleString()}
 Overdue invoices: ${overdueCount} worth NGN ${unpaidTotal.toLocaleString()}
 Total unpaid: ${unpaidInvoices} invoices
 Profit margin: ${totalIncome > 0 ? (((totalIncome - totalExpenses) / totalIncome) * 100).toFixed(1) : 0}%
 
-This is a business survival situation. Give exactly 3 emergency actions.
-No introduction. No encouragement. No fluff.
+Give exactly 3 emergency actions. No introduction. No fluff.
 Each action is one sentence starting with a verb.
-Reference the actual numbers.
 Format as numbered list 1. 2. 3.
-End with ONE sentence of belief in their ability to recover.`
+End with ONE sentence of belief.`
 
-    const normalPrompt = `You are a sharp financial advisor for Nigerian small businesses.
-Direct, specific, Nigerian business context. No markdown formatting.
-
+  const normalPrompt = `You are a sharp financial advisor for Nigerian small businesses.
 Business: ${businessName || 'Nigerian SME'}
 Total Income: NGN ${totalIncome.toLocaleString()}
 Total Expenses: NGN ${totalExpenses.toLocaleString()}
@@ -522,49 +510,30 @@ Give 3 specific numbered actions for THIS WEEK.
 Each action 1-2 sentences. Reference actual numbers.
 End with one motivational sentence. Under 120 words total.`
 
-    const prompt = isEmergency ? emergencyPrompt : normalPrompt
+  try {
+    const { data, error } = await supabase.functions.invoke('ai-advisor', {
+      body: {
+        prompt: isEmergency ? emergencyPrompt : normalPrompt,
+        isEmergency,
+      },
+    })
 
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Ledga Intelligence',
-        },
-        body: JSON.stringify({
-          model: 'openrouter/auto',
-          max_tokens: 300,
-          messages: [
-            {
-              role: 'system',
-              content: isEmergency
-                ? 'You are an emergency financial advisor. Be brutally direct. Reference specific numbers. No fluff.'
-                : 'You are a concise financial advisor for Nigerian SMEs. Plain text only. No markdown. No bullet symbols.',
-            },
-            { role: 'user', content: prompt },
-          ],
-        }),
-      })
-
-      if (!response.ok) {
-        const err = await response.text()
-        console.error('OpenRouter error:', response.status, err)
-        setAdvice(`Request failed (${response.status}). Check your OpenRouter API key in Vercel environment variables and ensure you have credits.`)
-        setLoadingAdvice(false)
-        return
-      }
-
-      const data = await response.json()
-      const text = data.choices?.[0]?.message?.content
-      setAdvice(text?.trim() || 'No response from AI. Please try again.')
-    } catch (err) {
-      console.error('AI Advisor error:', err)
-      setAdvice('Network error. Check your internet connection and try again.')
+    if (error) {
+      console.error('Edge function error:', error)
+      setAdvice('AI service temporarily unavailable. Please try again in a moment.')
+      setLoadingAdvice(false)
+      return
     }
-    setLoadingAdvice(false)
+
+    setAdvice(data?.advice || 'No advice generated. Please try again.')
+  } catch (err) {
+    console.error('AI call error:', err)
+    setAdvice('Network error. Check your connection and try again.')
   }
+
+  setLoadingAdvice(false)
+}
+
 
   // ─── Tabs config ────────────────────────────────────────────────────────
   const tabs = [

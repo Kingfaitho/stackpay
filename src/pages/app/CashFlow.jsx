@@ -335,12 +335,11 @@ function CashFlow() {
   }
 
   // ─── AI Cash Flow Advice (OpenRouter — browser safe) ─────────────────────
-  const getAIAdvice = async () => {
-    if (!forecast) return
-    setLoadingAI(true)
-    setAiAdvice('')
+const getAIAdvice = async () => {
+  setLoadingAI(true)
+  setAiAdvice('')
 
-    const prompt = `You are a financial advisor for Nigerian small businesses. Be direct and specific.
+  const prompt = `You are a financial advisor for Nigerian small businesses. Be direct and specific.
 
 Business cash position: NGN ${currentCash.toLocaleString()}
 Runway: ${forecast.runwayDays === null ? '90+ days' : `${forecast.runwayDays} days`}
@@ -353,36 +352,26 @@ Each action max 2 sentences. Reference their actual numbers.
 End with one sentence of encouragement.
 Total under 120 words.`
 
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'StackPay',
-        },
-        body: JSON.stringify({
-          model: 'openrouter/auto',
-          max_tokens: 300,
-          messages: [
-            {
-              role: 'user',
-              content: prompt,
-            },
-          ],
-        }),
-      })
+  try {
+    const { data, error } = await supabase.functions.invoke('ai-advisor', {
+      body: { prompt, isEmergency: false },
+    })
 
-      const data = await response.json()
-      const text = data.choices?.[0]?.message?.content
-      setAiAdvice(text || 'Unable to generate advice. Please try again.')
-    } catch (err) {
-      console.error('AI advice error:', err)
-      setAiAdvice('AI advisor is temporarily unavailable. Please try again in a moment.')
+    if (error) {
+      console.error('Edge function error:', error)
+      setAiAdvice('AI service temporarily unavailable. Please try again.')
+      setLoadingAI(false)
+      return
     }
-    setLoadingAI(false)
+
+    setAiAdvice(data?.advice || 'No advice generated. Please try again.')
+  } catch (err) {
+    console.error('AI call error:', err)
+    setAiAdvice('Network error. Check your connection and try again.')
   }
+
+  setLoadingAI(false)
+}
 
   // ─── Save constraints ────────────────────────────────────────────────────
   const saveConstraints = async () => {

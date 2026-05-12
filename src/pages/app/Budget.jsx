@@ -159,62 +159,58 @@ function Budget() {
     await loadBudgetData()
     setSaving(false)
   }
+  
+// AI Suggestions Logic
+ const getAISuggestions = async () => {
+  setLoadingAI(true)
+  setAiSuggestions([])
 
-  const getAISuggestions = async () => {
-    setLoadingAI(true)
-    const historyText = history.map(h =>
-      `${h.month}: ${Object.entries(h.totals)
-        .map(([k, v]) => `${k}: NGN ${v.toLocaleString()}`)
-        .join(', ')}`
-    ).join('\n')
+  const historyText = history.map(h =>
+    `${h.month}: ${Object.entries(h.totals)
+      .map(([k, v]) => `${k}: NGN ${v.toLocaleString()}`)
+      .join(', ')}`
+  ).join('\n')
 
-    const totalBudget = Object.values(editing)
-      .reduce((a, b) => a + Number(b || 0), 0)
+  const totalBudget = Object.values(editing)
+    .reduce((a, b) => a + Number(b || 0), 0)
 
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'openrouter/auto',
-          max_tokens: 400,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a Nigerian SME financial advisor. Be specific and practical.',
-            },
-            {
-              role: 'user',
-              content: `A Nigerian business owner is planning their budget for ${selectedMonth}.
+  const prompt = `A Nigerian business owner is planning their budget for ${selectedMonth}.
 Their expense history (last 3 months):
 ${historyText || 'No history yet'}
-
 Their planned budget total: NGN ${totalBudget.toLocaleString()}
 
 Give 3 specific budget recommendations as a JSON array like:
 [{"category":"Transport","suggestion":"Reduce from NGN 30000 to NGN 20000 — your transport costs have been consistent but can be reduced by batching deliveries","priority":"medium"},...]
 
-Only output valid JSON array, nothing else.`,
-            },
-          ],
-        }),
-      })
-      const data = await response.json()
-      const text = data.choices?.[0]?.message?.content || '[]'
-      try {
-        const clean = text.replace(/```json|```/g, '').trim()
-        setAiSuggestions(JSON.parse(clean))
-      } catch {
-        setAiSuggestions([])
-      }
+Only output valid JSON array, nothing else. No explanation before or after.`
+
+  try {
+    const { data, error } = await supabase.functions.invoke('ai-advisor', {
+      body: { prompt, isEmergency: false },
+    })
+
+    if (error) {
+      console.error('Edge function error:', error)
+      setLoadingAI(false)
+      return
+    }
+
+    const text = data?.advice || '[]'
+    try {
+      const clean = text.replace(/```json|```/g, '').trim()
+      const parsed = JSON.parse(clean)
+      setAiSuggestions(Array.isArray(parsed) ? parsed : [])
     } catch {
+      console.error('Could not parse AI suggestions JSON')
       setAiSuggestions([])
     }
-    setLoadingAI(false)
+  } catch (err) {
+    console.error('AI call error:', err)
+    setAiSuggestions([])
   }
+
+  setLoadingAI(false)
+}
 
   const applySuggestion = (suggestion) => {
     const match = suggestion.suggestion.match(/NGN ([\d,]+)/)
