@@ -377,7 +377,7 @@ function Admin() {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                   }}>
-                    {profile.business_name || '—'}
+                    {profile.business_name || '-'}
                   </div>
                   {profile.owner_name && (
                     <div style={{
@@ -399,7 +399,7 @@ function Admin() {
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                 }}>
-                  {profile.email || '—'}
+                  {profile.email || '-'}
                 </div>
 
                 <div>
@@ -426,7 +426,7 @@ function Admin() {
                     ? new Date(profile.created_at).toLocaleDateString('en-NG', {
                         day: 'numeric', month: 'short', year: '2-digit',
                       })
-                    : '—'}
+                    : '-'}
                 </div>
 
                 <div>

@@ -358,7 +358,7 @@ function Profile() {
                 ))}
               </div>
 
-              {/* Account Info — Read Only */}
+              {/* Account Info - Read Only */}
               <div style={{
                 background: colors.bgSidebar,
                 borderRadius: '10px',

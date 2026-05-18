@@ -9,7 +9,7 @@ import {
   ReferenceLine, CartesianGrid,
 } from 'recharts'
 
-// ─── Mini stat card — must be OUTSIDE CashFlow to avoid hooks-in-map error ───
+// ─── Mini stat card - must be OUTSIDE CashFlow to avoid hooks-in-map error ───
 function MiniStatCard({ icon, label, value, short, color, colors, isDark }) {
   const [hovered, setHovered] = useState(false)
   return (
@@ -334,7 +334,7 @@ function CashFlow() {
     })
   }
 
-  // ─── AI Cash Flow Advice (OpenRouter — browser safe) ─────────────────────
+  // ─── AI Cash Flow Advice (OpenRouter - browser safe) ─────────────────────
 const getAIAdvice = async () => {
   setLoadingAI(true)
   setAiAdvice('')
@@ -496,7 +496,7 @@ Total under 120 words.`
           💧 Cash Flow & Runway
         </h1>
         <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
-          Know exactly how long your business can survive — and what money is coming next.
+          Know exactly how long your business can survive - and what money is coming next.
         </p>
       </div>
 
@@ -522,7 +522,7 @@ Total under 120 words.`
         </div>
       )}
 
-      {/* Setup prompt — no constraints configured yet */}
+      {/* Setup prompt - no constraints configured yet */}
       {!constraints && !loading && !showSetup && (
         <div style={{
           ...card,
@@ -549,7 +549,7 @@ Total under 120 words.`
             margin: '0 auto 1.5rem',
           }}>
             Tell StackPay your minimum cash buffer and fixed monthly costs.
-            This is what makes forecasting accurate — not generic.
+            This is what makes forecasting accurate - not generic.
           </p>
           <button
             onClick={() => setShowSetup(true)}
@@ -609,7 +609,7 @@ Total under 120 words.`
             id="min-buffer"
             name="min-buffer"
             type="number"
-            placeholder="e.g. 200000 — your safety net"
+            placeholder="e.g. 200000 - your safety net"
             value={setupForm.minimum_cash_buffer}
             onChange={e => setSetupForm(prev => ({
               ...prev,

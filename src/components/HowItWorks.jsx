@@ -19,7 +19,7 @@ const steps = [
   {
     step: '04',
     title: 'Track everything on your dashboard',
-    desc: 'Every payment, every expense, every client. Your profit and loss is always visible — updated in real time.',
+    desc: 'Every payment, every expense, every client. Your profit and loss is always visible - updated in real time.',
   },
 ]
 
@@ -118,3 +118,4 @@ function HowItWorks() {
 }
 
 export default HowItWorks
+

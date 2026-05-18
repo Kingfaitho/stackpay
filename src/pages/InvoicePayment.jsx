@@ -460,7 +460,7 @@ function InvoicePayment() {
           >
             StackPay
           </a>
-          {' '}— Financial tools for Nigerian businesses
+          {' '}- Financial tools for Nigerian businesses
         </p>
       </div>
 
@@ -475,3 +475,4 @@ function InvoicePayment() {
 }
 
 export default InvoicePayment
+

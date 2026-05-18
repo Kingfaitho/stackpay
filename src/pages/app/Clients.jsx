@@ -169,7 +169,7 @@ function Clients() {
     logo_url: form.logo_url || null,
   }
 
-  // Base payload (original columns only — fallback)
+  // Base payload (original columns only - fallback)
   const basePayload = {
     name: form.name.trim(),
     email: form.email?.trim() || null,
@@ -333,7 +333,7 @@ function Clients() {
             marginBottom: '1.5rem',
             fontSize: '1.05rem',
           }}>
-            {editingClient ? `✏️ Edit — ${editingClient.name}` : '+ New Client'}
+            {editingClient ? `✏️ Edit - ${editingClient.name}` : '+ New Client'}
           </h3>
 
           {/* Error */}
@@ -796,7 +796,7 @@ function Clients() {
                         color: colors.textMuted,
                         fontStyle: 'italic',
                       }}>
-                        No contact info — click Edit to add
+                        No contact info - click Edit to add
                       </span>
                     )}
                   </div>

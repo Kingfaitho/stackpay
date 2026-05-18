@@ -155,7 +155,7 @@ function InstallPrompt() {
                 fontSize: '0.82rem',
                 lineHeight: 1.4,
               }}>
-                Add to your home screen for instant access — works offline too
+                Add to your home screen for instant access - works offline too
               </div>
             </div>
           </div>
@@ -243,3 +243,4 @@ function InstallPrompt() {
 }
 
 export default InstallPrompt
+

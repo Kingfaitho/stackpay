@@ -469,7 +469,7 @@ function ClientPortal() {
             >
               StackPay
             </a>
-            {' '}— Financial tools for Nigerian businesses
+            {' '}- Financial tools for Nigerian businesses
           </p>
         </div>
       </div>
@@ -478,3 +478,4 @@ function ClientPortal() {
 }
 
 export default ClientPortal
+

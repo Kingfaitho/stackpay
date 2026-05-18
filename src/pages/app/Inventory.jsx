@@ -516,7 +516,7 @@ function Inventory() {
             fontSize: '1rem',
             marginBottom: '1.5rem',
           }}>
-            {editingItem ? `✏️ Edit — ${editingItem.name}` : '+ New Inventory Item'}
+            {editingItem ? `✏️ Edit - ${editingItem.name}` : '+ New Inventory Item'}
           </h3>
 
           {saveError && (
@@ -929,7 +929,7 @@ function Inventory() {
                       flexWrap: 'wrap',
                       gap: '0.75rem',
                     }}>
-                      {/* Left — Item info */}
+                      {/* Left - Item info */}
                       <div style={{ flex: 1, minWidth: '200px' }}>
                         <div style={{
                           display: 'flex',
@@ -1018,7 +1018,7 @@ function Inventory() {
                         )}
                       </div>
 
-                      {/* Right — Actions */}
+                      {/* Right - Actions */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -1454,7 +1454,7 @@ function Inventory() {
               color: colors.textPrimary,
               marginBottom: '0.25rem',
             }}>
-              Update Stock — {showMovementModal.name}
+              Update Stock - {showMovementModal.name}
             </h3>
             <p style={{
               color: colors.textMuted,

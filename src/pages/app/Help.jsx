@@ -76,7 +76,7 @@ function Help() {
         })
 
       if (dbError && dbError.code !== '42P01') {
-        // Table may not exist yet — that is okay, still show success
+        // Table may not exist yet - that is okay, still show success
         console.warn('Feedback table not ready:', dbError.message)
       }
 

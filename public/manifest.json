@@ -1,5 +1,5 @@
 {
-  "name": "StackPay — Nigerian Business Finance",
+  "name": "StackPay - Nigerian Business Finance",
   "short_name": "StackPay",
   "description": "Invoicing, payments and expense tracking for Nigerian SMEs",
   "start_url": "/",
@@ -16,3 +16,4 @@
     }
   ]
 }
+

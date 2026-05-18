@@ -55,7 +55,7 @@ function StatCard({ label, value, sub, color }) {
         {label}
       </div>
 
-      {/* Value — shrinks font to fit, expands on hover */}
+      {/* Value - shrinks font to fit, expands on hover */}
       <div style={{
         fontFamily: 'Syne, sans-serif',
         fontWeight: 800,
@@ -387,7 +387,7 @@ const totalIncome = invoiceIncome + cashIncome
           color: colors.textPrimary,
           marginBottom: '1rem',
         }}>
-          Income vs Expenses — Last 6 Months
+          Income vs Expenses - Last 6 Months
         </h2>
         <div style={{
           background: colors.bgCard,

@@ -180,7 +180,7 @@ ${historyText || 'No history yet'}
 Their planned budget total: NGN ${totalBudget.toLocaleString()}
 
 Give 3 specific budget recommendations as a JSON array like:
-[{"category":"Transport","suggestion":"Reduce from NGN 30000 to NGN 20000 — your transport costs have been consistent but can be reduced by batching deliveries","priority":"medium"},...]
+[{"category":"Transport","suggestion":"Reduce from NGN 30000 to NGN 20000 - your transport costs have been consistent but can be reduced by batching deliveries","priority":"medium"},...]
 
 Only output valid JSON array, nothing else. No explanation before or after.`
 
@@ -387,7 +387,7 @@ Only output valid JSON array, nothing else. No explanation before or after.`
             label: 'Over Budget',
             value: totalActual > totalBudgeted && totalBudgeted > 0
               ? formatNaira(totalActual - totalBudgeted)
-              : '—',
+              : '-',
             color: colors.danger,
             icon: '⚠️',
           },
@@ -651,7 +651,7 @@ Only output valid JSON array, nothing else. No explanation before or after.`
                       }}
                     />
 
-                    {/* AI hint — avg spend */}
+                    {/* AI hint - avg spend */}
                     {avg > 0 && (
                       <div style={{
                         display: 'flex',
@@ -743,7 +743,7 @@ Only output valid JSON array, nothing else. No explanation before or after.`
             color: colors.textPrimary,
             marginBottom: '1.25rem',
           }}>
-            Budget vs Actual — {monthLabel}
+            Budget vs Actual - {monthLabel}
           </h3>
 
           {loading ? (
@@ -1176,7 +1176,7 @@ Only output valid JSON array, nothing else. No explanation before or after.`
                             }}>
                               {h.totals[cat]
                                 ? formatNaira(h.totals[cat])
-                                : '—'}
+                                : '-'}
                             </td>
                           ))}
                           <td style={{
@@ -1187,7 +1187,7 @@ Only output valid JSON array, nothing else. No explanation before or after.`
                             color: colors.accent,
                             fontSize: '0.85rem',
                           }}>
-                            {avg > 0 ? formatNaira(avg) : '—'}
+                            {avg > 0 ? formatNaira(avg) : '-'}
                           </td>
                         </tr>
                       )

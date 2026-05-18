@@ -155,3 +155,4 @@ function OnboardingBanner({ profile, invoiceCount, clientCount }) {
 }
 
 export default OnboardingBanner
+

@@ -215,7 +215,7 @@ function Notes() {
             📝 Notes & Tasks
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
-            Business decisions, reminders, client notes, and to-dos — all in one place
+            Business decisions, reminders, client notes, and to-dos - all in one place
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -293,7 +293,7 @@ function Notes() {
               marginLeft: '0.4rem',
               fontSize: '0.8rem',
             }}>
-              — {overdueTasks.slice(0, 2).map(t => t.title).join(', ')}
+              - {overdueTasks.slice(0, 2).map(t => t.title).join(', ')}
               {overdueTasks.length > 2 ? ` and ${overdueTasks.length - 2} more` : ''}
             </span>
           </div>
@@ -447,7 +447,7 @@ function Notes() {
               style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
             />
 
-            {/* Row — Priority + Due date + Client */}
+            {/* Row - Priority + Due date + Client */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
@@ -482,7 +482,7 @@ function Notes() {
                 </div>
               </div>
 
-              {/* Due date — tasks only */}
+              {/* Due date - tasks only */}
               {form.type === 'task' && (
                 <div>
                   <label style={lbl} htmlFor="note-due">DUE DATE</label>
@@ -507,7 +507,7 @@ function Notes() {
                   onChange={e => setForm(p => ({ ...p, client_id: e.target.value }))}
                   style={{ ...inp, cursor: 'pointer', marginBottom: 0 }}
                 >
-                  <option value="">— No client</option>
+                  <option value="">- No client</option>
                   {clients.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
@@ -610,7 +610,7 @@ function Notes() {
             {activeView === 'tasks' ? '✅' : '📝'}
           </div>
           <p style={{ color: colors.textPrimary, fontWeight: 500, marginBottom: '0.4rem' }}>
-            {search ? 'No matches found' : activeView === 'pending' ? 'No pending tasks — great work!' : 'Nothing here yet'}
+            {search ? 'No matches found' : activeView === 'pending' ? 'No pending tasks - great work!' : 'Nothing here yet'}
           </p>
           <p style={{ color: colors.textMuted, fontSize: '0.85rem' }}>
             {search

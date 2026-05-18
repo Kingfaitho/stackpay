@@ -109,10 +109,10 @@ function Signup() {
 
   const strengthLabels = [
     '',
-    'Weak — add numbers, letters & symbols',
-    'Fair — getting stronger',
-    'Good — almost there',
-    'Strong — excellent password ✓',
+    'Weak - add numbers, letters & symbols',
+    'Fair - getting stronger',
+    'Good - almost there',
+    'Strong - excellent password ✓',
   ]
 
   const strengthColors = ['', '#ff4444', '#f5a623', '#00C566', '#00ff88']
@@ -463,3 +463,4 @@ function Signup() {
 }
 
 export default Signup
+

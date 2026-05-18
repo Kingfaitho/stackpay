@@ -199,7 +199,7 @@ function CashReceipts() {
             💵 Cash Receipts
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
-            Log every payment received outside of invoices — cash, transfers, POS, and more
+            Log every payment received outside of invoices - cash, transfers, POS, and more
           </p>
         </div>
         <button
@@ -417,7 +417,7 @@ function CashReceipts() {
                 cursor: 'pointer',
               }}
             >
-              <option value="">— No client / Walk-in customer</option>
+              <option value="">- No client / Walk-in customer</option>
               {clients.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}

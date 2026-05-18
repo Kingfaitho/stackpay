@@ -49,7 +49,7 @@ export async function sendInvoicePaidEmail({
           </div>
         </div>
         <p style="color: #4A6055; font-size: 12px; text-align: center; margin: 0;">
-          Sent by StackPay — stackpay-five.vercel.app
+          Sent by StackPay - stackpay-five.vercel.app
         </p>
       </div>
     `,
@@ -68,3 +68,4 @@ export async function sendInvoicePaidEmail({
     console.error('Email send failed:', err)
   }
 }
+

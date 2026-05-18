@@ -33,22 +33,22 @@ function HealthScore({ income, expenses, unpaidInvoices, totalClients }) {
     if (income > 0) {
       const margin = ((income - expenses) / income) * 100
       if (margin >= 50) { total += 30; tips.push({ type: 'good', text: 'Excellent profit margin above 50%' }) }
-      else if (margin >= 25) { total += 20; tips.push({ type: 'warn', text: 'Profit margin is fair — aim for 50%+' }) }
-      else if (margin >= 0) { total += 10; tips.push({ type: 'bad', text: 'Low profit margin — review your expenses' }) }
+      else if (margin >= 25) { total += 20; tips.push({ type: 'warn', text: 'Profit margin is fair - aim for 50%+' }) }
+      else if (margin >= 0) { total += 10; tips.push({ type: 'bad', text: 'Low profit margin - review your expenses' }) }
       else { tips.push({ type: 'bad', text: 'You are spending more than you earn' }) }
     } else {
-      tips.push({ type: 'bad', text: 'No paid invoices yet — start invoicing clients' })
+      tips.push({ type: 'bad', text: 'No paid invoices yet - start invoicing clients' })
     }
 
     // Unpaid invoices check (25 points)
-    if (unpaidInvoices === 0) { total += 25; tips.push({ type: 'good', text: 'All invoices are paid — great cash flow!' }) }
-    else if (unpaidInvoices <= 2) { total += 15; tips.push({ type: 'warn', text: `${unpaidInvoices} unpaid invoice(s) — follow up with clients` }) }
-    else { total += 5; tips.push({ type: 'bad', text: `${unpaidInvoices} unpaid invoices — cash flow risk` }) }
+    if (unpaidInvoices === 0) { total += 25; tips.push({ type: 'good', text: 'All invoices are paid - great cash flow!' }) }
+    else if (unpaidInvoices <= 2) { total += 15; tips.push({ type: 'warn', text: `${unpaidInvoices} unpaid invoice(s) - follow up with clients` }) }
+    else { total += 5; tips.push({ type: 'bad', text: `${unpaidInvoices} unpaid invoices - cash flow risk` }) }
 
     // Client diversity check (25 points)
-    if (totalClients >= 5) { total += 25; tips.push({ type: 'good', text: 'Good client base — strong foundation' }) }
+    if (totalClients >= 5) { total += 25; tips.push({ type: 'good', text: 'Good client base - strong foundation' }) }
     else if (totalClients >= 2) { total += 15; tips.push({ type: 'warn', text: 'Grow your client list to reduce risk' }) }
-    else { total += 5; tips.push({ type: 'bad', text: 'Add more clients — avoid single-client dependency' }) }
+    else { total += 5; tips.push({ type: 'bad', text: 'Add more clients - avoid single-client dependency' }) }
 
     // Expense control (20 points)
     if (income > 0 && expenses < income * 0.5) { total += 20; tips.push({ type: 'good', text: 'Expenses well controlled under 50% of income' }) }
@@ -205,3 +205,4 @@ function HealthScore({ income, expenses, unpaidInvoices, totalClients }) {
 }
 
 export default HealthScore
+

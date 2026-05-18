@@ -89,3 +89,4 @@ function ThemeToggle({ compact = false }) {
 }
 
 export default ThemeToggle
+

@@ -15,3 +15,4 @@ export function initializePayment({
   })
   handler.openIframe()
 }
+

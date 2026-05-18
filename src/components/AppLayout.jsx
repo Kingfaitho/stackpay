@@ -293,7 +293,7 @@ function AppLayout({ children }) {
           }}>
             <ThemeToggle compact={true} />
 
-            {/* Avatar — clickable, goes to profile */}
+            {/* Avatar - clickable, goes to profile */}
             <Link
               to="/profile"
               title="Go to Settings"

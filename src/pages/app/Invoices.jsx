@@ -193,7 +193,7 @@ function Invoices() {
     `Pay securely online:\n` +
     `${paymentUrl}\n\n` +
     `Thank you for your business! 🙏\n` +
-    `— ${profile?.business_name || 'StackPay'}`
+    `- ${profile?.business_name || 'StackPay'}`
   )
   window.open(`https://wa.me/?text=${message}`, '_blank')
 }
@@ -894,7 +894,7 @@ function Invoices() {
                   </span>
                 )}
 
-                {/* Status Box — replaces the old pill badge */}
+                {/* Status Box - replaces the old pill badge */}
 <div style={{
   display: 'inline-flex',
   alignItems: 'center',

@@ -158,7 +158,7 @@ export default function Hero() {
       ))}
 
       {/* ── Floating UI preview cards ── */}
-      {/* Left card — invoice preview */}
+      {/* Left card - invoice preview */}
       <FloatingCard
         delay={0}
         style={{
@@ -199,7 +199,7 @@ export default function Hero() {
             ₦150,000
           </div>
           <div style={{ color: colors.textMuted, fontSize: '0.7rem' }}>
-            Emeka — Logo Design
+            Emeka - Logo Design
           </div>
           <div style={{
             marginTop: '0.6rem',
@@ -219,7 +219,7 @@ export default function Hero() {
         </div>
       </FloatingCard>
 
-      {/* Right card — credit score */}
+      {/* Right card - credit score */}
       <FloatingCard
         delay={1.5}
         style={{
@@ -276,7 +276,7 @@ export default function Hero() {
         </div>
       </FloatingCard>
 
-      {/* Bottom card — runway */}
+      {/* Bottom card - runway */}
       <FloatingCard
         delay={0.8}
         style={{
@@ -396,7 +396,7 @@ export default function Hero() {
         }}>
           Ledga is the financial management platform built for Nigerian professionals
           and service businesses. Invoices, expenses, cash flow forecasting,
-          and AI-powered insights — all in one place.
+          and AI-powered insights - all in one place.
         </p>
 
         {/* CTA buttons */}
@@ -435,7 +435,7 @@ export default function Hero() {
               e.currentTarget.style.boxShadow = `0 4px 24px ${colors.green}40`
             }}
           >
-            Start Free — No Card Needed <ArrowRight size={18} />
+            Start Free - No Card Needed <ArrowRight size={18} />
           </button>
 
           <button
@@ -506,7 +506,7 @@ export default function Hero() {
               fontSize: '0.82rem',
               color: colors.textPrimary,
             }}>
-              📊 This Month — Live Preview
+              📊 This Month- Live Preview
             </div>
             <div style={{
               display: 'flex',
@@ -581,7 +581,7 @@ export default function Hero() {
               marginBottom: '0.6rem',
               textAlign: 'left',
             }}>
-              Revenue vs Expenses — 6 months
+              Revenue vs Expenses - 6 months
             </div>
             <div style={{
               display: 'flex',

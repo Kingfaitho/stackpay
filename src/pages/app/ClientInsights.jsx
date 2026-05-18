@@ -508,7 +508,7 @@ function ClientInsights() {
                           fontSize: '0.78rem',
                           fontWeight: 700,
                         }}>
-                          🚨 {client.overdueCount} overdue —
+                          🚨 {client.overdueCount} overdue -
                           {formatNaira(client.totalOverdue)} owed
                         </span>
                       </div>

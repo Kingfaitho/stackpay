@@ -119,7 +119,7 @@ You can pay securely here:
 ${payLink}
 
 Thank you for your business! 🙏
-— ${business}`
+- ${business}`
     }
 
     if (tone === 'firm') {
@@ -133,7 +133,7 @@ Pay now:
 ${payLink}
 
 Please reach out if you have any questions.
-— ${business}`
+- ${business}`
     }
 
     return `Hello ${clientName},
@@ -146,7 +146,7 @@ Pay now:
 ${payLink}
 
 If you have already made payment, please disregard this message and share your payment confirmation.
-— ${business}`
+- ${business}`
   }
 
   const sendWhatsApp = (inv, tone) => {

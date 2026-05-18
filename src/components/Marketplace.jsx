@@ -116,7 +116,7 @@ function Marketplace() {
             margin: '0 auto',
             lineHeight: 1.8,
           }}>
-            Don't just track money — grow faster. Pick an automation built
+            Don't just track money - grow faster. Pick an automation built
             for your industry and let technology run your business while you focus on customers.
           </p>
         </div>
@@ -276,3 +276,4 @@ function Marketplace() {
 }
 
 export default Marketplace
+

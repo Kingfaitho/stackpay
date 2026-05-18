@@ -4,7 +4,7 @@ const insights = [
   {
     icon: '🤖',
     title: 'AI Business Health Score',
-    desc: 'StackPay AI analyzes your income, expenses and invoice patterns weekly to give your business a score out of 100 — with specific steps to improve.',
+    desc: 'StackPay AI analyzes your income, expenses and invoice patterns weekly to give your business a score out of 100 - with specific steps to improve.',
     tag: 'Coming Soon',
     color: '#00C566',
   },
@@ -18,7 +18,7 @@ const insights = [
   {
     icon: '⚡️',
     title: 'Automated Invoice Reminders',
-    desc: 'AI sends polite payment reminders to clients automatically on your behalf via WhatsApp or email — so you never have to chase money awkwardly.',
+    desc: 'AI sends polite payment reminders to clients automatically on your behalf via WhatsApp or email - so you never have to chase money awkwardly.',
     tag: 'Coming Soon',
     color: '#f5a623',
   },
@@ -60,7 +60,7 @@ function AIInsights() {
           gap: '4rem',
           alignItems: 'center',
         }}>
-          {/* Left — Text */}
+          {/* Left- Text */}
           <div>
             <div style={{
               display: 'inline-flex',
@@ -102,7 +102,7 @@ function AIInsights() {
               maxWidth: '440px',
             }}>
               StackPay's AI studies your financial patterns and gives you
-              personalized advice — like having a CFO in your pocket,
+              personalized advice - like having a CFO in your pocket,
               at a fraction of the cost.
             </p>
 
@@ -159,7 +159,7 @@ function AIInsights() {
             </div>
           </div>
 
-          {/* Right — Active Card */}
+          {/* Right- Active Card */}
           <div style={{
             background: '#111815',
             border: '1px solid rgba(255,255,255,0.06)',
@@ -264,3 +264,4 @@ function AIInsights() {
 }
 
 export default AIInsights
+

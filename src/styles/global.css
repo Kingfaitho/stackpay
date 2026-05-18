@@ -168,7 +168,7 @@ select option {
 }
 
 /* ================================
-   APP LAYOUT — MOBILE FIXES
+   APP LAYOUT - MOBILE FIXES
 ================================ */
 
 /* Sidebar fixed on desktop */
@@ -275,7 +275,7 @@ select option {
 .font-body { font-family: var(--font-body); }
 
 /* ================================
-   LIGHT THEME — Luxury White + Gold
+   LIGHT THEME - Luxury White + Gold
 ================================ */
 [data-theme="light"] {
   --bg-primary: #FAFAF8;
@@ -404,3 +404,4 @@ select option {
   background: rgba(201,168,76,0.25);
   color: #1A1A18;
 }
+

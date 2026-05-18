@@ -15,7 +15,7 @@ const features = [
   {
     icon: <BarChart3 size={22} />,
     title: 'Expense Tracking',
-    desc: 'Log every cost — data, transport, stock, rent. See exactly where your money is going and stop bleeding cash silently.',
+    desc: 'Log every cost - data, transport, stock, rent. See exactly where your money is going and stop bleeding cash silently.',
   },
   {
     icon: <Users size={22} />,
@@ -25,7 +25,7 @@ const features = [
   {
     icon: <Zap size={22} />,
     title: 'Profit Dashboard',
-    desc: 'See your real profit at a glance — total income, total expenses, and what actually remains. No accountant needed.',
+    desc: 'See your real profit at a glance - total income, total expenses, and what actually remains. No accountant needed.',
   },
   {
     icon: <Shield size={22} />,
@@ -165,3 +165,4 @@ function Features() {
 }
 
 export default Features
+

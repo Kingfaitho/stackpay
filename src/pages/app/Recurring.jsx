@@ -206,7 +206,7 @@ function Recurring() {
             🔄 Recurring Invoices
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
-            Set up invoices that repeat automatically — weekly, monthly, or quarterly
+            Set up invoices that repeat automatically - weekly, monthly, or quarterly
           </p>
         </div>
         <button
@@ -556,7 +556,7 @@ function Recurring() {
                         ? new Date(rec.next_date).toLocaleDateString('en-NG', {
                             day: 'numeric', month: 'short', year: 'numeric',
                           })
-                        : '—'}
+                        : '-'}
                     </span>
                   </div>
                 </div>

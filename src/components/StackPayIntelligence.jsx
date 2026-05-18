@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../supabaseClient'
 
-// ─── Prediction card — outside to avoid hooks violation ──────────────────────
+// ─── Prediction card - outside to avoid hooks violation ──────────────────────
 function PredictionCard({ pred, colors, isDark }) {
   const typeStyles = {
     positive: {
@@ -73,7 +73,7 @@ function PredictionCard({ pred, colors, isDark }) {
   )
 }
 
-// ─── Factor bar — outside to avoid hooks violation ────────────────────────────
+// ─── Factor bar - outside to avoid hooks violation ────────────────────────────
 function FactorBar({ factor, colors, isDark }) {
   const pct = (factor.score / factor.max) * 100
   const barColor = factor.status === 'good'
@@ -191,14 +191,14 @@ function StackPayIntelligence({
           preds.push({
             type: 'positive', icon: '📈',
             title: `Revenue Up ${change.toFixed(0)}% Last Month`,
-            body: `Strong growth signal. This is the time to reinvest — restock inventory, increase your marketing, or approach clients about larger retainers.`,
+            body: `Strong growth signal. This is the time to reinvest - restock inventory, increase your marketing, or approach clients about larger retainers.`,
             action: 'Review your best-performing service and double down on it',
           })
         } else if (change < -20) {
           preds.push({
             type: 'danger', icon: '📉',
             title: `Revenue Dropped ${Math.abs(change).toFixed(0)}% Last Month`,
-            body: `Two consecutive months of decline is a pattern. One month can be seasonal — two months is a signal that needs your attention today.`,
+            body: `Two consecutive months of decline is a pattern. One month can be seasonal - two months is a signal that needs your attention today.`,
             action: 'Identify your last 3 paying clients and ask for new work or referrals',
           })
         } else if (change > 0) {
@@ -326,7 +326,7 @@ function StackPayIntelligence({
       const overdueAmt = overdueInvs.reduce((s, i) => s + Number(i.total), 0)
       newAlerts.push({
         level: 'high', icon: '🚨',
-        text: `${overdueInvs.length} overdue invoice${overdueInvs.length > 1 ? 's' : ''} — ₦${overdueAmt.toLocaleString()} past due date`,
+        text: `${overdueInvs.length} overdue invoice${overdueInvs.length > 1 ? 's' : ''} - ₦${overdueAmt.toLocaleString()} past due date`,
       })
     }
 
@@ -363,7 +363,7 @@ function StackPayIntelligence({
     if (isEmergency) {
       newAlerts.unshift({
         level: 'critical', icon: '🆘',
-        text: `Emergency signal detected — ${overdueCount} overdue invoices, ₦${unpaidTotal.toLocaleString()} uncollected. Take action now.`,
+        text: `Emergency signal detected - ${overdueCount} overdue invoices, ₦${unpaidTotal.toLocaleString()} uncollected. Take action now.`,
       })
     }
 
@@ -470,7 +470,7 @@ function StackPayIntelligence({
     const gradeData = getGrade(finalScore)
     setCreditScore({ score: finalScore, factors, ...gradeData })
 
-    // Store score in history (in memory — not persisted)
+    // Store score in history (in memory - not persisted)
     setScoreHistory(prev => {
       const today = new Date().toLocaleDateString('en-NG', { month: 'short', day: 'numeric' })
       const already = prev.find(p => p.date === today)
@@ -622,7 +622,7 @@ End with one motivational sentence. Under 120 words total.`
               color: colors.textPrimary,
               letterSpacing: '-0.3px',
             }}>
-              {isEmergency ? 'Ledga Intelligence — Emergency Mode' : 'Ledga Intelligence'}
+              {isEmergency ? 'Ledga Intelligence - Emergency Mode' : 'Ledga Intelligence'}
             </div>
             <div style={{
               color: isEmergency ? colors.danger : colors.textMuted,
@@ -630,7 +630,7 @@ End with one motivational sentence. Under 120 words total.`
               fontWeight: 500,
             }}>
               {isEmergency
-                ? 'Action required — your business needs attention now'
+                ? 'Action required - your business needs attention now'
                 : `AI-powered insights for ${businessName || 'your business'}`}
             </div>
           </div>
@@ -1013,7 +1013,7 @@ End with one motivational sentence. Under 120 words total.`
                 lineHeight: 1.7,
               }}>
                 {creditScore.score < 500
-                  ? '1. Collect your overdue invoices — each one paid improves your collection rate. 2. Log expenses consistently so your profit margin is visible. 3. Add more clients to reduce concentration risk.'
+                  ? '1. Collect your overdue invoices - each one paid improves your collection rate. 2. Log expenses consistently so your profit margin is visible. 3. Add more clients to reduce concentration risk.'
                   : creditScore.score < 700
                   ? '1. Invoice regularly every month to build consistency. 2. Keep expenses below 60% of income to improve your margin score. 3. Expand your client base beyond 3 clients.'
                   : '1. Maintain your invoicing consistency. 2. Keep collecting overdue payments quickly. 3. Continue diversifying your client base. Your score reflects excellent financial discipline.'}
@@ -1041,7 +1041,7 @@ End with one motivational sentence. Under 120 words total.`
                   color: colors.textPrimary,
                   marginBottom: '0.2rem',
                 }}>
-                  Business Loan Matching — Coming Soon
+                  Business Loan Matching - Coming Soon
                 </div>
                 <div style={{
                   color: colors.textSecondary,
@@ -1111,7 +1111,7 @@ End with one motivational sentence. Under 120 words total.`
                     },
                     {
                       label: 'Credit Score',
-                      value: `${creditScore?.score || '—'}/1000`,
+                      value: `${creditScore?.score || '-'}/1000`,
                       color: creditScore?.color || colors.textMuted,
                     },
                   ].map((item, i) => (

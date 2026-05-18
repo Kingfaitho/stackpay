@@ -225,9 +225,9 @@ function Team() {
                   onChange={e => setForm({ ...form, role: e.target.value })}
                   style={inp}
                 >
-                  <option value="member">Member — view only</option>
-                  <option value="editor">Editor — create invoices</option>
-                  <option value="admin">Admin — full access</option>
+                  <option value="member">Member - view only</option>
+                  <option value="editor">Editor - create invoices</option>
+                  <option value="admin">Admin - full access</option>
                 </select>
               </div>
             </div>
@@ -373,3 +373,4 @@ function Team() {
 }
 
 export default Team
+
