@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../supabaseClient'
 import ThemeToggle from './ThemeToggle'
+import GlobalSearch from './GlobalSearch'
 
 const navItems = [
   { path: '/dashboard', icon: '⊞', label: 'Dashboard' },
@@ -34,6 +35,7 @@ function AppLayout({ children }) {
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [profile, setProfile] = useState(null)
+  const [showSearch, setShowSearch] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -45,6 +47,17 @@ function AppLayout({ children }) {
         .then(({ data }) => setProfile(data))
     }
   }, [user])
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setShowSearch(true)
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -293,6 +306,37 @@ function AppLayout({ children }) {
             alignItems: 'center',
             gap: '0.6rem',
           }}>
+            {/* Search button */}
+            <button
+              onClick={() => setShowSearch(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.45rem 0.85rem',
+                background: colors.bgCard,
+                border: `1px solid ${colors.border}`,
+                borderRadius: '8px',
+                color: colors.textMuted,
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: '0.78rem',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = colors.borderGreen
+                e.currentTarget.style.color = colors.green
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = colors.border
+                e.currentTarget.style.color = colors.textMuted
+              }}
+            >
+              🔍
+              <span className="search-shortcut">⌘K</span>
+            </button>
+            
             <ThemeToggle compact={true} />
 
             {/* Avatar — clickable, goes to profile */}
@@ -361,8 +405,13 @@ function AppLayout({ children }) {
         </div>
       </div>
 
+      {showSearch && (
+        <GlobalSearch onClose={() => setShowSearch(false)} />
+      )}
+
       <style>{`
         @media (max-width: 768px) {
+          .search-shortcut { display: none; }
           .desktop-sidebar { display: none !important; }
           .hamburger { display: flex !important; }
         }

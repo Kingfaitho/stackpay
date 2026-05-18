@@ -1,6 +1,6 @@
-import { Component } from 'react'
+import React from 'react'
 
-class ErrorBoundary extends Component {
+class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props)
     this.state = { hasError: false, error: null }
@@ -10,8 +10,8 @@ class ErrorBoundary extends Component {
     return { hasError: true, error }
   }
 
-  componentDidCatch(error, info) {
-    console.error('StackPay Error:', error, info)
+  componentDidCatch(error, errorInfo) {
+    console.error('StackPay Error:', error, errorInfo)
   }
 
   render() {
@@ -19,105 +19,79 @@ class ErrorBoundary extends Component {
       return (
         <div style={{
           minHeight: '100vh',
-          background: '#060908',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          background: '#060908',
           padding: '2rem',
           fontFamily: 'DM Sans, sans-serif',
+          textAlign: 'center',
         }}>
-          <div style={{
-            maxWidth: '480px',
-            width: '100%',
-            textAlign: 'center',
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+          <h2 style={{
+            fontFamily: 'Syne, sans-serif',
+            fontWeight: 800,
+            fontSize: '1.2rem',
+            color: '#EDF2EF',
+            marginBottom: '0.5rem',
           }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '16px',
-              background: 'rgba(255,80,80,0.1)',
-              border: '1px solid rgba(255,80,80,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '1.8rem',
-              margin: '0 auto 1.5rem',
-            }}>
-              ⚠️
-            </div>
-
-            <h1 style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 800,
-              fontSize: '1.5rem',
-              color: '#F0F5F2',
-              marginBottom: '0.75rem',
-            }}>
-              Something went wrong
-            </h1>
-
-            <p style={{
-              color: '#7A9485',
-              fontSize: '0.95rem',
-              lineHeight: 1.7,
-              marginBottom: '2rem',
-            }}>
-              StackPay hit an unexpected error. Your data is safe.
-              Please refresh the page or contact support if this persists.
-            </p>
-
-            <div style={{
-              background: '#111815',
-              border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '10px',
-              padding: '0.75rem 1rem',
-              marginBottom: '1.5rem',
-              textAlign: 'left',
-            }}>
-              <p style={{
-                color: '#4A6055',
-                fontSize: '0.78rem',
-                fontFamily: 'monospace',
-                wordBreak: 'break-all',
-              }}>
-                {this.state.error?.message || 'Unknown error'}
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-              <button
-                onClick={() => window.location.reload()}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: '#00C566',
-                  color: '#080C0A',
-                  borderRadius: '10px',
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                Refresh Page
-              </button>
-              <button
-                onClick={() => window.location.href = '/dashboard'}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  background: 'transparent',
-                  color: '#8A9E92',
-                  borderRadius: '10px',
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  cursor: 'pointer',
-                }}
-              >
-                Go to Dashboard
-              </button>
-            </div>
+            Something went wrong
+          </h2>
+          <p style={{
+            color: '#8A9E92',
+            fontSize: '0.88rem',
+            marginBottom: '0.25rem',
+          }}>
+            Ledga hit an unexpected error. Your data is safe.
+          </p>
+          <p style={{
+            color: '#4A6055',
+            fontSize: '0.75rem',
+            marginBottom: '1.5rem',
+            fontFamily: 'monospace',
+          }}>
+            {this.state.error?.message}
+          </p>
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null })
+                window.location.reload()
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: '#00C566',
+                color: '#060908',
+                border: 'none',
+                borderRadius: '10px',
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+              }}
+            >
+              Refresh Page
+            </button>
+            <button
+              onClick={() => {
+                this.setState({ hasError: false, error: null })
+                window.location.href = '/dashboard'
+              }}
+              style={{
+                padding: '0.75rem 1.5rem',
+                background: 'transparent',
+                color: '#8A9E92',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '10px',
+                fontFamily: 'Syne, sans-serif',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+              }}
+            >
+              Go to Dashboard
+            </button>
           </div>
         </div>
       )
@@ -128,4 +102,3 @@ class ErrorBoundary extends Component {
 }
 
 export default ErrorBoundary
-

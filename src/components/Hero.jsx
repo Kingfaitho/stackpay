@@ -124,38 +124,92 @@ export default function Hero() {
       transition: 'background 0.3s',
     }}>
 
-      {/* ── Animated gradient background ── */}
+      {/* ── Radial burst lines ── */}
       <div style={{
         position: 'absolute',
         inset: 0,
         background: isDark
-          ? `radial-gradient(ellipse at ${mousePos.x}% ${mousePos.y}%, rgba(0,197,102,0.12) 0%, transparent 50%),
-             radial-gradient(ellipse at ${100 - mousePos.x}% ${100 - mousePos.y}%, rgba(124,106,247,0.08) 0%, transparent 50%)`
-          : `radial-gradient(ellipse at ${mousePos.x}% ${mousePos.y}%, rgba(0,120,60,0.08) 0%, transparent 50%),
-             radial-gradient(ellipse at ${100 - mousePos.x}% ${100 - mousePos.y}%, rgba(91,78,199,0.05) 0%, transparent 50%)`,
-        transition: 'background 0.1s ease',
+          ? `conic-gradient(from 0deg at ${mousePos.x}% ${mousePos.y}%, 
+              rgba(0,197,102,0) 0deg,
+              rgba(0,197,102,0.03) 60deg,
+              rgba(0,197,102,0) 120deg,
+              rgba(124,106,247,0.02) 180deg,
+              rgba(0,197,102,0) 240deg,
+              rgba(201,168,76,0.02) 300deg,
+              rgba(0,197,102,0) 360deg)`
+          : `conic-gradient(from 0deg at ${mousePos.x}% ${mousePos.y}%, 
+              rgba(0,120,60,0) 0deg,
+              rgba(0,120,60,0.03) 60deg,
+              rgba(0,120,60,0) 120deg,
+              rgba(91,78,199,0.02) 180deg,
+              rgba(0,120,60,0) 240deg,
+              rgba(184,140,0,0.02) 300deg,
+              rgba(0,120,60,0) 360deg)`,
+        transition: 'background 0.15s ease',
         pointerEvents: 'none',
       }} />
 
-      {/* ── Grid pattern overlay ── */}
+      {/* ── Moving gradient orbs ── */}
+      <div style={{
+        position: 'absolute',
+        top: '15%',
+        left: '10%',
+        width: '400px',
+        height: '400px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'rgba(0,197,102,0.06)'
+          : 'rgba(0,120,60,0.05)',
+        filter: 'blur(80px)',
+        animation: 'orbFloat1 8s ease-in-out infinite',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{
+        position: 'absolute',
+        bottom: '15%',
+        right: '10%',
+        width: '350px',
+        height: '350px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'rgba(124,106,247,0.07)'
+          : 'rgba(91,78,199,0.05)',
+        filter: 'blur(80px)',
+        animation: 'orbFloat2 10s ease-in-out infinite',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: '600px',
+        height: '600px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'rgba(201,168,76,0.03)'
+          : 'rgba(184,140,0,0.03)',
+        filter: 'blur(100px)',
+        animation: 'orbFloat3 12s ease-in-out infinite',
+        pointerEvents: 'none',
+      }} />
+
+      {/* ── Fine grid ── */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: isDark
-          ? `linear-gradient(rgba(0,197,102,0.04) 1px, transparent 1px),
-             linear-gradient(90deg, rgba(0,197,102,0.04) 1px, transparent 1px)`
-          : `linear-gradient(rgba(0,120,60,0.03) 1px, transparent 1px),
-             linear-gradient(90deg, rgba(0,120,60,0.03) 1px, transparent 1px)`,
-        backgroundSize: '60px 60px',
+          ? `linear-gradient(rgba(0,197,102,0.05) 1px, transparent 1px),
+             linear-gradient(90deg, rgba(0,197,102,0.05) 1px, transparent 1px)`
+          : `linear-gradient(rgba(0,120,60,0.04) 1px, transparent 1px),
+             linear-gradient(90deg, rgba(0,120,60,0.04) 1px, transparent 1px)`,
+        backgroundSize: '50px 50px',
+        maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent)',
+        WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent)',
         pointerEvents: 'none',
-        maskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)',
-        WebkitMaskImage: 'radial-gradient(ellipse at center, black 20%, transparent 80%)',
       }} />
-
-      {/* ── Floating particles ── */}
-      {particles.map(p => (
-        <Particle key={p.id} {...p} />
-      ))}
 
       {/* ── Floating UI preview cards ── */}
       {/* Left card - invoice preview */}
@@ -373,20 +427,18 @@ export default function Hero() {
           Know your real profit.
           <br />
           <span style={{
-            color: colors.accent,
-            display: 'inline-block',
-            position: 'relative',
+            color: 'transparent',
+            backgroundImage: `linear-gradient(135deg, ${colors.green} 0%, ${colors.accent} 100%)`,
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            MozBackgroundClip: 'text',
+            display: 'inline',
+            // Force GPU rendering — prevents the dark mode box bug
+            transform: 'translateZ(0)',
+            WebkitTransform: 'translateZ(0)',
           }}>
             Get paid faster.
-            <span style={{
-              position: 'absolute',
-              bottom: '-4px',
-              left: 0,
-              right: 0,
-              height: '3px',
-              background: `linear-gradient(90deg, ${colors.green}, ${colors.accent})`,
-              borderRadius: '2px',
-            }} />
           </span>
           <br />
           Grow with clarity.
@@ -869,6 +921,20 @@ export default function Hero() {
           0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
           33% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
           66% { transform: translateY(10px) translateX(-8px); opacity: 0.2; }
+        }
+        @keyframes orbFloat1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(40px, -30px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+        @keyframes orbFloat2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(-30px, 40px) scale(1.05); }
+          66% { transform: translate(25px, -20px) scale(0.9); }
+        }
+        @keyframes orbFloat3 {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); }
+          50% { transform: translate(-50%, -50%) scale(1.15); }
         }
         @keyframes fadeSlideDown {
           from { opacity: 0; transform: translateY(-20px); }

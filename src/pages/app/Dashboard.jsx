@@ -120,6 +120,122 @@ function StatCard({ label, value, sub, color }) {
   )
 }
 
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+const QUOTES = [
+  {
+    quote: "Every invoice you send is one step closer to the life you are building.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "The business owner who knows their numbers controls their future. The one who does not is just guessing.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Every naira tracked today is a decision made with clarity tomorrow.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "You did not start your business to stay small. Track it, grow it, own it.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Cash flow is the heartbeat of your business. Know it like you know your own name.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Send the invoice. Chase the payment. Log the expense. Repeat until wealthy.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Small consistent actions in your finances compound into extraordinary results.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Your credit score is a record of your discipline. Every paid invoice writes your financial story.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "The most dangerous number in business is the one you do not know.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Nigeria is full of brilliant business owners. The ones who win are the ones who track.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Profit is not what you earn. It is what you keep after knowing every cost.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "One overdue invoice chased today is rent paid next month.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Your runway is your freedom. Know how many days of cash you have every single morning.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Every great Nigerian business started with one client, one invoice, one payment.",
+    author: "Ledga Intelligence",
+  },
+  {
+    quote: "Do not work harder. Work with better information. That is what Ledga is for.",
+    author: "Ledga Intelligence",
+  },
+]
+
+function DailyQuote({ colors, isDark }) {
+  // Pick a quote based on the day of year — same quote all day, changes daily
+  const dayOfYear = Math.floor(
+    (new Date() - new Date(new Date().getFullYear(), 0, 0)) /
+    (1000 * 60 * 60 * 24)
+  )
+  const quote = QUOTES[dayOfYear % QUOTES.length]
+
+  return (
+    <div style={{
+      background: isDark
+        ? 'linear-gradient(135deg, rgba(0,197,102,0.06), rgba(124,106,247,0.06))'
+        : 'linear-gradient(135deg, rgba(0,120,60,0.04), rgba(91,78,199,0.04))',
+      border: `1px solid ${isDark ? 'rgba(0,197,102,0.15)' : 'rgba(0,120,60,0.12)'}`,
+      borderRadius: '14px',
+      padding: '1rem 1.25rem',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: '0.85rem',
+    }}>
+      <span style={{ fontSize: '1.2rem', flexShrink: 0, marginTop: '0.1rem' }}>
+        💡
+      </span>
+      <div>
+        <p style={{
+          color: colors.textPrimary,
+          fontSize: '0.88rem',
+          lineHeight: 1.7,
+          fontStyle: 'italic',
+          marginBottom: '0.3rem',
+        }}>
+          "{quote.quote}"
+        </p>
+        <p style={{
+          color: colors.textMuted,
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          fontFamily: 'Syne, sans-serif',
+        }}>
+          — {quote.author}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function Dashboard() {
   const { user } = useAuth()
   const { colors, isDark } = useTheme()
@@ -251,22 +367,41 @@ const totalIncome = invoiceIncome + cashIncome
   return (
     <AppLayout>
 
-      {/* Welcome */}
+      {/* Welcome + Daily Quote */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{
-          fontFamily: 'Syne, sans-serif',
-          fontWeight: 800,
-          fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
-          color: colors.textPrimary,
-          marginBottom: '0.3rem',
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          marginBottom: '1rem',
         }}>
-          Welcome back{profile?.owner_name
-            ? `, ${profile.owner_name.split(' ')[0]}`
-            : ''} 👋
-        </h1>
-        <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>
-          Here's how {profile?.business_name || 'your business'} is doing
-        </p>
+          <div>
+            <h1 style={{
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 800,
+              fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
+              color: colors.textPrimary,
+              marginBottom: '0.3rem',
+            }}>
+              {getGreeting()}{profile?.owner_name
+                ? `, ${profile.owner_name.split(' ')[0]}`
+                : ''} 👋
+            </h1>
+            <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>
+              {profile?.business_name || 'Your business'} ·{' '}
+              {new Date().toLocaleDateString('en-NG', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+              })}
+            </p>
+          </div>
+        </div>
+
+        {/* Daily quote */}
+        <DailyQuote colors={colors} isDark={isDark} />
       </div>
 
       {/* Onboarding */}
