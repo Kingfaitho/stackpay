@@ -87,6 +87,7 @@ function Login() {
     fontSize: '0.95rem',
     fontFamily: 'DM Sans, sans-serif',
     outline: 'none',
+    boxSizing: 'border-box',
   }
 
   return (
@@ -139,6 +140,8 @@ function Login() {
           borderRadius: '24px',
           padding: '2.5rem',
           boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
+          overflow: 'hidden',
+          boxSizing: 'border-box',
         }}>
 
           {/* Lockout Warning */}

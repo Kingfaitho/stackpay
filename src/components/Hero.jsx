@@ -117,7 +117,7 @@ export default function Hero() {
       alignItems: 'center',
       justifyContent: 'center',
       textAlign: 'center',
-      padding: '120px 5% 80px',
+      padding: '120px 5% 120px',
       position: 'relative',
       overflow: 'hidden',
       background: colors.bgPrimary,
@@ -373,12 +373,20 @@ export default function Hero() {
           Know your real profit.
           <br />
           <span style={{
-            background: `linear-gradient(135deg, ${colors.green}, ${colors.accent})`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
+            color: colors.accent,
+            display: 'inline-block',
+            position: 'relative',
           }}>
             Get paid faster.
+            <span style={{
+              position: 'absolute',
+              bottom: '-4px',
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: `linear-gradient(90deg, ${colors.green}, ${colors.accent})`,
+              borderRadius: '2px',
+            }} />
           </span>
           <br />
           Grow with clarity.
@@ -798,35 +806,41 @@ export default function Hero() {
       </div>
 
       {/* ── Animated stats below fold ── */}
+      {/* Stats bottom bar */}
       <div style={{
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        padding: '1.5rem 5%',
+        padding: '1rem 5%',
         display: 'flex',
         justifyContent: 'center',
-        gap: '3rem',
+        gap: '1.5rem',
         flexWrap: 'wrap',
         borderTop: `1px solid ${colors.border}`,
         background: isDark
-          ? 'rgba(6,9,8,0.8)'
-          : 'rgba(248,246,241,0.8)',
+          ? 'rgba(6,9,8,0.85)'
+          : 'rgba(248,246,241,0.9)',
         backdropFilter: 'blur(12px)',
+        zIndex: 3,
       }}>
         {[
-          { end: 39, suffix: 'M+', label: 'Nigerian SMEs need this' },
-          { end: 0, prefix: '₦', suffix: '', label: 'Cost to get started' },
-          { end: 90, suffix: ' days', label: 'Cash flow forecast' },
-          { end: 1000, suffix: '', label: 'Max credit score' },
+          { end: 39, suffix: 'M+', label: 'Nigerian SMEs' },
+          { end: 0, prefix: '₦', suffix: '', label: 'Free to start' },
+          { end: 90, suffix: 'd', label: 'Cash forecast' },
+          { end: 1000, suffix: '', label: 'Credit score' },
         ].map((item, i) => (
-          <div key={i} style={{ textAlign: 'center' }}>
+          <div key={i} style={{
+            textAlign: 'center',
+            minWidth: '70px',
+          }}>
             <div style={{
               fontFamily: 'Syne, sans-serif',
               fontWeight: 800,
-              fontSize: 'clamp(1.4rem, 2.5vw, 2rem)',
+              fontSize: 'clamp(1.1rem, 2.5vw, 1.6rem)',
               color: colors.green,
               letterSpacing: '-0.5px',
+              lineHeight: 1.1,
             }}>
               <CountUp
                 end={item.end}
@@ -836,8 +850,9 @@ export default function Hero() {
             </div>
             <div style={{
               color: colors.textMuted,
-              fontSize: '0.78rem',
-              marginTop: '0.2rem',
+              fontSize: 'clamp(0.6rem, 1.5vw, 0.72rem)',
+              marginTop: '0.15rem',
+              whiteSpace: 'nowrap',
             }}>
               {item.label}
             </div>

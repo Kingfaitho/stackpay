@@ -155,31 +155,31 @@ function AppLayout({ children }) {
             gap: '0.75rem',
             padding: '0.65rem 0.85rem',
             borderRadius: '10px',
-            background: 'transparent',
-            color: colors.textMuted,
+            background: isDark
+              ? 'rgba(255,80,80,0.06)'
+              : 'rgba(204,34,0,0.05)',
+            color: isDark ? '#ff8080' : '#cc2200',
             fontSize: '0.88rem',
-            border: '1px solid transparent',
+            border: `1px solid ${isDark ? 'rgba(255,80,80,0.15)' : 'rgba(204,34,0,0.15)'}`,
             cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif',
+            fontWeight: 600,
             transition: 'all 0.2s',
             marginTop: '0.25rem',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.color = colors.danger
             e.currentTarget.style.background = isDark
-              ? 'rgba(255,80,80,0.06)'
-              : 'rgba(204,34,0,0.06)'
-            e.currentTarget.style.borderColor = isDark
               ? 'rgba(255,80,80,0.15)'
-              : 'rgba(204,34,0,0.15)'
+              : 'rgba(204,34,0,0.1)'
           }}
           onMouseLeave={e => {
-            e.currentTarget.style.color = colors.textMuted
-            e.currentTarget.style.background = 'transparent'
-            e.currentTarget.style.borderColor = 'transparent'
+            e.currentTarget.style.background = isDark
+              ? 'rgba(255,80,80,0.06)'
+              : 'rgba(204,34,0,0.05)'
           }}
         >
-          <span>🚪</span> Sign Out
+          <span>🚪</span>
+          <span style={{ fontWeight: 700 }}>Sign Out</span>
         </button>
       </div>
     </div>

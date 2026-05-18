@@ -1,4 +1,28 @@
 import { useState } from 'react'
+import { supabase } from '../supabaseClient'
+
+const BUSINESS_TYPES = [
+  'Fashion & Tailoring',
+  'Photography & Videography',
+  'Catering & Food Business',
+  'Beauty & Hair Salon',
+  'Consulting & Coaching',
+  'Freelance Design',
+  'Software Development',
+  'Event Planning',
+  'Real Estate Agent',
+  'Retail & Shop',
+  'Transport & Logistics',
+  'Education & Tutoring',
+  'Healthcare & Wellness',
+  'Agriculture & Farming',
+  'Media & Content Creation',
+  'Legal Services',
+  'Accounting & Finance',
+  'Construction & Engineering',
+  'Cleaning Services',
+  'Other (type below)',
+]
 import { useAuth } from '../context/AuthContext'
 import { useNavigate, Link } from 'react-router-dom'
 
@@ -12,6 +36,9 @@ function Signup() {
     password: '',
     phone: '',
   })
+  const [businessType, setBusinessType] = useState('')
+  const [customBusinessType, setCustomBusinessType] = useState('')
+  const [businessTypeStep, setBusinessTypeStep] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
@@ -88,12 +115,30 @@ function Signup() {
       return
     }
 
-    const { error } = await signUp(
+    const { data, error } = await signUp(
       form.email,
       form.password,
       form.businessName,
       form.ownerName
     )
+
+    if (!error) {
+      const finalBusinessType = businessType === 'Other (type below)'
+        ? customBusinessType
+        : businessType
+      try {
+        await supabase.from('profiles').upsert({
+          id: data?.user?.id,
+          email: form.email,
+          business_name: form.businessName,
+          owner_name: form.ownerName,
+          business_type: finalBusinessType || null,
+          created_at: new Date().toISOString(),
+        })
+      } catch (upsertErr) {
+        console.error('Profile upsert error:', upsertErr)
+      }
+    }
 
     if (error) {
       if (error.message.includes('already registered')) {
@@ -129,6 +174,7 @@ function Signup() {
     outline: 'none',
     marginBottom: '1rem',
     transition: 'border-color 0.2s',
+    boxSizing: 'border-box',
   }
 
   const labelStyle = {
@@ -194,6 +240,8 @@ function Signup() {
           borderRadius: '24px',
           padding: '2.5rem',
           boxShadow: '0 4px 40px rgba(0,0,0,0.5)',
+          overflow: 'hidden',
+          boxSizing: 'border-box',
         }}>
 
           {error && (
@@ -238,6 +286,76 @@ function Signup() {
               maxLength={80}
               style={inp}
             />
+
+            {/* Business Type */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{
+                color: '#8A9E92',
+                fontSize: '0.78rem',
+                fontWeight: 600,
+                display: 'block',
+                marginBottom: '0.4rem',
+                letterSpacing: '0.3px',
+              }}>
+                WHAT TYPE OF BUSINESS DO YOU RUN?
+              </label>
+
+              <select
+                id="business-type"
+                name="business-type"
+                value={businessType}
+                onChange={e => {
+                  setBusinessType(e.target.value)
+                  if (e.target.value !== 'Other (type below)') setCustomBusinessType('')
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.85rem 1rem',
+                  borderRadius: '10px',
+                  border: `1px solid rgba(255,255,255,0.1)`,
+                  background: '#0F1510',
+                  color: businessType ? '#EDF2EF' : '#8A9E92',
+                  fontSize: '0.9rem',
+                  fontFamily: 'DM Sans, sans-serif',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  marginBottom: businessType === 'Other (type below)' ? '0.75rem' : 0,
+                  boxSizing: 'border-box',
+                  appearance: 'none',
+                  paddingRight: '2.5rem',
+                }}
+              >
+                <option value="">Select your business type</option>
+                {BUSINESS_TYPES.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+
+              {businessType === 'Other (type below)' && (
+                <input
+                  type="text"
+                  id="custom-business-type"
+                  name="custom-business-type"
+                  placeholder="Tell us what your business does..."
+                  value={customBusinessType}
+                  onChange={e => setCustomBusinessType(e.target.value)}
+                  maxLength={80}
+                  style={{
+                    width: '100%',
+                    padding: '0.85rem 1rem',
+                    borderRadius: '10px',
+                    border: `1px solid rgba(0,197,102,0.12)`,
+                    background: '#0F1510',
+                    color: '#EDF2EF',
+                    fontSize: '0.9rem',
+                    fontFamily: 'DM Sans, sans-serif',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    marginTop: '0.5rem',
+                  }}
+                />
+              )}
+            </div>
 
             <label style={labelStyle}>EMAIL ADDRESS *</label>
             <input
