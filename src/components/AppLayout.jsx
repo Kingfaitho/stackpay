@@ -8,10 +8,12 @@ import ThemeToggle from './ThemeToggle'
 const navItems = [
   { path: '/dashboard', icon: '⊞', label: 'Dashboard' },
   { path: '/invoices', icon: '📄', label: 'Invoices' },
+  { path: '/work-orders', icon: '⚡', label: 'Work Orders' },
   { path: '/clients', icon: '👥', label: 'Clients' },
   { path: '/client-insights', icon: '🔍', label: 'Client Insights' },
   { path: '/expenses', icon: '💸', label: 'Expenses' },
   { path: '/cash-receipts', icon: '💵', label: 'Cash Receipts' },
+  { path: '/pos', icon: '🏪', label: 'Point of Sale' },
   { path: '/inventory', icon: '📦', label: 'Inventory' },
   { path: '/cashflow', icon: '💧', label: 'Cash Flow' },
   { path: '/collections', icon: '🏃', label: 'Collections' },
@@ -21,7 +23,7 @@ const navItems = [
   { path: '/recurring', icon: '🔄', label: 'Recurring' },
   { path: '/team', icon: '🤝', label: 'Team' },
   { path: '/billing', icon: '💳', label: 'Billing' },
-  { path: '/help', icon: '🆘', label: 'Help & Feedback' },
+  { path: '/help', icon: '🆘', label: 'Help' },
   { path: '/profile', icon: '⚙️', label: 'Settings' },
 ]
 
@@ -155,31 +157,31 @@ function AppLayout({ children }) {
             gap: '0.75rem',
             padding: '0.65rem 0.85rem',
             borderRadius: '10px',
-            background: isDark
-              ? 'rgba(255,80,80,0.06)'
-              : 'rgba(204,34,0,0.05)',
-            color: isDark ? '#ff8080' : '#cc2200',
+            background: 'transparent',
+            color: colors.textMuted,
             fontSize: '0.88rem',
-            border: `1px solid ${isDark ? 'rgba(255,80,80,0.15)' : 'rgba(204,34,0,0.15)'}`,
+            border: '1px solid transparent',
             cursor: 'pointer',
             fontFamily: 'DM Sans, sans-serif',
-            fontWeight: 600,
             transition: 'all 0.2s',
             marginTop: '0.25rem',
           }}
           onMouseEnter={e => {
-            e.currentTarget.style.background = isDark
-              ? 'rgba(255,80,80,0.15)'
-              : 'rgba(204,34,0,0.1)'
-          }}
-          onMouseLeave={e => {
+            e.currentTarget.style.color = colors.danger
             e.currentTarget.style.background = isDark
               ? 'rgba(255,80,80,0.06)'
-              : 'rgba(204,34,0,0.05)'
+              : 'rgba(204,34,0,0.06)'
+            e.currentTarget.style.borderColor = isDark
+              ? 'rgba(255,80,80,0.15)'
+              : 'rgba(204,34,0,0.15)'
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.color = colors.textMuted
+            e.currentTarget.style.background = 'transparent'
+            e.currentTarget.style.borderColor = 'transparent'
           }}
         >
-          <span>🚪</span>
-          <span style={{ fontWeight: 700 }}>Sign Out</span>
+          <span>🚪</span> Sign Out
         </button>
       </div>
     </div>
@@ -293,7 +295,7 @@ function AppLayout({ children }) {
           }}>
             <ThemeToggle compact={true} />
 
-            {/* Avatar - clickable, goes to profile */}
+            {/* Avatar — clickable, goes to profile */}
             <Link
               to="/profile"
               title="Go to Settings"
