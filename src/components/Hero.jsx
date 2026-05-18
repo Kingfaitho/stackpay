@@ -487,7 +487,7 @@ export default function Hero() {
         }}>
           Ledga is the financial management platform built for Nigerian professionals
           and service businesses. Invoices, expenses, cash flow forecasting,
-          and AI-powered insights — all in one place.
+          and AI-powered insights - all in one place.
         </p>
 
         {/* CTA buttons */}
@@ -527,7 +527,7 @@ export default function Hero() {
               e.currentTarget.style.boxShadow = `0 6px 30px ${colors.green}50`
             }}
           >
-            Start Free — No Card Needed <ArrowRight size={18} />
+            Start Free - No Card Needed <ArrowRight size={18} />
           </button>
 
           <button

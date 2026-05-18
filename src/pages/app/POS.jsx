@@ -56,14 +56,25 @@ function POS() {
   }
 
   const loadTodaySales = async () => {
-    const today = new Date().toISOString().split('T')[0]
-    const { data } = await supabase
-      .from('cash_receipts')
-      .select('*')
-      .eq('user_id', user.id)
-      .gte('received_date', today)
-      .eq('payment_method', 'pos_sale')
-    setTodaySales(data || [])
+    if (!user) return
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const { data, error } = await supabase
+        .from('cash_receipts')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('received_date', today)
+        .eq('payment_method', 'pos_sale')
+      if (error) {
+        console.error('POS sales load error:', error)
+        setTodaySales([])
+      } else {
+        setTodaySales(data || [])
+      }
+    } catch (err) {
+      console.error('POS today sales crash:', err)
+      setTodaySales([])
+    }
   }
 
   // Filtered inventory for search

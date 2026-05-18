@@ -64,12 +64,23 @@ function WorkOrders() {
   }
 
   const loadClients = async () => {
-    const { data } = await supabase
-      .from('clients')
-      .select('id, name')
-      .eq('user_id', user.id)
-      .order('name')
-    setClients(data || [])
+    if (!user) return
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .order('name')
+      if (error) {
+        console.error('WorkOrders clients load error:', error)
+        setClients([])
+      } else {
+        setClients(data || [])
+      }
+    } catch (err) {
+      console.error('WorkOrders clients crash:', err)
+      setClients([])
+    }
   }
 
   const handleSubmit = async (e) => {
