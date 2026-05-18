@@ -35,13 +35,23 @@ function POS() {
 
   const loadInventory = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('inventory')
-      .select('*')
-      .eq('user_id', user.id)
-      .gt('quantity', 0)
-      .order('name')
-    setInventory(data || [])
+    try {
+      const { data, error } = await supabase
+        .from('inventory')
+        .select('*')
+        .eq('user_id', user.id)
+        .gt('quantity', 0)
+        .order('name')
+      if (error) {
+        console.error('Inventory load error:', error)
+        setInventory([])
+      } else {
+        setInventory(data || [])
+      }
+    } catch (err) {
+      console.error('POS crash:', err)
+      setInventory([])
+    }
     setLoading(false)
   }
 

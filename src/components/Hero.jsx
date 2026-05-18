@@ -3,20 +3,6 @@ import { ArrowRight, CheckCircle, Zap, Shield, TrendingUp } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 
-// ── Animated floating card ────────────────────────────────────────────────────
-function FloatingCard({ children, style, delay = 0 }) {
-  return (
-    <div style={{
-      animation: `float ${3 + delay}s ease-in-out infinite`,
-      animationDelay: `${delay}s`,
-      ...style,
-    }}>
-      {children}
-    </div>
-  )
-}
-
-// ── Animated number counter ───────────────────────────────────────────────────
 function CountUp({ end, prefix = '', suffix = '', duration = 2000 }) {
   const [count, setCount] = useState(0)
   const ref = useRef(null)
@@ -44,33 +30,11 @@ function CountUp({ end, prefix = '', suffix = '', duration = 2000 }) {
   return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>
 }
 
-// ── Particle dot ─────────────────────────────────────────────────────────────
-function Particle({ x, y, size, color, duration, delay }) {
-  return (
-    <div style={{
-      position: 'absolute',
-      left: `${x}%`,
-      top: `${y}%`,
-      width: `${size}px`,
-      height: `${size}px`,
-      borderRadius: '50%',
-      background: color,
-      opacity: 0.4,
-      animation: `particleFloat ${duration}s ease-in-out infinite`,
-      animationDelay: `${delay}s`,
-      pointerEvents: 'none',
-    }} />
-  )
-}
-
 export default function Hero() {
-  const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 })
+  const [mousePos, setMousePos] = useState({ x: 50, y: 40 })
   const navigate = useNavigate()
   const { colors, isDark } = useTheme()
 
-  // Track mouse for parallax glow effect
   useEffect(() => {
     const handleMouse = (e) => {
       setMousePos({
@@ -81,27 +45,6 @@ export default function Hero() {
     window.addEventListener('mousemove', handleMouse)
     return () => window.removeEventListener('mousemove', handleMouse)
   }, [])
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!email) return
-    setSubmitted(true)
-  }
-
-  // Generate particles once
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 4 + 2,
-    color: i % 3 === 0
-      ? colors.green
-      : i % 3 === 1
-      ? colors.accent
-      : colors.purple,
-    duration: Math.random() * 4 + 3,
-    delay: Math.random() * 3,
-  }))
 
   const mockStats = [
     { label: 'Revenue', value: '₦847,000', change: '+23%', up: true },
@@ -117,190 +60,254 @@ export default function Hero() {
       alignItems: 'center',
       justifyContent: 'center',
       textAlign: 'center',
-      padding: '120px 5% 120px',
+      padding: '120px 5% 140px',
       position: 'relative',
       overflow: 'hidden',
       background: colors.bgPrimary,
-      transition: 'background 0.3s',
     }}>
 
-      {/* ── Radial burst lines ── */}
+      {/* ── BACKGROUND LAYER 1: Mouse-reactive radial glow ── */}
       <div style={{
         position: 'absolute',
         inset: 0,
         background: isDark
-          ? `conic-gradient(from 0deg at ${mousePos.x}% ${mousePos.y}%, 
+          ? `radial-gradient(ellipse 70% 60% at ${mousePos.x}% ${mousePos.y}%,
+              rgba(0,197,102,0.13) 0%,
+              rgba(0,197,102,0.04) 40%,
+              transparent 70%),
+             radial-gradient(ellipse 50% 50% at ${100 - mousePos.x}% ${100 - mousePos.y}%,
+              rgba(124,106,247,0.10) 0%,
+              transparent 60%)`
+          : `radial-gradient(ellipse 70% 60% at ${mousePos.x}% ${mousePos.y}%,
+              rgba(0,120,60,0.09) 0%,
+              rgba(0,120,60,0.03) 40%,
+              transparent 70%),
+             radial-gradient(ellipse 50% 50% at ${100 - mousePos.x}% ${100 - mousePos.y}%,
+              rgba(91,78,199,0.07) 0%,
+              transparent 60%)`,
+        transition: 'background 0.08s linear',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      {/* ── BACKGROUND LAYER 2: Conic sweep ── */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: isDark
+          ? `conic-gradient(from 180deg at 50% 50%,
               rgba(0,197,102,0) 0deg,
-              rgba(0,197,102,0.03) 60deg,
+              rgba(0,197,102,0.04) 60deg,
               rgba(0,197,102,0) 120deg,
-              rgba(124,106,247,0.02) 180deg,
-              rgba(0,197,102,0) 240deg,
-              rgba(201,168,76,0.02) 300deg,
+              rgba(124,106,247,0.03) 200deg,
+              rgba(0,197,102,0) 280deg,
+              rgba(201,168,76,0.03) 330deg,
               rgba(0,197,102,0) 360deg)`
-          : `conic-gradient(from 0deg at ${mousePos.x}% ${mousePos.y}%, 
-              rgba(0,120,60,0) 0deg,
+          : `conic-gradient(from 180deg at 50% 50%,
+              rgba(0,0,0,0) 0deg,
               rgba(0,120,60,0.03) 60deg,
-              rgba(0,120,60,0) 120deg,
-              rgba(91,78,199,0.02) 180deg,
-              rgba(0,120,60,0) 240deg,
-              rgba(184,140,0,0.02) 300deg,
-              rgba(0,120,60,0) 360deg)`,
-        transition: 'background 0.15s ease',
+              rgba(0,0,0,0) 120deg,
+              rgba(91,78,199,0.02) 200deg,
+              rgba(0,0,0,0) 280deg,
+              rgba(184,140,0,0.02) 330deg,
+              rgba(0,0,0,0) 360deg)`,
         pointerEvents: 'none',
+        zIndex: 0,
       }} />
 
-      {/* ── Moving gradient orbs ── */}
-      <div style={{
-        position: 'absolute',
-        top: '15%',
-        left: '10%',
-        width: '400px',
-        height: '400px',
-        borderRadius: '50%',
-        background: isDark
-          ? 'rgba(0,197,102,0.06)'
-          : 'rgba(0,120,60,0.05)',
-        filter: 'blur(80px)',
-        animation: 'orbFloat1 8s ease-in-out infinite',
-        pointerEvents: 'none',
-      }} />
-
-      <div style={{
-        position: 'absolute',
-        bottom: '15%',
-        right: '10%',
-        width: '350px',
-        height: '350px',
-        borderRadius: '50%',
-        background: isDark
-          ? 'rgba(124,106,247,0.07)'
-          : 'rgba(91,78,199,0.05)',
-        filter: 'blur(80px)',
-        animation: 'orbFloat2 10s ease-in-out infinite',
-        pointerEvents: 'none',
-      }} />
-
-      <div style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '600px',
-        height: '600px',
-        borderRadius: '50%',
-        background: isDark
-          ? 'rgba(201,168,76,0.03)'
-          : 'rgba(184,140,0,0.03)',
-        filter: 'blur(100px)',
-        animation: 'orbFloat3 12s ease-in-out infinite',
-        pointerEvents: 'none',
-      }} />
-
-      {/* ── Fine grid ── */}
+      {/* ── BACKGROUND LAYER 3: Fine grid ── */}
       <div style={{
         position: 'absolute',
         inset: 0,
         backgroundImage: isDark
-          ? `linear-gradient(rgba(0,197,102,0.05) 1px, transparent 1px),
-             linear-gradient(90deg, rgba(0,197,102,0.05) 1px, transparent 1px)`
+          ? `linear-gradient(rgba(0,197,102,0.06) 1px, transparent 1px),
+             linear-gradient(90deg, rgba(0,197,102,0.06) 1px, transparent 1px)`
           : `linear-gradient(rgba(0,120,60,0.04) 1px, transparent 1px),
              linear-gradient(90deg, rgba(0,120,60,0.04) 1px, transparent 1px)`,
-        backgroundSize: '50px 50px',
-        maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent)',
-        WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent)',
+        backgroundSize: '55px 55px',
+        maskImage: 'radial-gradient(ellipse 85% 85% at 50% 45%, black 20%, transparent 80%)',
+        WebkitMaskImage: 'radial-gradient(ellipse 85% 85% at 50% 45%, black 20%, transparent 80%)',
         pointerEvents: 'none',
+        zIndex: 0,
       }} />
 
-      {/* ── Floating UI preview cards ── */}
-      {/* Left card - invoice preview */}
-      <FloatingCard
-        delay={0}
-        style={{
+      {/* ── BACKGROUND LAYER 4: Floating orbs ── */}
+      {/* Orb 1 — green top left */}
+      <div style={{
+        position: 'absolute',
+        top: '8%',
+        left: '5%',
+        width: '380px',
+        height: '380px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'radial-gradient(circle, rgba(0,197,102,0.12) 0%, rgba(0,197,102,0.02) 60%, transparent 100%)'
+          : 'radial-gradient(circle, rgba(0,120,60,0.08) 0%, transparent 70%)',
+        animation: 'orbMove1 9s ease-in-out infinite',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      {/* Orb 2 — purple bottom right */}
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        right: '5%',
+        width: '320px',
+        height: '320px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'radial-gradient(circle, rgba(124,106,247,0.12) 0%, rgba(124,106,247,0.02) 60%, transparent 100%)'
+          : 'radial-gradient(circle, rgba(91,78,199,0.07) 0%, transparent 70%)',
+        animation: 'orbMove2 11s ease-in-out infinite',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      {/* Orb 3 — gold center pulse */}
+      <div style={{
+        position: 'absolute',
+        top: '45%',
+        left: '45%',
+        width: '500px',
+        height: '500px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'radial-gradient(circle, rgba(201,168,76,0.05) 0%, transparent 65%)'
+          : 'radial-gradient(circle, rgba(184,140,0,0.04) 0%, transparent 65%)',
+        transform: 'translate(-50%, -50%)',
+        animation: 'orbPulse 7s ease-in-out infinite',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      {/* Orb 4 — green bottom left */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20%',
+        left: '8%',
+        width: '240px',
+        height: '240px',
+        borderRadius: '50%',
+        background: isDark
+          ? 'radial-gradient(circle, rgba(0,197,102,0.08) 0%, transparent 70%)'
+          : 'radial-gradient(circle, rgba(0,120,60,0.05) 0%, transparent 70%)',
+        animation: 'orbMove3 13s ease-in-out infinite',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+
+      {/* ── BACKGROUND LAYER 5: Floating particles ── */}
+      {Array.from({ length: 18 }, (_, i) => (
+        <div key={i} style={{
           position: 'absolute',
-          left: '3%',
-          top: '25%',
-          display: 'none',
-        }}
-      >
-        <div className="hero-card-left" style={{
-          background: colors.bgCard,
-          border: `1px solid ${colors.borderGreen}`,
+          left: `${(i * 17 + 7) % 95}%`,
+          top: `${(i * 23 + 11) % 88}%`,
+          width: `${(i % 3) + 2}px`,
+          height: `${(i % 3) + 2}px`,
+          borderRadius: '50%',
+          background: i % 3 === 0
+            ? colors.green
+            : i % 3 === 1
+            ? colors.purple
+            : colors.accent,
+          opacity: 0.35,
+          animation: `particleDrift ${5 + (i % 4)}s ease-in-out infinite`,
+          animationDelay: `${(i * 0.4) % 4}s`,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }} />
+      ))}
+
+      {/* ── FLOATING UI CARDS (desktop only) ── */}
+
+      {/* Left card — invoice paid */}
+      <div className="hero-float-left" style={{
+        display: 'none',
+        position: 'absolute',
+        left: '2%',
+        top: '28%',
+        zIndex: 2,
+        animation: 'floatCard1 4s ease-in-out infinite',
+      }}>
+        <div style={{
+          background: isDark ? 'rgba(15,20,17,0.95)' : 'rgba(255,255,255,0.95)',
+          border: `1px solid ${isDark ? 'rgba(0,197,102,0.3)' : 'rgba(0,120,60,0.2)'}`,
           borderRadius: '16px',
           padding: '1rem 1.25rem',
-          width: '200px',
+          width: '195px',
+          backdropFilter: 'blur(20px)',
           boxShadow: isDark
-            ? '0 20px 60px rgba(0,0,0,0.5)'
-            : '0 20px 60px rgba(0,0,0,0.12)',
-          textAlign: 'left',
+            ? '0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,197,102,0.1)'
+            : '0 20px 60px rgba(0,0,0,0.15)',
         }}>
           <div style={{
-            fontSize: '0.65rem',
+            fontSize: '0.62rem',
             color: colors.textMuted,
-            fontWeight: 600,
-            letterSpacing: '0.5px',
-            marginBottom: '0.4rem',
+            fontWeight: 700,
+            letterSpacing: '0.6px',
             textTransform: 'uppercase',
+            marginBottom: '0.4rem',
           }}>
             Invoice Paid ✓
           </div>
           <div style={{
             fontFamily: 'Syne, sans-serif',
             fontWeight: 800,
-            fontSize: '1.2rem',
+            fontSize: '1.3rem',
             color: colors.green,
-            marginBottom: '0.2rem',
+            marginBottom: '0.15rem',
           }}>
             ₦150,000
           </div>
-          <div style={{ color: colors.textMuted, fontSize: '0.7rem' }}>
-            Emeka - Logo Design
+          <div style={{ color: colors.textMuted, fontSize: '0.68rem' }}>
+            Emeka · Logo Design
           </div>
           <div style={{
-            marginTop: '0.6rem',
+            marginTop: '0.65rem',
             height: '4px',
             borderRadius: '2px',
-            background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)',
+            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
             overflow: 'hidden',
           }}>
             <div style={{
               height: '100%',
               width: '100%',
-              background: colors.green,
+              background: `linear-gradient(90deg, ${colors.green}, ${colors.accent})`,
               borderRadius: '2px',
-              animation: 'fillBar 2s ease forwards',
             }} />
           </div>
         </div>
-      </FloatingCard>
+      </div>
 
-      {/* Right card - credit score */}
-      <FloatingCard
-        delay={1.5}
-        style={{
-          position: 'absolute',
-          right: '3%',
-          top: '30%',
-          display: 'none',
-        }}
-      >
-        <div className="hero-card-right" style={{
-          background: colors.bgCard,
-          border: `1px solid ${colors.border}`,
+      {/* Right card — credit score */}
+      <div className="hero-float-right" style={{
+        display: 'none',
+        position: 'absolute',
+        right: '2%',
+        top: '24%',
+        zIndex: 2,
+        animation: 'floatCard2 5s ease-in-out infinite',
+        animationDelay: '1s',
+      }}>
+        <div style={{
+          background: isDark ? 'rgba(15,20,17,0.95)' : 'rgba(255,255,255,0.95)',
+          border: `1px solid ${isDark ? 'rgba(124,106,247,0.3)' : 'rgba(91,78,199,0.2)'}`,
           borderRadius: '16px',
           padding: '1rem 1.25rem',
-          width: '190px',
+          width: '185px',
+          backdropFilter: 'blur(20px)',
           boxShadow: isDark
-            ? '0 20px 60px rgba(0,0,0,0.5)'
-            : '0 20px 60px rgba(0,0,0,0.12)',
-          textAlign: 'left',
+            ? '0 20px 60px rgba(0,0,0,0.6)'
+            : '0 20px 60px rgba(0,0,0,0.15)',
         }}>
           <div style={{
-            fontSize: '0.65rem',
+            fontSize: '0.62rem',
             color: colors.textMuted,
-            fontWeight: 600,
-            letterSpacing: '0.5px',
-            marginBottom: '0.5rem',
+            fontWeight: 700,
+            letterSpacing: '0.6px',
             textTransform: 'uppercase',
+            marginBottom: '0.5rem',
           }}>
             Credit Score
           </div>
@@ -308,50 +315,68 @@ export default function Hero() {
             display: 'flex',
             alignItems: 'baseline',
             gap: '0.25rem',
-            marginBottom: '0.5rem',
+            marginBottom: '0.4rem',
           }}>
             <span style={{
               fontFamily: 'Syne, sans-serif',
-              fontWeight: 800,
-              fontSize: '1.6rem',
+              fontWeight: 900,
+              fontSize: '1.8rem',
               color: colors.purple,
+              lineHeight: 1,
             }}>
               720
             </span>
-            <span style={{ color: colors.textMuted, fontSize: '0.7rem' }}>/1000</span>
+            <span style={{ color: colors.textMuted, fontSize: '0.68rem' }}>
+              /1000
+            </span>
           </div>
           <div style={{
             fontSize: '0.68rem',
             color: colors.green,
-            fontWeight: 600,
+            fontWeight: 700,
           }}>
-            Loan eligible: ₦1,000,000
+            Loan eligible: ₦1M+
+          </div>
+          <div style={{
+            marginTop: '0.5rem',
+            height: '3px',
+            background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)',
+            borderRadius: '2px',
+            overflow: 'hidden',
+          }}>
+            <div style={{
+              height: '100%',
+              width: '72%',
+              background: colors.purple,
+              borderRadius: '2px',
+            }} />
           </div>
         </div>
-      </FloatingCard>
+      </div>
 
-      {/* Bottom card - runway */}
-      <FloatingCard
-        delay={0.8}
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: '12%',
-          transform: 'translateX(-50%)',
-          display: 'none',
-        }}
-      >
-        <div className="hero-card-bottom" style={{
-          background: colors.bgCard,
-          border: `1px solid ${colors.borderGreen}`,
-          borderRadius: '12px',
-          padding: '0.75rem 1.25rem',
+      {/* Bottom floating pill — runway */}
+      <div className="hero-float-bottom" style={{
+        display: 'none',
+        position: 'absolute',
+        bottom: '14%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 2,
+        animation: 'floatCard1 3.5s ease-in-out infinite',
+        animationDelay: '0.5s',
+      }}>
+        <div style={{
+          background: isDark ? 'rgba(15,20,17,0.95)' : 'rgba(255,255,255,0.95)',
+          border: `1px solid ${isDark ? 'rgba(0,197,102,0.35)' : 'rgba(0,120,60,0.25)'}`,
+          borderRadius: '100px',
+          padding: '0.6rem 1.25rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.75rem',
+          gap: '0.6rem',
+          backdropFilter: 'blur(20px)',
           boxShadow: isDark
-            ? '0 20px 60px rgba(0,0,0,0.5)'
-            : '0 20px 60px rgba(0,0,0,0.12)',
+            ? '0 12px 40px rgba(0,0,0,0.5)'
+            : '0 12px 40px rgba(0,0,0,0.12)',
           whiteSpace: 'nowrap',
         }}>
           <div style={{
@@ -359,7 +384,8 @@ export default function Hero() {
             height: '8px',
             borderRadius: '50%',
             background: colors.green,
-            animation: 'spi-pulse 2s infinite',
+            animation: 'livePulse 1.5s infinite',
+            flexShrink: 0,
           }} />
           <span style={{
             fontFamily: 'Syne, sans-serif',
@@ -367,76 +393,82 @@ export default function Hero() {
             fontSize: '0.82rem',
             color: colors.green,
           }}>
-            Business Runway: 74 days
+            Business Runway: 74 days safe
           </span>
         </div>
-      </FloatingCard>
+      </div>
 
-      {/* ── Main content ── */}
+      {/* ── MAIN CONTENT ── */}
       <div style={{
         position: 'relative',
         zIndex: 2,
-        maxWidth: '780px',
+        maxWidth: '800px',
         width: '100%',
       }}>
 
-        {/* Badge */}
+        {/* NEW badge */}
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
           gap: '0.5rem',
           background: isDark
-            ? 'rgba(0,197,102,0.1)'
+            ? 'rgba(0,197,102,0.12)'
             : 'rgba(0,120,60,0.08)',
-          border: `1px solid ${isDark
-            ? 'rgba(0,197,102,0.25)'
-            : 'rgba(0,120,60,0.2)'}`,
+          border: `1px solid ${isDark ? 'rgba(0,197,102,0.3)' : 'rgba(0,120,60,0.2)'}`,
           borderRadius: '100px',
-          padding: '0.35rem 1rem 0.35rem 0.6rem',
-          fontSize: '0.8rem',
-          color: colors.green,
-          fontWeight: 600,
+          padding: '0.35rem 1rem 0.35rem 0.5rem',
           marginBottom: '2rem',
-          fontFamily: 'Syne, sans-serif',
-          animation: 'fadeSlideDown 0.6s ease forwards',
+          animation: 'fadeDown 0.5s ease both',
         }}>
           <span style={{
             background: colors.green,
+            color: '#fff',
             borderRadius: '100px',
-            padding: '0.15rem 0.5rem',
-            fontSize: '0.7rem',
-            color: isDark ? '#060908' : '#fff',
-            fontWeight: 700,
+            padding: '0.12rem 0.55rem',
+            fontSize: '0.65rem',
+            fontFamily: 'Syne, sans-serif',
+            fontWeight: 800,
           }}>
             NEW
           </span>
-          Financial brain for Nigerian businesses
+          <span style={{
+            fontSize: '0.78rem',
+            color: colors.green,
+            fontWeight: 600,
+            fontFamily: 'Syne, sans-serif',
+          }}>
+            Financial brain for Nigerian businesses
+          </span>
         </div>
 
         {/* Headline */}
         <h1 style={{
           fontFamily: 'Syne, sans-serif',
-          fontWeight: 800,
-          fontSize: 'clamp(2.2rem, 5.5vw, 4.2rem)',
-          lineHeight: 1.08,
-          letterSpacing: '-2px',
+          fontWeight: 900,
+          fontSize: 'clamp(2.4rem, 5.5vw, 4.5rem)',
+          lineHeight: 1.05,
+          letterSpacing: '-2.5px',
           marginBottom: '1.5rem',
           color: colors.textPrimary,
-          animation: 'fadeSlideDown 0.6s ease 0.1s both',
+          animation: 'fadeDown 0.5s ease 0.1s both',
         }}>
           Know your real profit.
           <br />
+
+          {/* Gradient text — GPU forced, works in ALL themes */}
           <span style={{
+            display: 'inline-block',
             color: 'transparent',
-            backgroundImage: `linear-gradient(135deg, ${colors.green} 0%, ${colors.accent} 100%)`,
+            backgroundImage: isDark
+              ? 'linear-gradient(135deg, #00C566 0%, #C9A84C 50%, #7C6AF7 100%)'
+              : 'linear-gradient(135deg, #007A3D 0%, #B8860B 50%, #5B4EC7 100%)',
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            MozBackgroundClip: 'text',
-            display: 'inline',
-            // Force GPU rendering — prevents the dark mode box bug
             transform: 'translateZ(0)',
             WebkitTransform: 'translateZ(0)',
+            backgroundSize: '200% 200%',
+            animation: 'gradientShift 4s ease infinite',
           }}>
             Get paid faster.
           </span>
@@ -446,17 +478,16 @@ export default function Hero() {
 
         {/* Subheadline */}
         <p style={{
-          fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+          fontSize: 'clamp(1rem, 2vw, 1.15rem)',
           color: colors.textSecondary,
           maxWidth: '560px',
           margin: '0 auto 2.5rem',
-          fontWeight: 400,
-          lineHeight: 1.7,
-          animation: 'fadeSlideDown 0.6s ease 0.2s both',
+          lineHeight: 1.75,
+          animation: 'fadeDown 0.5s ease 0.2s both',
         }}>
           Ledga is the financial management platform built for Nigerian professionals
           and service businesses. Invoices, expenses, cash flow forecasting,
-          and AI-powered insights - all in one place.
+          and AI-powered insights — all in one place.
         </p>
 
         {/* CTA buttons */}
@@ -466,7 +497,7 @@ export default function Hero() {
           justifyContent: 'center',
           flexWrap: 'wrap',
           marginBottom: '2.5rem',
-          animation: 'fadeSlideDown 0.6s ease 0.3s both',
+          animation: 'fadeDown 0.5s ease 0.3s both',
         }}>
           <button
             onClick={() => navigate('/signup')}
@@ -476,26 +507,27 @@ export default function Hero() {
               gap: '0.5rem',
               background: colors.green,
               color: '#fff',
-              padding: '0.95rem 2rem',
-              borderRadius: '12px',
-              fontWeight: 700,
+              padding: '1rem 2.25rem',
+              borderRadius: '14px',
+              fontWeight: 800,
               fontSize: '1rem',
               fontFamily: 'Syne, sans-serif',
               border: 'none',
               cursor: 'pointer',
-              boxShadow: `0 4px 24px ${colors.green}40`,
+              boxShadow: `0 6px 30px ${colors.green}50`,
               transition: 'all 0.25s',
+              letterSpacing: '-0.3px',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = `0 8px 32px ${colors.green}50`
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.boxShadow = `0 12px 40px ${colors.green}60`
             }}
             onMouseLeave={e => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = `0 4px 24px ${colors.green}40`
+              e.currentTarget.style.boxShadow = `0 6px 30px ${colors.green}50`
             }}
           >
-            Start Free - No Card Needed <ArrowRight size={18} />
+            Start Free — No Card Needed <ArrowRight size={18} />
           </button>
 
           <button
@@ -506,8 +538,8 @@ export default function Hero() {
               gap: '0.5rem',
               background: 'transparent',
               color: colors.textPrimary,
-              padding: '0.95rem 1.8rem',
-              borderRadius: '12px',
+              padding: '1rem 1.8rem',
+              borderRadius: '14px',
               fontWeight: 600,
               fontSize: '1rem',
               fontFamily: 'Syne, sans-serif',
@@ -518,70 +550,78 @@ export default function Hero() {
             onMouseEnter={e => {
               e.currentTarget.style.borderColor = colors.borderGreen
               e.currentTarget.style.color = colors.green
+              e.currentTarget.style.transform = 'translateY(-2px)'
             }}
             onMouseLeave={e => {
               e.currentTarget.style.borderColor = colors.border
               e.currentTarget.style.color = colors.textPrimary
+              e.currentTarget.style.transform = 'translateY(0)'
             }}
           >
             See How It Works
           </button>
         </div>
 
-        {/* Animated mini dashboard */}
+        {/* Mini dashboard preview */}
         <div style={{
-          background: colors.bgCard,
-          border: `1px solid ${colors.border}`,
+          background: isDark
+            ? 'rgba(10,16,12,0.9)'
+            : 'rgba(255,255,255,0.92)',
+          border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,120,60,0.15)'}`,
           borderRadius: '20px',
           padding: '1.5rem',
           maxWidth: '520px',
           margin: '0 auto 2rem',
+          backdropFilter: 'blur(20px)',
           boxShadow: isDark
-            ? '0 40px 80px rgba(0,0,0,0.6)'
-            : '0 40px 80px rgba(0,0,0,0.1)',
-          animation: 'fadeSlideUp 0.8s ease 0.4s both',
+            ? '0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,197,102,0.1)'
+            : '0 40px 100px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
+          animation: 'fadeUp 0.8s ease 0.4s both',
           position: 'relative',
           overflow: 'hidden',
         }}>
-          {/* Glow inside card */}
+          {/* Subtle inner glow */}
           <div style={{
             position: 'absolute',
-            top: '-50%',
-            left: '-50%',
-            width: '200%',
-            height: '200%',
-            background: `radial-gradient(circle at 50% 50%, ${colors.green}08, transparent 60%)`,
-            pointerEvents: 'none',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '1px',
+            background: `linear-gradient(90deg, transparent, ${colors.green}40, transparent)`,
           }} />
 
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '1.25rem',
+            marginBottom: '1.1rem',
           }}>
             <div style={{
               fontFamily: 'Syne, sans-serif',
               fontWeight: 700,
-              fontSize: '0.82rem',
+              fontSize: '0.8rem',
               color: colors.textPrimary,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
             }}>
-              📊 This Month- Live Preview
+              <span>📊</span> Live Dashboard Preview
             </div>
             <div style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
-              fontSize: '0.68rem',
+              fontSize: '0.65rem',
               color: colors.green,
-              fontWeight: 600,
+              fontWeight: 700,
+              fontFamily: 'Syne, sans-serif',
             }}>
               <span style={{
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
                 background: colors.green,
-                animation: 'spi-pulse 2s infinite',
+                animation: 'livePulse 1.5s infinite',
               }} />
               LIVE
             </div>
@@ -591,23 +631,22 @@ export default function Hero() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '0.75rem',
-            marginBottom: '1.25rem',
+            gap: '0.6rem',
+            marginBottom: '1.1rem',
           }}>
             {mockStats.map((stat, i) => (
               <div key={i} style={{
-                background: colors.bgCard2,
-                border: `1px solid ${colors.border}`,
+                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
                 borderRadius: '10px',
-                padding: '0.75rem',
-                textAlign: 'left',
+                padding: '0.7rem 0.6rem',
               }}>
                 <div style={{
                   color: colors.textMuted,
-                  fontSize: '0.62rem',
-                  fontWeight: 600,
+                  fontSize: '0.58rem',
+                  fontWeight: 700,
                   textTransform: 'uppercase',
-                  letterSpacing: '0.3px',
+                  letterSpacing: '0.4px',
                   marginBottom: '0.3rem',
                 }}>
                   {stat.label}
@@ -615,16 +654,16 @@ export default function Hero() {
                 <div style={{
                   fontFamily: 'Syne, sans-serif',
                   fontWeight: 800,
-                  fontSize: '0.9rem',
+                  fontSize: '0.88rem',
                   color: i === 2 ? colors.warning : colors.textPrimary,
-                  marginBottom: '0.2rem',
                 }}>
                   {stat.value}
                 </div>
                 <div style={{
-                  fontSize: '0.65rem',
+                  fontSize: '0.6rem',
                   color: stat.up ? colors.green : colors.warning,
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  marginTop: '0.15rem',
                 }}>
                   {stat.change}
                 </div>
@@ -633,29 +672,29 @@ export default function Hero() {
           </div>
 
           {/* Animated bar chart */}
-          <div style={{ marginBottom: '0.75rem' }}>
+          <div style={{ marginBottom: '0.85rem' }}>
             <div style={{
+              fontSize: '0.62rem',
               color: colors.textMuted,
-              fontSize: '0.68rem',
               fontWeight: 600,
-              marginBottom: '0.6rem',
+              marginBottom: '0.5rem',
               textAlign: 'left',
             }}>
-              Revenue vs Expenses - 6 months
+              Revenue vs Expenses — 6 months
             </div>
             <div style={{
               display: 'flex',
-              gap: '8px',
+              gap: '6px',
               alignItems: 'flex-end',
-              height: '60px',
+              height: '56px',
             }}>
               {[
-                { inc: 65, exp: 45 },
-                { inc: 50, exp: 40 },
-                { inc: 75, exp: 50 },
-                { inc: 60, exp: 42 },
-                { inc: 85, exp: 55 },
-                { inc: 95, exp: 60 },
+                { inc: 55, exp: 40 },
+                { inc: 45, exp: 38 },
+                { inc: 70, exp: 48 },
+                { inc: 58, exp: 40 },
+                { inc: 80, exp: 52 },
+                { inc: 92, exp: 56 },
               ].map((bar, i) => (
                 <div key={i} style={{
                   flex: 1,
@@ -666,29 +705,29 @@ export default function Hero() {
                   <div style={{
                     flex: 1,
                     height: `${bar.inc}%`,
-                    background: colors.green,
+                    background: `linear-gradient(180deg, ${colors.green} 0%, ${colors.accent}80 100%)`,
                     borderRadius: '3px 3px 0 0',
                     opacity: 0,
-                    animation: `growBar 0.6s ease ${0.5 + i * 0.1}s forwards`,
+                    animation: `growBar 0.6s ease ${0.5 + i * 0.08}s forwards`,
                   }} />
                   <div style={{
                     flex: 1,
                     height: `${bar.exp}%`,
                     background: isDark
-                      ? 'rgba(255,80,80,0.5)'
-                      : 'rgba(204,34,0,0.4)',
+                      ? 'rgba(255,80,80,0.4)'
+                      : 'rgba(204,34,0,0.3)',
                     borderRadius: '3px 3px 0 0',
                     opacity: 0,
-                    animation: `growBar 0.6s ease ${0.6 + i * 0.1}s forwards`,
+                    animation: `growBar 0.6s ease ${0.58 + i * 0.08}s forwards`,
                   }} />
                 </div>
               ))}
             </div>
             <div style={{
               display: 'flex',
-              gap: '1rem',
-              marginTop: '0.4rem',
               justifyContent: 'center',
+              gap: '1.25rem',
+              marginTop: '0.4rem',
             }}>
               {[
                 { color: colors.green, label: 'Revenue' },
@@ -698,12 +737,12 @@ export default function Hero() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.3rem',
-                  fontSize: '0.62rem',
+                  fontSize: '0.6rem',
                   color: colors.textMuted,
                 }}>
                   <div style={{
                     width: '8px',
-                    height: '8px',
+                    height: '4px',
                     borderRadius: '2px',
                     background: item.color,
                   }} />
@@ -713,20 +752,24 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Runway bar */}
+          {/* Runway indicator */}
           <div style={{
-            background: isDark ? 'rgba(0,197,102,0.06)' : 'rgba(0,120,60,0.04)',
-            border: `1px solid ${colors.borderGreen}`,
+            background: isDark
+              ? 'rgba(0,197,102,0.08)'
+              : 'rgba(0,120,60,0.06)',
+            border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,120,60,0.15)'}`,
             borderRadius: '8px',
-            padding: '0.6rem 0.85rem',
+            padding: '0.55rem 0.85rem',
             display: 'flex',
-            alignItems: 'center',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}>
             <span style={{
-              fontSize: '0.72rem',
+              fontSize: '0.7rem',
               color: colors.textSecondary,
-              fontWeight: 500,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
             }}>
               💧 Business Runway
             </span>
@@ -736,7 +779,7 @@ export default function Hero() {
               fontSize: '0.82rem',
               color: colors.green,
             }}>
-              74 days safe
+              74 days safe ✓
             </span>
           </div>
         </div>
@@ -745,9 +788,9 @@ export default function Hero() {
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '1.5rem',
+          gap: '2rem',
           flexWrap: 'wrap',
-          animation: 'fadeSlideDown 0.6s ease 0.5s both',
+          animation: 'fadeDown 0.5s ease 0.5s both',
         }}>
           {[
             { icon: <Shield size={14} />, text: 'Bank-grade security' },
@@ -766,114 +809,25 @@ export default function Hero() {
             </div>
           ))}
         </div>
-
-        {/* Waitlist form */}
-        <div style={{
-          marginTop: '2rem',
-          animation: 'fadeSlideDown 0.6s ease 0.6s both',
-        }}>
-          {!submitted ? (
-            <form
-              onSubmit={handleSubmit}
-              style={{
-                display: 'flex',
-                gap: '0.5rem',
-                justifyContent: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              <input
-                type="email"
-                placeholder="Enter your business email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                style={{
-                  flex: 1,
-                  minWidth: '220px',
-                  maxWidth: '300px',
-                  padding: '0.8rem 1.1rem',
-                  borderRadius: '10px',
-                  border: `1px solid ${colors.border}`,
-                  background: colors.bgInput,
-                  color: colors.textPrimary,
-                  fontSize: '0.9rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                  outline: 'none',
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  padding: '0.8rem 1.5rem',
-                  background: 'transparent',
-                  color: colors.green,
-                  border: `1px solid ${colors.borderGreen}`,
-                  borderRadius: '10px',
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 700,
-                  fontSize: '0.9rem',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = isDark
-                    ? 'rgba(0,197,102,0.1)'
-                    : 'rgba(0,120,60,0.08)'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'transparent'
-                }}
-              >
-                Join Early Access
-              </button>
-            </form>
-          ) : (
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              color: colors.green,
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              background: isDark
-                ? 'rgba(0,197,102,0.1)'
-                : 'rgba(0,120,60,0.08)',
-              padding: '0.8rem 1.5rem',
-              borderRadius: '10px',
-              border: `1px solid ${colors.borderGreen}`,
-            }}>
-              <CheckCircle size={18} /> You are in! We will reach out soon.
-            </div>
-          )}
-          <p style={{
-            color: colors.textMuted,
-            fontSize: '0.75rem',
-            marginTop: '0.75rem',
-          }}>
-            Free to start · No credit card · Nigerian-built
-          </p>
-        </div>
       </div>
 
-      {/* ── Animated stats below fold ── */}
-      {/* Stats bottom bar */}
+      {/* ── STATS BOTTOM BAR ── */}
       <div style={{
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
-        padding: '1rem 5%',
+        padding: '0.85rem 5%',
         display: 'flex',
         justifyContent: 'center',
-        gap: '1.5rem',
+        alignItems: 'center',
+        gap: 'clamp(1rem, 4vw, 3rem)',
         flexWrap: 'wrap',
-        borderTop: `1px solid ${colors.border}`,
+        borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
         background: isDark
           ? 'rgba(6,9,8,0.85)'
           : 'rgba(248,246,241,0.9)',
-        backdropFilter: 'blur(12px)',
+        backdropFilter: 'blur(20px)',
         zIndex: 3,
       }}>
         {[
@@ -882,28 +836,20 @@ export default function Hero() {
           { end: 90, suffix: 'd', label: 'Cash forecast' },
           { end: 1000, suffix: '', label: 'Credit score' },
         ].map((item, i) => (
-          <div key={i} style={{
-            textAlign: 'center',
-            minWidth: '70px',
-          }}>
+          <div key={i} style={{ textAlign: 'center' }}>
             <div style={{
               fontFamily: 'Syne, sans-serif',
-              fontWeight: 800,
-              fontSize: 'clamp(1.1rem, 2.5vw, 1.6rem)',
+              fontWeight: 900,
+              fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)',
               color: colors.green,
-              letterSpacing: '-0.5px',
               lineHeight: 1.1,
             }}>
-              <CountUp
-                end={item.end}
-                prefix={item.prefix || ''}
-                suffix={item.suffix}
-              />
+              <CountUp end={item.end} prefix={item.prefix || ''} suffix={item.suffix} />
             </div>
             <div style={{
               color: colors.textMuted,
-              fontSize: 'clamp(0.6rem, 1.5vw, 0.72rem)',
-              marginTop: '0.15rem',
+              fontSize: 'clamp(0.6rem, 1.2vw, 0.7rem)',
+              marginTop: '0.1rem',
               whiteSpace: 'nowrap',
             }}>
               {item.label}
@@ -912,54 +858,69 @@ export default function Hero() {
         ))}
       </div>
 
+      {/* ── ALL ANIMATIONS ── */}
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
+        @keyframes orbMove1 {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          25% { transform: translate(35px, -25px) scale(1.08); }
+          50% { transform: translate(15px, 30px) scale(0.96); }
+          75% { transform: translate(-20px, 10px) scale(1.04); }
         }
-        @keyframes particleFloat {
+        @keyframes orbMove2 {
+          0%, 100% { transform: translate(0px, 0px) scale(1); }
+          30% { transform: translate(-30px, 35px) scale(1.06); }
+          60% { transform: translate(20px, -15px) scale(0.94); }
+        }
+        @keyframes orbMove3 {
+          0%, 100% { transform: translate(0px, 0px); }
+          50% { transform: translate(25px, -35px); }
+        }
+        @keyframes orbPulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.6; }
+        }
+        @keyframes particleDrift {
           0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
-          33% { transform: translateY(-20px) translateX(10px); opacity: 0.6; }
-          66% { transform: translateY(10px) translateX(-8px); opacity: 0.2; }
+          33% { transform: translateY(-18px) translateX(8px); opacity: 0.6; }
+          66% { transform: translateY(10px) translateX(-6px); opacity: 0.2; }
         }
-        @keyframes orbFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(40px, -30px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.95); }
+        @keyframes floatCard1 {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
         }
-        @keyframes orbFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-30px, 40px) scale(1.05); }
-          66% { transform: translate(25px, -20px) scale(0.9); }
+        @keyframes floatCard2 {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-14px); }
         }
-        @keyframes orbFloat3 {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); }
-          50% { transform: translate(-50%, -50%) scale(1.15); }
+        @keyframes gradientShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
-        @keyframes fadeSlideDown {
-          from { opacity: 0; transform: translateY(-20px); }
+        @keyframes fadeDown {
+          from { opacity: 0; transform: translateY(-16px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(30px); }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(24px); }
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes growBar {
           from { opacity: 0; transform: scaleY(0); transform-origin: bottom; }
           to { opacity: 1; transform: scaleY(1); transform-origin: bottom; }
         }
-        @keyframes fillBar {
-          from { width: 0%; }
-          to { width: 100%; }
+        @keyframes livePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.8); }
         }
-        @keyframes spi-pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+        @keyframes spi-spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         @media (min-width: 1024px) {
-          .hero-card-left { display: block !important; }
-          .hero-card-right { display: block !important; }
-          .hero-card-bottom { display: flex !important; }
+          .hero-float-left { display: block !important; }
+          .hero-float-right { display: block !important; }
+          .hero-float-bottom { display: block !important; }
         }
       `}</style>
     </section>

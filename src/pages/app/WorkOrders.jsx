@@ -44,12 +44,22 @@ function WorkOrders() {
 
   const loadOrders = async () => {
     setLoading(true)
-    const { data } = await supabase
-      .from('work_orders')
-      .select('*, clients(name, phone, email)')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-    setOrders(data || [])
+    try {
+      const { data, error } = await supabase
+        .from('work_orders')
+        .select('*, clients(name, phone, email)')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+      if (error) {
+        console.error('Work orders load error:', error.message)
+        setOrders([])
+      } else {
+        setOrders(data || [])
+      }
+    } catch (err) {
+      console.error('WorkOrders crash:', err)
+      setOrders([])
+    }
     setLoading(false)
   }
 
