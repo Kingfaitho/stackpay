@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
 
 function Reports() {
   const { user } = useAuth()
+  const { colors } = useTheme()
+  const [activeTab, setActiveTab] = useState('overview')
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date()
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
@@ -12,6 +15,11 @@ function Reports() {
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
   const [profile, setProfile] = useState(null)
+
+  const tabs = [
+    { id: 'overview', label: '📈 Overview' },
+    { id: 'clients', label: '👥 Client Profitability' },
+  ]
 
   useEffect(() => {
     if (user) {
@@ -116,6 +124,12 @@ function Reports() {
       minimumFractionDigits: 0,
     }).format(amount)
 
+  const card = {
+    background: '#141A16',
+    border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '16px',
+  }
+
   const monthLabel = new Date(selectedMonth + '-01')
     .toLocaleString('en-NG', { month: 'long', year: 'numeric' })
 
@@ -161,13 +175,42 @@ function Reports() {
         />
       </div>
 
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.75rem',
+        marginBottom: '1.75rem',
+      }}>
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '0.85rem 1rem',
+              borderRadius: '999px',
+              border: '1px solid transparent',
+              background: activeTab === tab.id ? '#0F1C13' : 'rgba(255,255,255,0.04)',
+              color: activeTab === tab.id ? '#F0F5F2' : '#8A9E92',
+              cursor: 'pointer',
+              fontFamily: 'DM Sans, sans-serif',
+              fontWeight: 600,
+              fontSize: '0.88rem',
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
         <div style={{ color: '#8A9E92', textAlign: 'center', marginTop: '3rem' }}>
           Generating report...
         </div>
       ) : report ? (
         <>
-          {/* Summary Cards */}
+          {activeTab === 'overview' && (
+            <>
+              {/* Summary Cards */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
@@ -368,6 +411,57 @@ function Reports() {
             }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📊</div>
               <p>No activity recorded for {monthLabel}.</p>
+            </div>
+          )}
+            </>
+          )}
+
+          {activeTab === 'clients' && (
+            <div>
+              <div style={{ ...card, padding: '1.5rem', marginBottom: '1.25rem' }}>
+                <h3 style={{
+                  fontFamily: 'Syne, sans-serif',
+                  fontWeight: 700,
+                  fontSize: '0.95rem',
+                  color: colors.textPrimary,
+                  marginBottom: '0.4rem',
+                }}>
+                  💡 Which clients actually make you money?
+                </h3>
+                <p style={{
+                  color: colors.textMuted,
+                  fontSize: '0.82rem',
+                  lineHeight: 1.6,
+                  marginBottom: '1.25rem',
+                }}>
+                  Revenue alone is misleading. A client who gives you ₦300,000 but pays 45 days late
+                  and requires 3x the work is less valuable than one who pays ₦100,000 on time every month.
+                  Here is the truth about each client relationship.
+                </p>
+
+                {/* Redirect to Client Insights */}
+                <a
+                  href="/client-insights"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    background: colors.accent,
+                    color: colors.accentText,
+                    borderRadius: '10px',
+                    fontFamily: 'Syne, sans-serif',
+                    fontWeight: 700,
+                    fontSize: '0.9rem',
+                    textDecoration: 'none',
+                    transition: 'opacity 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
+                  onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+                >
+                  View Full Client Analysis →
+                </a>
+              </div>
             </div>
           )}
         </>

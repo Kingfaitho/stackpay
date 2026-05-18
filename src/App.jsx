@@ -19,6 +19,7 @@ import InvoicePayment from './pages/InvoicePayment'
 import Dashboard from './pages/app/Dashboard'
 import Invoices from './pages/app/Invoices'
 import Clients from './pages/app/Clients'
+import ClientInsights from './pages/app/ClientInsights'
 import Expenses from './pages/app/Expenses'
 import CashReceipts from './pages/app/CashReceipts'
 import Inventory from './pages/app/Inventory'
@@ -85,6 +86,9 @@ function App() {
               } />
               <Route path="/clients" element={
                 <ProtectedRoute><Clients /></ProtectedRoute>
+              } />
+              <Route path="/client-insights" element={
+                <ProtectedRoute><ClientInsights /></ProtectedRoute>
               } />
               <Route path="/expenses" element={
                 <ProtectedRoute><Expenses /></ProtectedRoute>
