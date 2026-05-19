@@ -264,6 +264,99 @@ function Notes() {
           >
             + Note
           </button>
+          <button
+            onClick={() => {
+              const today = new Date().toLocaleDateString('en-NG', {
+                weekday: 'long', day: 'numeric', month: 'long'
+              })
+              setForm({
+                type: 'note',
+                title: `Weekly Business Review — ${today}`,
+                content: `FINANCIAL:\n- Check cash flow and runway\n- Chase overdue invoices\n- Log all expenses from this week\n- Review profit vs last week\n\nMENTAL:\n- What drained my energy this week?\n- What decision am I avoiding?\n- What did I learn?\n\nSPIRITUAL / PERSONAL:\n- Am I building something I am proud of?\n- Who did I help this week?\n- What am I grateful for?\n\nNEXT WEEK FOCUS:\n- #1 priority:\n- #2 priority:\n- #3 priority:`,
+                priority: 'high',
+                due_date: '',
+                client_id: '',
+                pinned: true,
+              })
+              setShowForm(true)
+            }}
+            style={{
+              padding: '0.65rem 1.1rem',
+              background: isDark ? 'rgba(201,168,76,0.1)' : 'rgba(184,140,0,0.08)',
+              border: `1px solid ${isDark ? 'rgba(201,168,76,0.3)' : 'rgba(184,140,0,0.2)'}`,
+              color: isDark ? '#C9A84C' : '#8B6914',
+              borderRadius: '10px',
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            📋 Weekly Review
+          </button>
+          <button
+            onClick={() => {
+              const today = new Date().toLocaleDateString('en-NG', {
+                weekday: 'long', day: 'numeric', month: 'long'
+              })
+              setForm({
+                type: 'note',
+                title: `Monthly Business Review — ${today}`,
+                content: `FINANCIAL:\n- Check cash flow and runway\n- Chase overdue invoices\n- Log all expenses from this week\n- Review profit vs last week\n\nMENTAL:\n- What drained my energy this week?\n- What decision am I avoiding?\n- What did I learn?\n\nSPIRITUAL / PERSONAL:\n- Am I building something I am proud of?\n- Who did I help this week?\n- What am I grateful for?\n\nNEXT MONTH FOCUS:\n- #1 priority:\n- #2 priority:\n- #3 priority:`,
+                priority: 'high',
+                due_date: '',
+                client_id: '',
+                pinned: true,
+              })
+              setShowForm(true)
+            }}
+            style={{
+              padding: '0.65rem 1.1rem',
+              background: isDark ? 'rgba(201,168,76,0.1)' : 'rgba(184,140,0,0.08)',
+              border: `1px solid ${isDark ? 'rgba(201,168,76,0.3)' : 'rgba(184,140,0,0.2)'}`,
+              color: isDark ? '#C9A84C' : '#8B6914',
+              borderRadius: '10px',
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            📅 Monthly Review
+          </button>
+          <button
+            onClick={() => {
+              const today = new Date().toLocaleDateString('en-NG', {
+                weekday: 'long', day: 'numeric', month: 'long'
+              })
+              setForm({
+                type: 'note',
+                title: `Yearly Business Review — ${today}`,
+                content: `FINANCIAL:\n- Check cash flow and runway\n- Chase overdue invoices\n- Log all expenses from this week\n- Review profit vs last week\n\nMENTAL:\n- What drained my energy this week?\n- What decision am I avoiding?\n- What did I learn?\n\nSPIRITUAL / PERSONAL:\n- Am I building something I am proud of?\n- Who did I help this week?\n- What am I grateful for?\n\nNEXT YEAR FOCUS:\n- #1 priority:\n- #2 priority:\n- #3 priority:`,
+                priority: 'high',
+                due_date: '',
+                client_id: '',
+                pinned: true,
+              })
+              setShowForm(true)
+            }}
+            style={{
+              padding: '0.65rem 1.1rem',
+              background: isDark ? 'rgba(201,168,76,0.1)' : 'rgba(184,140,0,0.08)',
+              border: `1px solid ${isDark ? 'rgba(201,168,76,0.3)' : 'rgba(184,140,0,0.2)'}`,
+              color: isDark ? '#C9A84C' : '#8B6914',
+              borderRadius: '10px',
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            📆 Yearly Review
+          </button>
         </div>
       </div>
 
