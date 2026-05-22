@@ -98,10 +98,6 @@ function FeedbackSection({ colors, isDark }) {
   )
 }
 
-console.log('Current user email:', user?.email)
-console.log('Admin email:', ADMIN_EMAIL)
-console.log('Match:', user?.email === ADMIN_EMAIL)
-
 function Admin() {
   const { user } = useAuth()
   const { colors, isDark } = useTheme()
