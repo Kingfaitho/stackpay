@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import { useTheme } from '../../context/ThemeContext'
@@ -239,6 +239,7 @@ function DailyQuote({ colors, isDark }) {
 function Dashboard() {
   const { user } = useAuth()
   const { colors, isDark } = useTheme()
+  const navigate = useNavigate()
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -266,6 +267,12 @@ function Dashboard() {
         .eq('id', user.id)
         .single()
       setProfile(profileData)
+
+      // After fetching profile
+      if (profileData && !profileData.onboarding_complete) {
+        navigate('/onboarding')
+        return
+      }
 
      const [
   { data: invoices },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../supabaseClient'
@@ -7,25 +7,25 @@ import ThemeToggle from './ThemeToggle'
 import GlobalSearch from './GlobalSearch'
 
 const navItems = [
-  { path: '/dashboard', icon: '⊞', label: 'Dashboard' },
-  { path: '/invoices', icon: '📄', label: 'Invoices' },
-  { path: '/work-orders', icon: '⚡', label: 'Work Orders' },
-  { path: '/clients', icon: '👥', label: 'Clients' },
-  { path: '/client-insights', icon: '🔍', label: 'Client Insights' },
-  { path: '/expenses', icon: '💸', label: 'Expenses' },
-  { path: '/cash-receipts', icon: '💵', label: 'Cash Receipts' },
-  { path: '/pos', icon: '🏪', label: 'Point of Sale' },
-  { path: '/inventory', icon: '📦', label: 'Inventory' },
-  { path: '/cashflow', icon: '💧', label: 'Cash Flow' },
-  { path: '/collections', icon: '🏃', label: 'Collections' },
-  { path: '/budget', icon: '🎯', label: 'Budget' },
-  { path: '/reports', icon: '📊', label: 'Reports' },
-  { path: '/notes', icon: '📝', label: 'Notes & Tasks' },
-  { path: '/recurring', icon: '🔄', label: 'Recurring' },
-  { path: '/team', icon: '🤝', label: 'Team' },
-  { path: '/billing', icon: '💳', label: 'Billing' },
-  { path: '/help', icon: '🆘', label: 'Help' },
-  { path: '/profile', icon: '⚙️', label: 'Settings' },
+  { path: '/dashboard', icon: '⊞', label: 'Dashboard', minInvoices: 0 },
+  { path: '/invoices', icon: '📄', label: 'Invoices', minInvoices: 0 },
+  { path: '/clients', icon: '👥', label: 'Clients', minInvoices: 0 },
+  { path: '/expenses', icon: '💸', label: 'Expenses', minInvoices: 1 },
+  { path: '/cash-receipts', icon: '💵', label: 'Cash Receipts', minInvoices: 1 },
+  { path: '/cashflow', icon: '💧', label: 'Cash Flow', minInvoices: 3 },
+  { path: '/collections', icon: '🏃', label: 'Collections', minInvoices: 3 },
+  { path: '/budget', icon: '🎯', label: 'Budget', minInvoices: 5 },
+  { path: '/inventory', icon: '📦', label: 'Inventory', minInvoices: 1 },
+  { path: '/pos', icon: '🏪', label: 'Point of Sale', minInvoices: 5 },
+  { path: '/work-orders', icon: '⚡️', label: 'Work Orders', minInvoices: 1 },
+  { path: '/reports', icon: '📊', label: 'Reports', minInvoices: 5 },
+  { path: '/client-insights', icon: '🔍', label: 'Client Insights', minInvoices: 3 },
+  { path: '/notes', icon: '📝', label: 'Notes & Tasks', minInvoices: 0 },
+  { path: '/recurring', icon: '🔄', label: 'Recurring', minInvoices: 5 },
+  { path: '/team', icon: '🤝', label: 'Team', minInvoices: 10 },
+  { path: '/billing', icon: '💳', label: 'Billing', minInvoices: 0 },
+  { path: '/help', icon: '🆘', label: 'Help', minInvoices: 0 },
+  { path: '/profile', icon: '⚙️', label: 'Settings', minInvoices: 0 },
 ]
 
 function AppLayout({ children }) {
@@ -34,8 +34,10 @@ function AppLayout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [profile, setProfile] = useState(null)
   const [showSearch, setShowSearch] = useState(false)
+  const [invoiceCount, setInvoiceCount] = useState(0)
 
   useEffect(() => {
     if (user) {
@@ -45,6 +47,16 @@ function AppLayout({ children }) {
         .eq('id', user.id)
         .single()
         .then(({ data }) => setProfile(data))
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('invoices')
+        .select('id', { count: 'exact' })
+        .eq('user_id', user.id)
+        .then(({ count }) => setInvoiceCount(count || 0))
     }
   }, [user])
 
@@ -101,55 +113,84 @@ function AppLayout({ children }) {
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: '0.75rem', overflowY: 'auto' }}>
-        {navItems.map((item) => {
-          const active = location.pathname === item.path
+        {navItems.map(item => {
+          const isLocked = invoiceCount < item.minInvoices
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setSidebarOpen(false)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem',
-                padding: '0.65rem 0.85rem',
-                borderRadius: '10px',
-                marginBottom: '0.2rem',
-                background: active
-                  ? colors.sidebarActive
-                  : 'transparent',
-                color: active
-                  ? colors.sidebarActiveText
-                  : colors.sidebarText,
-                fontWeight: active ? 600 : 400,
-                fontSize: '0.88rem',
-                textDecoration: 'none',
-                transition: 'all 0.2s',
-                border: active
-                  ? `1px solid ${colors.sidebarActiveBorder}`
-                  : '1px solid transparent',
-                fontFamily: 'DM Sans, sans-serif',
-              }}
-              onMouseEnter={e => {
-                if (!active) {
-                  e.currentTarget.style.background = isDark
-                    ? 'rgba(255,255,255,0.04)'
-                    : 'rgba(0,0,0,0.04)'
-                  e.currentTarget.style.color = colors.textPrimary
-                }
-              }}
-              onMouseLeave={e => {
-                if (!active) {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = colors.sidebarText
-                }
-              }}
-            >
-              <span style={{ fontSize: '1rem', flexShrink: 0 }}>
-                {item.icon}
-              </span>
-              {item.label}
-            </Link>
+            <div key={item.path} style={{ position: 'relative' }}>
+              <div
+                onClick={() => {
+                  if (isLocked) return
+                  navigate(item.path)
+                  setSidebarOpen(false)
+                  setMobileOpen(false)
+                }}
+                title={isLocked
+                  ? `Unlocks after ${item.minInvoices} invoice${item.minInvoices !== 1 ? 's' : ''}`
+                  : item.label}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.7rem',
+                  padding: '0.6rem 0.85rem',
+                  borderRadius: '10px',
+                  cursor: isLocked ? 'not-allowed' : 'pointer',
+                  background: location.pathname === item.path && !isLocked
+                    ? colors.sidebarActive
+                    : 'transparent',
+                  border: `1px solid ${location.pathname === item.path && !isLocked
+                    ? colors.sidebarActiveBorder : 'transparent'}`,
+                  color: isLocked
+                    ? colors.textMuted
+                    : location.pathname === item.path
+                    ? colors.sidebarActiveText
+                    : colors.sidebarText,
+                  opacity: isLocked ? 0.45 : 1,
+                  transition: 'all 0.15s',
+                  marginBottom: '2px',
+                  fontFamily: 'DM Sans, sans-serif',
+                  fontWeight: location.pathname === item.path ? 600 : 400,
+                  fontSize: '0.88rem',
+                }}
+                onMouseEnter={e => {
+                  if (!isLocked && location.pathname !== item.path) {
+                    e.currentTarget.style.background = isDark
+                      ? 'rgba(255,255,255,0.04)'
+                      : 'rgba(0,0,0,0.04)'
+                    e.currentTarget.style.color = colors.textPrimary
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (location.pathname !== item.path) {
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.color = isLocked ? colors.textMuted : colors.sidebarText
+                  }
+                }}
+              >
+                <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>
+                  {item.icon}
+                </span>
+                <span style={{
+                  fontSize: '0.82rem',
+                  fontWeight: location.pathname === item.path ? 700 : 500,
+                  fontFamily: 'Syne, sans-serif',
+                  flex: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {item.label}
+                </span>
+                {isLocked && (
+                  <span style={{
+                    fontSize: '0.65rem',
+                    color: colors.textMuted,
+                    flexShrink: 0,
+                  }}>
+                    🔒
+                  </span>
+                )}
+              </div>
+            </div>
           )
         })}
       </nav>
