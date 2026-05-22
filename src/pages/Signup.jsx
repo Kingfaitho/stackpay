@@ -148,7 +148,7 @@ function Signup() {
       }
       setLoading(false)
     } else {
-      navigate('/dashboard')
+      navigate('/onboarding')
     }
   }
 

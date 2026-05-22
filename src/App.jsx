@@ -6,6 +6,7 @@ import InstallPrompt from './components/InstallPrompt'
 
 // Public pages
 import LandingPage from './pages/LandingPage'
+import Onboarding from './pages/Onboarding'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
@@ -82,6 +83,9 @@ function App() {
               {/* Protected app routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute><Dashboard /></ProtectedRoute>
+              } />
+              <Route path="/onboarding" element={
+                <ProtectedRoute><Onboarding /></ProtectedRoute>
               } />
               <Route path="/invoices" element={
                 <ProtectedRoute><Invoices /></ProtectedRoute>

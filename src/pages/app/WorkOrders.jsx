@@ -226,7 +226,7 @@ function WorkOrders() {
             ⚡ Work Orders
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
-            Track every service job from inquiry to payment — auto-creates invoices when delivered
+            Track every service job from inquiry to payment, auto-creates invoices when delivered
           </p>
         </div>
         <button
@@ -392,7 +392,7 @@ function WorkOrders() {
             <div>
               <label style={lbl}>INTERNAL NOTES</label>
               <textarea
-                placeholder="Notes only you can see — client preferences, special requirements..."
+                placeholder="Notes only you can see. Client preferences, special requirements..."
                 value={form.notes}
                 onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
                 rows={2}
@@ -513,7 +513,7 @@ function WorkOrders() {
             No work orders yet
           </p>
           <p style={{ color: colors.textMuted, fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-            Perfect for photographers, designers, caterers, consultants — any service business
+            Perfect for photographers, designers, caterers, consultants. Any service business
           </p>
           <button
             onClick={() => setShowForm(true)}
