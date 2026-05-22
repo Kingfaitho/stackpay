@@ -269,10 +269,10 @@ function Dashboard() {
       setProfile(profileData)
 
       // After fetching profile
-      if (profileData && !profileData.onboarding_complete) {
-        navigate('/onboarding')
-        return
-      }
+    if (profile && profile.onboarding_complete === false) {
+  navigate('/onboarding')
+  return
+}
 
      const [
   { data: invoices },

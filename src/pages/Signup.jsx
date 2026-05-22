@@ -132,6 +132,7 @@ function Signup() {
           email: form.email,
           business_name: form.businessName,
           owner_name: form.ownerName,
+          onboarding_complete: false,  // NEW USERS go through onboarding
           business_type: finalBusinessType || null,
           created_at: new Date().toISOString(),
         })
