@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../supabaseClient'
 import ThemeToggle from './ThemeToggle'
 import GlobalSearch from './GlobalSearch'
+import { Link } from 'react-router-dom'
 
 const navItems = [
   { path: '/dashboard', icon: '⊞', label: 'Dashboard', minInvoices: 0 },
