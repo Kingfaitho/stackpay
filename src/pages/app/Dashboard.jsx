@@ -11,104 +11,99 @@ import OnboardingBanner from '../../components/OnboardingBanner'
 import StackPayIntelligence from '../../components/StackPayIntelligence'
 import { useEffect, useState } from 'react'
 
-function StatCard({ label, value, sub, color }) {
+function StatCard({ label, value, sub, color, icon, gradient, accentAlpha = '0.12' }) {
   const { colors, isDark } = useTheme()
-  const [expanded, setExpanded] = useState(false)
+  const [hovered, setHovered] = useState(false)
 
-  // Extract raw number for full display
   const isMoneyValue = typeof value === 'string' && value.includes('₦')
 
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        background: colors.bgCard,
-        border: `1px solid ${colors.border}`,
-        borderRadius: '16px',
-        padding: '1.25rem',
-        transition: 'background 0.3s, border-color 0.2s, box-shadow 0.2s',
-        boxShadow: isDark ? 'none' : '0 2px 12px rgba(0,0,0,0.06)',
+        background: isDark
+          ? `linear-gradient(145deg, ${gradient?.[0] || 'rgba(255,255,255,0.04)'}, ${gradient?.[1] || 'rgba(255,255,255,0.02)'})`
+          : `linear-gradient(145deg, ${gradient?.[0] || 'rgba(255,255,255,0.9)'}, ${gradient?.[1] || 'rgba(255,255,255,0.7)'})`,
+        border: `1px solid ${hovered ? color || colors.borderGreen : isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}`,
+        borderRadius: '20px',
+        padding: '1.4rem 1.35rem 1.2rem',
+        transition: 'all 0.22s cubic-bezier(.4,0,.2,1)',
+        boxShadow: hovered
+          ? isDark
+            ? `0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px ${color || colors.borderGreen}30`
+            : `0 8px 32px rgba(0,0,0,0.10), 0 0 0 1px ${color || colors.borderGreen}25`
+          : isDark
+            ? '0 1px 3px rgba(0,0,0,0.3)'
+            : '0 2px 16px rgba(0,0,0,0.06)',
+        transform: hovered ? 'translateY(-2px)' : 'translateY(0)',
         minWidth: 0,
-        overflow: 'visible',
         position: 'relative',
-        cursor: isMoneyValue ? 'pointer' : 'default',
+        overflow: 'hidden',
+        cursor: 'default',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
       }}
-      onMouseEnter={e => {
-        setExpanded(true)
-        e.currentTarget.style.borderColor = colors.borderGreen
-        e.currentTarget.style.zIndex = '10'
-      }}
-      onMouseLeave={e => {
-        setExpanded(false)
-        e.currentTarget.style.borderColor = colors.border
-        e.currentTarget.style.zIndex = '1'
-      }}
-      onClick={() => setExpanded(prev => !prev)}
     >
+      {/* Subtle glow layer */}
       <div style={{
-        color: colors.textLabel,
-        fontSize: '0.7rem',
+        position: 'absolute',
+        top: 0, left: 0, right: 0,
+        height: '2px',
+        background: color
+          ? `linear-gradient(90deg, transparent, ${color}60, transparent)`
+          : 'transparent',
+        borderRadius: '20px 20px 0 0',
+        opacity: hovered ? 1 : 0.5,
+        transition: 'opacity 0.22s',
+      }} />
+
+      {/* Icon chip */}
+      <div style={{
+        width: '38px',
+        height: '38px',
+        borderRadius: '12px',
+        background: color ? `${color}${isDark ? '22' : '15'}` : `${colors.green}18`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '1.15rem',
+        marginBottom: '0.85rem',
+        border: `1px solid ${color ? `${color}30` : `${colors.green}25`}`,
+      }}>
+        {icon}
+      </div>
+
+      <div style={{
+        color: isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.42)',
+        fontSize: '0.68rem',
         fontWeight: 600,
-        letterSpacing: '0.5px',
+        letterSpacing: '0.6px',
         textTransform: 'uppercase',
-        marginBottom: '0.5rem',
+        marginBottom: '0.45rem',
+        fontFamily: 'DM Sans, sans-serif',
       }}>
         {label}
       </div>
 
-      {/* Value - shrinks font to fit, expands on hover */}
       <div style={{
         fontFamily: 'Syne, sans-serif',
         fontWeight: 800,
-        fontSize: expanded ? '1.1rem' : 'clamp(0.95rem, 1.8vw, 1.3rem)',
+        fontSize: isMoneyValue ? 'clamp(1.05rem, 2vw, 1.45rem)' : '1.7rem',
         color: color || colors.textPrimary,
-        letterSpacing: '-0.3px',
-        marginBottom: '0.25rem',
-        transition: 'font-size 0.2s',
-        wordBreak: 'break-all',
-        lineHeight: 1.2,
+        letterSpacing: '-0.5px',
+        lineHeight: 1.1,
+        marginBottom: '0.35rem',
+        wordBreak: 'break-word',
       }}>
         {value}
       </div>
 
-      {/* Expanded tooltip for full number */}
-      {expanded && isMoneyValue && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          background: colors.bgCard2,
-          border: `1px solid ${colors.borderGreen}`,
-          borderRadius: '10px',
-          padding: '0.75rem 1rem',
-          marginTop: '4px',
-          boxShadow: isDark
-            ? '0 8px 24px rgba(0,0,0,0.5)'
-            : '0 8px 24px rgba(0,0,0,0.15)',
-        }}>
-          <div style={{
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 800,
-            fontSize: '1rem',
-            color: color || colors.textPrimary,
-            marginBottom: '0.2rem',
-          }}>
-            {value}
-          </div>
-          <div style={{
-            color: colors.textMuted,
-            fontSize: '0.72rem',
-          }}>
-            {sub}
-          </div>
-        </div>
-      )}
-
       {sub && (
         <div style={{
-          color: colors.textMuted,
+          color: isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)',
           fontSize: '0.72rem',
+          fontFamily: 'DM Sans, sans-serif',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
@@ -374,7 +369,7 @@ const totalIncome = invoiceIncome + cashIncome
   return (
     <AppLayout>
 
-      {/* Welcome + Daily Quote */}
+      {/* Welcome + Hero CTA */}
       <div style={{ marginBottom: '1.5rem' }}>
         <div style={{
           display: 'flex',
@@ -382,21 +377,22 @@ const totalIncome = invoiceIncome + cashIncome
           alignItems: 'flex-start',
           flexWrap: 'wrap',
           gap: '1rem',
-          marginBottom: '1rem',
+          marginBottom: '1.15rem',
         }}>
           <div>
             <h1 style={{
               fontFamily: 'Syne, sans-serif',
               fontWeight: 800,
-              fontSize: 'clamp(1.4rem, 2.5vw, 1.8rem)',
+              fontSize: 'clamp(1.4rem, 2.5vw, 1.85rem)',
               color: colors.textPrimary,
               marginBottom: '0.3rem',
+              letterSpacing: '-0.3px',
             }}>
               {getGreeting()}{profile?.owner_name
                 ? `, ${profile.owner_name.split(' ')[0]}`
                 : ''} 👋
             </h1>
-            <p style={{ color: colors.textSecondary, fontSize: '0.9rem' }}>
+            <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
               {profile?.business_name || 'Your business'} ·{' '}
               {new Date().toLocaleDateString('en-NG', {
                 weekday: 'long',
@@ -405,6 +401,47 @@ const totalIncome = invoiceIncome + cashIncome
               })}
             </p>
           </div>
+
+          {/* Hero New Invoice CTA */}
+          <Link
+            to="/invoices"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.72rem 1.4rem',
+              borderRadius: '14px',
+              background: isDark
+                ? 'linear-gradient(135deg, #00c566, #00a352)'
+                : 'linear-gradient(135deg, #009e50, #007a3c)',
+              color: '#fff',
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 700,
+              fontSize: '0.92rem',
+              textDecoration: 'none',
+              letterSpacing: '-0.2px',
+              boxShadow: isDark
+                ? '0 4px 20px rgba(0,197,102,0.35), 0 1px 4px rgba(0,0,0,0.3)'
+                : '0 4px 20px rgba(0,140,70,0.3), 0 1px 4px rgba(0,0,0,0.12)',
+              transition: 'all 0.2s cubic-bezier(.4,0,.2,1)',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)'
+              e.currentTarget.style.boxShadow = isDark
+                ? '0 6px 28px rgba(0,197,102,0.45), 0 2px 6px rgba(0,0,0,0.35)'
+                : '0 6px 28px rgba(0,140,70,0.4), 0 2px 6px rgba(0,0,0,0.15)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0) scale(1)'
+              e.currentTarget.style.boxShadow = isDark
+                ? '0 4px 20px rgba(0,197,102,0.35), 0 1px 4px rgba(0,0,0,0.3)'
+                : '0 4px 20px rgba(0,140,70,0.3), 0 1px 4px rgba(0,0,0,0.12)'
+            }}
+          >
+            <span style={{ fontSize: '1rem' }}>+</span>
+            New Invoice
+          </Link>
         </div>
 
         {/* Daily quote */}
@@ -433,39 +470,63 @@ const totalIncome = invoiceIncome + cashIncome
       {/* Stat Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '0.85rem',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))',
+        gap: '1rem',
         marginBottom: '2rem',
       }}>
         <StatCard
           label="Total Income"
           value={formatNaira(stats.totalIncome)}
-          sub="From paid invoices"
+          sub="From paid invoices & cash"
           color={colors.green}
+          icon="💰"
+          gradient={isDark
+            ? ['rgba(0,197,102,0.10)', 'rgba(0,197,102,0.03)']
+            : ['rgba(220,255,237,0.95)', 'rgba(200,255,225,0.6)']}
         />
         <StatCard
           label="Total Expenses"
           value={formatNaira(stats.totalExpenses)}
           sub="All logged costs"
           color={colors.danger}
+          icon="📉"
+          gradient={isDark
+            ? ['rgba(255,80,80,0.10)', 'rgba(255,80,80,0.03)']
+            : ['rgba(255,235,235,0.95)', 'rgba(255,215,215,0.6)']}
         />
         <StatCard
           label="Net Profit"
           value={formatNaira(stats.profit)}
           sub="Income minus expenses"
           color={stats.profit >= 0 ? colors.green : colors.danger}
+          icon={stats.profit >= 0 ? '📈' : '⚠️'}
+          gradient={stats.profit >= 0
+            ? isDark
+              ? ['rgba(0,197,102,0.10)', 'rgba(0,197,102,0.03)']
+              : ['rgba(220,255,237,0.95)', 'rgba(200,255,225,0.6)']
+            : isDark
+              ? ['rgba(255,80,80,0.10)', 'rgba(255,80,80,0.03)']
+              : ['rgba(255,235,235,0.95)', 'rgba(255,215,215,0.6)']}
         />
         <StatCard
           label="Unpaid Invoices"
           value={stats.unpaidInvoices}
           sub="Awaiting payment"
           color={colors.warning}
+          icon="🔔"
+          gradient={isDark
+            ? ['rgba(245,166,35,0.10)', 'rgba(245,166,35,0.03)']
+            : ['rgba(255,248,220,0.95)', 'rgba(255,240,180,0.6)']}
         />
         <StatCard
           label="Total Clients"
           value={stats.totalClients}
           sub="Active clients"
           color={colors.purple}
+          icon="👥"
+          gradient={isDark
+            ? ['rgba(124,106,247,0.10)', 'rgba(124,106,247,0.03)']
+            : ['rgba(240,237,255,0.95)', 'rgba(225,220,255,0.6)']}
         />
       </div>
 
@@ -474,44 +535,49 @@ const totalIncome = invoiceIncome + cashIncome
         <h2 style={{
           fontFamily: 'Syne, sans-serif',
           fontWeight: 700,
-          fontSize: '1rem',
-          color: colors.textPrimary,
-          marginBottom: '1rem',
+          fontSize: '0.9rem',
+          color: isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)',
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase',
+          marginBottom: '0.9rem',
         }}>
           Quick Actions
         </h2>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
           {[
-            { label: '+ New Invoice', path: '/invoices', primary: true },
-            { label: '+ Add Client', path: '/clients', primary: false },
-            { label: '+ Log Expense', path: '/expenses', primary: false },
-            { label: '🎯 Budget', path: '/budget', primary: false },
-            { label: '⚙️ Settings', path: '/profile', primary: false },
-            { label: '💵 Log Cash Receipt', path: '/expenses', primary: false },
-            { label: '💵 Log Cash', path: '/cash-receipts', primary: false },
-
+            { label: '+ Add Client',      path: '/clients',        emoji: '👤' },
+            { label: '+ Log Expense',     path: '/expenses',       emoji: '🧾' },
+            { label: '💵 Log Cash',       path: '/cash-receipts',  emoji: null },
+            { label: '🎯 Budget',         path: '/budget',         emoji: null },
+            { label: '⚙️ Settings',       path: '/profile',        emoji: null },
           ].map((action) => (
             <Link
-              key={action.path}
+              key={action.path + action.label}
               to={action.path}
               style={{
-                padding: '0.65rem 1.2rem',
+                padding: '0.6rem 1.1rem',
                 borderRadius: '10px',
-                background: action.primary ? colors.accent : colors.bgCard,
-                color: action.primary ? colors.accentText : colors.textPrimary,
-                border: action.primary
-                  ? 'none'
-                  : `1px solid ${colors.border}`,
-                fontFamily: 'Syne, sans-serif',
-                fontWeight: 600,
-                fontSize: '0.88rem',
+                background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                color: colors.textPrimary,
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
+                fontFamily: 'DM Sans, sans-serif',
+                fontWeight: 500,
+                fontSize: '0.85rem',
                 textDecoration: 'none',
-                transition: 'all 0.2s',
-                boxShadow: action.primary
-                  ? 'none'
-                  : colors.name === 'light'
-                  ? '0 1px 4px rgba(0,0,0,0.06)'
-                  : 'none',
+                transition: 'all 0.18s',
+                backdropFilter: 'blur(8px)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = colors.borderGreen
+                e.currentTarget.style.color = colors.green
+                e.currentTarget.style.background = isDark
+                  ? 'rgba(0,197,102,0.08)'
+                  : 'rgba(0,140,70,0.06)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
+                e.currentTarget.style.color = colors.textPrimary
+                e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)'
               }}
             >
               {action.label}

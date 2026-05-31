@@ -6,27 +6,33 @@ import { supabase } from '../supabaseClient'
 import ThemeToggle from './ThemeToggle'
 import GlobalSearch from './GlobalSearch'
 import { Link } from 'react-router-dom'
+import {
+  LayoutDashboard, FileText, Users, Receipt, Wallet,
+  TrendingUp, Bell, Target, Package, ShoppingCart,
+  Zap, BarChart2, Search, StickyNote, RefreshCw,
+  UsersRound, CreditCard, HelpCircle, Settings
+} from 'lucide-react'
 
 const navItems = [
-  { path: '/dashboard', icon: '⊞', label: 'Dashboard', minInvoices: 0 },
-  { path: '/invoices', icon: '📄', label: 'Invoices', minInvoices: 0 },
-  { path: '/clients', icon: '👥', label: 'Clients', minInvoices: 0 },
-  { path: '/expenses', icon: '💸', label: 'Expenses', minInvoices: 1 },
-  { path: '/cash-receipts', icon: '💵', label: 'Cash Receipts', minInvoices: 1 },
-  { path: '/cashflow', icon: '💧', label: 'Cash Flow', minInvoices: 3 },
-  { path: '/collections', icon: '🏃', label: 'Collections', minInvoices: 3 },
-  { path: '/budget', icon: '🎯', label: 'Budget', minInvoices: 5 },
-  { path: '/inventory', icon: '📦', label: 'Inventory', minInvoices: 1 },
-  { path: '/pos', icon: '🏪', label: 'Point of Sale', minInvoices: 5 },
-  { path: '/work-orders', icon: '⚡️', label: 'Work Orders', minInvoices: 1 },
-  { path: '/reports', icon: '📊', label: 'Reports', minInvoices: 5 },
-  { path: '/client-insights', icon: '🔍', label: 'Client Insights', minInvoices: 3 },
-  { path: '/notes', icon: '📝', label: 'Notes & Tasks', minInvoices: 0 },
-  { path: '/recurring', icon: '🔄', label: 'Recurring', minInvoices: 5 },
-  { path: '/team', icon: '🤝', label: 'Team', minInvoices: 10 },
-  { path: '/billing', icon: '💳', label: 'Billing', minInvoices: 0 },
-  { path: '/help', icon: '🆘', label: 'Help', minInvoices: 0 },
-  { path: '/profile', icon: '⚙️', label: 'Settings', minInvoices: 0 },
+  { path: '/dashboard',       icon: LayoutDashboard, label: 'Dashboard',      minInvoices: 0  },
+  { path: '/invoices',        icon: FileText,        label: 'Invoices',        minInvoices: 0  },
+  { path: '/clients',         icon: Users,           label: 'Clients',         minInvoices: 0  },
+  { path: '/expenses',        icon: Receipt,         label: 'Expenses',        minInvoices: 1  },
+  { path: '/cash-receipts',   icon: Wallet,          label: 'Cash Receipts',   minInvoices: 1  },
+  { path: '/cashflow',        icon: TrendingUp,      label: 'Cash Flow',       minInvoices: 3  },
+  { path: '/collections',     icon: Bell,            label: 'Collections',     minInvoices: 3  },
+  { path: '/budget',          icon: Target,          label: 'Budget',          minInvoices: 5  },
+  { path: '/inventory',       icon: Package,         label: 'Inventory',       minInvoices: 1  },
+  { path: '/pos',             icon: ShoppingCart,    label: 'Point of Sale',   minInvoices: 5  },
+  { path: '/work-orders',     icon: Zap,             label: 'Work Orders',     minInvoices: 1  },
+  { path: '/reports',         icon: BarChart2,       label: 'Reports',         minInvoices: 5  },
+  { path: '/client-insights', icon: Search,          label: 'Client Insights', minInvoices: 3  },
+  { path: '/notes',           icon: StickyNote,      label: 'Notes & Tasks',   minInvoices: 0  },
+  { path: '/recurring',       icon: RefreshCw,       label: 'Recurring',       minInvoices: 5  },
+  { path: '/team',            icon: UsersRound,      label: 'Team',            minInvoices: 10 },
+  { path: '/billing',         icon: CreditCard,      label: 'Billing',         minInvoices: 0  },
+  { path: '/help',            icon: HelpCircle,      label: 'Help',            minInvoices: 0  },
+  { path: '/profile',         icon: Settings,        label: 'Settings',        minInvoices: 0  },
 ]
 
 function AppLayout({ children }) {
@@ -167,8 +173,8 @@ function AppLayout({ children }) {
                   }
                 }}
               >
-                <span style={{ fontSize: '0.9rem', flexShrink: 0 }}>
-                  {item.icon}
+                <span style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <item.icon size={18} strokeWidth={1.8} />
                 </span>
                 <span style={{
                   fontSize: '0.82rem',
