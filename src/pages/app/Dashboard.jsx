@@ -8,7 +8,7 @@ import {
   Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 import OnboardingBanner from '../../components/OnboardingBanner'
-import StackPayIntelligence from '../../components/StackPayIntelligence'
+import LedgaIntelligence from '../../components/LedgaIntelligence'
 import { useEffect, useState } from 'react'
 
 function SkeletonCard() {
@@ -523,7 +523,7 @@ const totalIncome = invoiceIncome + cashIncome
       />
 
       {/* Ledga Intelligence */}
-      <StackPayIntelligence
+      <LedgaIntelligence
         invoices={allInvoices}
         expenses={allExpenses}
         totalIncome={stats.totalIncome}

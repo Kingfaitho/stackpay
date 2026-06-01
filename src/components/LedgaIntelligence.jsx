@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../supabaseClient'
 
@@ -122,7 +122,7 @@ function FactorBar({ factor, colors, isDark }) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-function StackPayIntelligence({
+function LedgaIntelligence({
   invoices = [],
   expenses = [],
   totalIncome = 0,
@@ -1306,4 +1306,4 @@ End with one motivational sentence. Under 120 words total.`
   )
 }
 
-export default StackPayIntelligence
+export default LedgaIntelligence

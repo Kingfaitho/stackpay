@@ -1,7 +1,7 @@
 {
-  "name": "StackPay - Nigerian Business Finance",
-  "short_name": "StackPay",
-  "description": "Invoicing, payments and expense tracking for Nigerian SMEs",
+  "name": "Ledga — Always Know Your Real Profit",
+  "short_name": "Ledga",
+  "description": "The financial brain for Nigerian business owners. Invoices, expenses, cash flow and real profit — all in one place.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#060908",
@@ -16,4 +16,3 @@
     }
   ]
 }
-

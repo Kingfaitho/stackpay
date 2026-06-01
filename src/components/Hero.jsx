@@ -488,7 +488,7 @@ export default function Hero() {
           Thursday. 8:45pm. Job done. Client paid. You open your bank app.
           The number doesn't make sense. ₦1.5M earned. ₦120K left. No idea why.
           <br /><br />
-          Ledga shows you exactly where every naira went — and how to keep more of it.
+          Ledga shows you exactly where every naira went - and how to keep more of it.
         </p>
 
         {/* CTA buttons */}
