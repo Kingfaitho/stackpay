@@ -1,4 +1,4 @@
-import { useTheme } from '../context/ThemeContext'
+﻿import { useTheme } from '../context/ThemeContext'
 import { Link } from 'react-router-dom'
 
 function Privacy() {
@@ -20,13 +20,13 @@ function Privacy() {
           Last updated: {new Date().toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
         {[
-          { title: 'What We Collect', body: 'When you create an account: your name, business name, and email. When you use StackPay: invoices, client details, expenses, inventory, and payment transactions. Technical data for security purposes.' },
-          { title: 'How We Use Your Information', body: 'To provide the StackPay service. To send account and payment notifications. To generate AI-powered business insights. To calculate your Business Credit Score. We do NOT use your data for advertising and we do NOT sell it.' },
+          { title: 'What We Collect', body: 'When you create an account: your name, business name, and email. When you use Ledga: invoices, client details, expenses, inventory, and payment transactions. Technical data for security purposes.' },
+          { title: 'How We Use Your Information', body: 'To provide the Ledga service. To send account and payment notifications. To generate AI-powered business insights. To calculate your Business Credit Score. We do NOT use your data for advertising and we do NOT sell it.' },
           { title: 'How We Protect Your Data', body: 'All data is stored on Supabase servers with encryption at rest. All connections use TLS encryption. Passwords are hashed and never stored in plain text. Row-level security ensures you only access your own data.' },
           { title: 'Third Party Services', body: 'Paystack processes payments - your card details never touch our servers. Supabase handles database and authentication. OpenRouter processes anonymized business metrics for AI advice. We never send personally identifiable information to AI services.' },
-          { title: 'Your Rights', body: 'You have the right to access, export, correct, and delete your data at any time. Email support@stackpay.ng to exercise these rights.' },
+          { title: 'Your Rights', body: 'You have the right to access, export, correct, and delete your data at any time. Email support@Ledga.ng to exercise these rights.' },
           { title: 'Business Credit Score', body: 'Your credit score is calculated from data you provide and is visible only to you. We will never share it with any third party without your explicit consent.' },
-          { title: 'Contact', body: 'For privacy questions: support@stackpay.ng. We respond within 48 hours.' },
+          { title: 'Contact', body: 'For privacy questions: support@Ledga.ng. We respond within 48 hours.' },
         ].map((s, i) => (
           <div key={i} style={{ marginBottom: '1.75rem' }}>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '1rem', color: colors.textPrimary, marginBottom: '0.6rem' }}>

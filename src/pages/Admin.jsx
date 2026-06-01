@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { supabase } from '../supabaseClient'
@@ -200,7 +200,7 @@ function Admin() {
               color: colors.textPrimary,
               marginBottom: '0.25rem',
             }}>
-              StackPay Control Room
+              Ledga Control Room
             </h1>
             <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
               All users, plans, and business data

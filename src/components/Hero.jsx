@@ -47,9 +47,9 @@ export default function Hero() {
   }, [])
 
   const mockStats = [
-    { label: 'Revenue', value: '₦847,000', change: '+23%', up: true },
-    { label: 'Profit', value: '₦312,400', change: '+18%', up: true },
-    { label: 'Unpaid', value: '₦45,000', change: '2 invoices', up: false },
+    { label: 'You earned', value: '₦847,000', change: '+23%', up: true },
+    { label: 'You kept', value: '₦312,400', change: 'Real profit', up: true },
+    { label: 'Waiting', value: '₦45,000', change: '2 invoices', up: false },
   ]
 
   return (
@@ -437,7 +437,7 @@ export default function Hero() {
             fontWeight: 600,
             fontFamily: 'Syne, sans-serif',
           }}>
-            Financial brain for Nigerian businesses
+            Always know your real profit
           </span>
         </div>
 
@@ -485,9 +485,10 @@ export default function Hero() {
           lineHeight: 1.75,
           animation: 'fadeDown 0.5s ease 0.2s both',
         }}>
-          Ledga is the financial management platform built for Nigerian professionals
-          and service businesses. Invoices, expenses, cash flow forecasting,
-          and AI-powered insights - all in one place.
+          Thursday. 8:45pm. Job done. Client paid. You open your bank app.
+          The number doesn't make sense. ₦1.5M earned. ₦120K left. No idea why.
+          <br /><br />
+          Ledga shows you exactly where every naira went — and how to keep more of it.
         </p>
 
         {/* CTA buttons */}

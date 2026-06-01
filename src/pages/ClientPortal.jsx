@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 
@@ -462,12 +462,12 @@ function ClientPortal() {
           <p style={{ color: '#4A6055', fontSize: '0.78rem' }}>
             Powered by{' '}
             <a
-              href="https://stackpay.ng"
+              href="https://Ledga.ng"
               style={{ color: '#00C566', textDecoration: 'none' }}
               target="_blank"
               rel="noreferrer"
             >
-              StackPay
+              Ledga
             </a>
             {' '}- Financial tools for Nigerian businesses
           </p>

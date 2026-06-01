@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { ArrowRight, CheckCircle } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 
@@ -61,7 +61,7 @@ function FinalCTA() {
           lineHeight: 1.7,
           transition: 'color 0.3s',
         }}>
-          Join 500 Nigerian business owners getting early access to StackPay.
+          Join 500 Nigerian business owners getting early access to Ledga.
           Free to start. No credit card required.
         </p>
 

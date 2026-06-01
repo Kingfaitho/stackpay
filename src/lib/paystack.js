@@ -1,4 +1,4 @@
-export function initializePayment({
+﻿export function initializePayment({
   email, amount, invoiceNumber, onSuccess, onClose
 }) {
   const handler = window.PaystackPop.setup({
@@ -6,7 +6,7 @@ export function initializePayment({
     email,
     amount: amount * 100,
     currency: 'NGN',
-    ref: `STACKPAY-${invoiceNumber}-${Date.now()}`,
+    ref: `Ledga-${invoiceNumber}-${Date.now()}`,
     metadata: {
       invoice_number: invoiceNumber,
     },

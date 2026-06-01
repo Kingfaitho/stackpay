@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+﻿import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import { useTheme } from '../../context/ThemeContext'
@@ -10,6 +10,32 @@ import {
 import OnboardingBanner from '../../components/OnboardingBanner'
 import StackPayIntelligence from '../../components/StackPayIntelligence'
 import { useEffect, useState } from 'react'
+
+function SkeletonCard() {
+  const { colors, isDark } = useTheme()
+  const shimmer = isDark
+    ? 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)'
+    : 'linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.09) 50%, rgba(0,0,0,0.05) 75%)'
+  const s = {
+    background: shimmer,
+    backgroundSize: '200% 100%',
+    animation: 'shimmer 1.4s ease-in-out infinite',
+    borderRadius: '6px',
+  }
+  return (
+    <div style={{
+      borderRadius: '20px',
+      padding: '1.4rem 1.35rem 1.2rem',
+      border: `1px solid ${colors.border}`,
+      background: isDark ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.8)',
+    }}>
+      <div style={{ ...s, width: '38px', height: '38px', borderRadius: '12px', marginBottom: '0.85rem' }} />
+      <div style={{ ...s, width: '55%', height: '9px', marginBottom: '0.5rem' }} />
+      <div style={{ ...s, width: '80%', height: '22px', marginBottom: '0.4rem' }} />
+      <div style={{ ...s, width: '45%', height: '9px' }} />
+    </div>
+  )
+}
 
 function StatCard({ label, value, sub, color, icon, gradient, accentAlpha = '0.12' }) {
   const { colors, isDark } = useTheme()
@@ -263,23 +289,36 @@ function Dashboard() {
         .single()
       setProfile(profileData)
 
-      // After fetching profile
-    if (profile && profile.onboarding_complete === false) {
-  navigate('/onboarding')
-  return
-}
+      // Only redirect to onboarding if flag is not true AND they have zero invoices.
+      // If they have invoices they are already active — heal the flag and continue.
+      if (profileData && profileData.onboarding_complete !== true) {
+        const { count: invCount } = await supabase
+          .from('invoices')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
 
-     const [
-  { data: invoices },
-  { data: expenses },
-  { data: cashReceiptsData },
-  { data: clients },
-] = await Promise.all([
-  supabase.from('invoices').select('*').eq('user_id', user.id),
-  supabase.from('expenses').select('*').eq('user_id', user.id),
-  supabase.from('cash_receipts').select('amount').eq('user_id', user.id),
-  supabase.from('clients').select('id').eq('user_id', user.id),
-])
+        if (!invCount || invCount === 0) {
+          navigate('/onboarding')
+          return
+        }
+        // Has invoices but flag is wrong — silently fix it
+        await supabase
+          .from('profiles')
+          .update({ onboarding_complete: true })
+          .eq('id', user.id)
+      }
+
+      const [
+        { data: invoices },
+        { data: expenses },
+        { data: cashReceiptsData },
+        { data: clients },
+      ] = await Promise.all([
+        supabase.from('invoices').select('*').eq('user_id', user.id),
+        supabase.from('expenses').select('*').eq('user_id', user.id),
+        supabase.from('cash_receipts').select('amount').eq('user_id', user.id),
+        supabase.from('clients').select('id').eq('user_id', user.id),
+      ])
 
       setAllInvoices(invoices || [])
       setAllExpenses(expenses || [])
@@ -355,14 +394,42 @@ const totalIncome = invoiceIncome + cashIncome
 
   if (loading) return (
     <AppLayout>
-      <div style={{
-        color: colors.textMuted,
-        textAlign: 'center',
-        marginTop: '3rem',
-        fontFamily: 'DM Sans, sans-serif',
-      }}>
-        Loading your dashboard...
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{
+          height: '28px', width: '220px',
+          borderRadius: '8px',
+          background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+          animation: 'shimmer 1.4s ease-in-out infinite',
+          backgroundSize: '200% 100%',
+          backgroundImage: isDark
+            ? 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)'
+            : 'linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%)',
+          marginBottom: '0.5rem',
+        }} />
+        <div style={{
+          height: '14px', width: '160px',
+          borderRadius: '6px',
+          backgroundImage: isDark
+            ? 'linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%)'
+            : 'linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'shimmer 1.4s ease-in-out infinite',
+        }} />
       </div>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(175px, 1fr))',
+        gap: '1rem',
+        marginBottom: '2rem',
+      }}>
+        {[...Array(5)].map((_, i) => <SkeletonCard key={i} />)}
+      </div>
+      <style>{`
+        @keyframes shimmer {
+          0%   { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+      `}</style>
     </AppLayout>
   )
 
@@ -455,7 +522,7 @@ const totalIncome = invoiceIncome + cashIncome
         clientCount={stats.totalClients}
       />
 
-      {/* StackPay Intelligence */}
+      {/* Ledga Intelligence */}
       <StackPayIntelligence
         invoices={allInvoices}
         expenses={allExpenses}
@@ -475,9 +542,9 @@ const totalIncome = invoiceIncome + cashIncome
         marginBottom: '2rem',
       }}>
         <StatCard
-          label="Total Income"
+          label="You earned"
           value={formatNaira(stats.totalIncome)}
-          sub="From paid invoices & cash"
+          sub="From paid invoices + cash received"
           color={colors.green}
           icon="💰"
           gradient={isDark
@@ -485,9 +552,9 @@ const totalIncome = invoiceIncome + cashIncome
             : ['rgba(220,255,237,0.95)', 'rgba(200,255,225,0.6)']}
         />
         <StatCard
-          label="Total Expenses"
+          label="You spent"
           value={formatNaira(stats.totalExpenses)}
-          sub="All logged costs"
+          sub="All tracked business costs"
           color={colors.danger}
           icon="📉"
           gradient={isDark
@@ -495,9 +562,9 @@ const totalIncome = invoiceIncome + cashIncome
             : ['rgba(255,235,235,0.95)', 'rgba(255,215,215,0.6)']}
         />
         <StatCard
-          label="Net Profit"
+          label="You kept"
           value={formatNaira(stats.profit)}
-          sub="Income minus expenses"
+          sub={stats.profit >= 0 ? 'Your real profit after every cost' : 'Spending more than you earn'}
           color={stats.profit >= 0 ? colors.green : colors.danger}
           icon={stats.profit >= 0 ? '📈' : '⚠️'}
           gradient={stats.profit >= 0
@@ -509,9 +576,9 @@ const totalIncome = invoiceIncome + cashIncome
               : ['rgba(255,235,235,0.95)', 'rgba(255,215,215,0.6)']}
         />
         <StatCard
-          label="Unpaid Invoices"
+          label="Waiting on you"
           value={stats.unpaidInvoices}
-          sub="Awaiting payment"
+          sub={stats.unpaidInvoices > 0 ? 'Chase these — it is your money' : 'All invoices collected ✓'}
           color={colors.warning}
           icon="🔔"
           gradient={isDark
@@ -519,9 +586,9 @@ const totalIncome = invoiceIncome + cashIncome
             : ['rgba(255,248,220,0.95)', 'rgba(255,240,180,0.6)']}
         />
         <StatCard
-          label="Total Clients"
+          label="Clients"
           value={stats.totalClients}
-          sub="Active clients"
+          sub="People you do business with"
           color={colors.purple}
           icon="👥"
           gradient={isDark
@@ -738,32 +805,60 @@ const totalIncome = invoiceIncome + cashIncome
 
         {stats.recentInvoices.length === 0 ? (
           <div style={{
-            background: colors.bgCard,
-            border: `1px solid ${colors.border}`,
-            borderRadius: '16px',
-            padding: '3rem',
+            background: isDark
+              ? 'linear-gradient(145deg, rgba(0,197,102,0.05), rgba(0,197,102,0.02))'
+              : 'linear-gradient(145deg, rgba(220,255,237,0.8), rgba(200,255,225,0.4))',
+            border: `1px solid ${isDark ? 'rgba(0,197,102,0.12)' : 'rgba(0,150,70,0.12)'}`,
+            borderRadius: '20px',
+            padding: '3rem 2rem',
             textAlign: 'center',
-            color: colors.textMuted,
-            boxShadow: colors.name === 'light'
-              ? '0 2px 12px rgba(0,0,0,0.06)'
-              : 'none',
           }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📄</div>
-            <p style={{ marginBottom: '1rem', fontSize: '0.95rem' }}>
-              No invoices yet. Create your first one!
+            <div style={{
+              width: '60px', height: '60px',
+              borderRadius: '18px',
+              background: isDark ? 'rgba(0,197,102,0.12)' : 'rgba(0,150,70,0.08)',
+              border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,150,70,0.15)'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem',
+              fontSize: '1.5rem',
+            }}>
+              📄
+            </div>
+            <p style={{
+              fontFamily: 'Syne, sans-serif',
+              fontWeight: 700,
+              fontSize: '1rem',
+              color: colors.textPrimary,
+              marginBottom: '0.4rem',
+            }}>
+              No invoices yet
+            </p>
+            <p style={{
+              color: colors.textMuted,
+              fontSize: '0.85rem',
+              marginBottom: '1.25rem',
+            }}>
+              Create your first invoice and get paid in minutes.
             </p>
             <Link to="/invoices" style={{
-              display: 'inline-block',
-              padding: '0.6rem 1.2rem',
-              background: colors.accent,
-              color: colors.accentText,
-              borderRadius: '8px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.65rem 1.3rem',
+              background: isDark
+                ? 'linear-gradient(135deg, #00c566, #00a352)'
+                : 'linear-gradient(135deg, #009e50, #007a3c)',
+              color: '#fff',
+              borderRadius: '12px',
               fontFamily: 'Syne, sans-serif',
               fontWeight: 700,
               fontSize: '0.88rem',
               textDecoration: 'none',
+              boxShadow: '0 4px 16px rgba(0,197,102,0.3)',
             }}>
-              Create Invoice
+              + Create Invoice
             </Link>
           </div>
         ) : (
@@ -860,6 +955,12 @@ const totalIncome = invoiceIncome + cashIncome
         )}
       </div>
 
+      <style>{`
+        @keyframes shimmer {
+          0%   { background-position: 200% center; }
+          100% { background-position: -200% center; }
+        }
+      `}</style>
     </AppLayout>
   )
 }

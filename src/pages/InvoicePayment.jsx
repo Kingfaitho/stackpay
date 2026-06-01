@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 
@@ -62,7 +62,7 @@ function InvoicePayment() {
       email: invoice.clients.email,
       amount: Number(invoice.total) * 100,
       currency: business?.currency || 'NGN',
-      ref: `STACKPAY-${invoice.invoice_number}-${Date.now()}`,
+      ref: `Ledga-${invoice.invoice_number}-${Date.now()}`,
       metadata: {
         invoice_number: invoice.invoice_number,
         invoice_id: invoiceId,
@@ -455,10 +455,10 @@ function InvoicePayment() {
         }}>
           Powered by{' '}
           <a
-            href="https://stackpay.ng"
+            href="https://Ledga.ng"
             style={{ color: '#00C566', textDecoration: 'none' }}
           >
-            StackPay
+            Ledga
           </a>
           {' '}- Financial tools for Nigerian businesses
         </p>

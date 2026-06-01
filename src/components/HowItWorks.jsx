@@ -1,4 +1,4 @@
-import { useTheme } from '../context/ThemeContext'
+﻿import { useTheme } from '../context/ThemeContext'
 
 const steps = [
   {
@@ -9,7 +9,7 @@ const steps = [
   {
     step: '02',
     title: 'Add your clients & services',
-    desc: 'Enter the names of your customers and what you sell or offer. StackPay remembers everything for next time.',
+    desc: 'Enter the names of your customers and what you sell or offer. Ledga remembers everything for next time.',
   },
   {
     step: '03',

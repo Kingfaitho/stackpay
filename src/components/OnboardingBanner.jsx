@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 
 function OnboardingBanner({ profile, invoiceCount, clientCount }) {
   const steps = [
@@ -57,7 +57,7 @@ function OnboardingBanner({ profile, invoiceCount, clientCount }) {
             color: '#EDF2EF',
             marginBottom: '0.2rem',
           }}>
-            🚀 Get started with StackPay
+            🚀 Get started with Ledga
           </h3>
           <p style={{ color: '#7A9485', fontSize: '0.82rem' }}>
             {completedCount} of {steps.length} steps completed

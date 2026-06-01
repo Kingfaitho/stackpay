@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
@@ -92,7 +92,7 @@ function Billing() {
       email: user.email,
       plan: plan.planCode,
       currency: 'NGN',
-      ref: `STACKPAY-SUB-${Date.now()}`,
+      ref: `Ledga-SUB-${Date.now()}`,
       callback: async (response) => {
         const { error } = await supabase
           .from('profiles')
@@ -101,7 +101,7 @@ function Billing() {
 
         if (!error) {
           setCurrentPlan(plan.name)
-          alert(`🎉 Welcome to StackPay ${plan.name}! Your subscription is now active.`)
+          alert(`🎉 Welcome to Ledga ${plan.name}! Your subscription is now active.`)
         }
         setLoading(false)
       },

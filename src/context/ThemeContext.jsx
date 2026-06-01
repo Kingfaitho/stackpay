@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+﻿import { createContext, useContext, useState, useEffect } from 'react'
 
 const ThemeContext = createContext({})
 
@@ -67,11 +67,11 @@ export const themes = {
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('stackpay_theme') || 'light'
+    return localStorage.getItem('Ledga_theme') || 'light'
   })
 
   useEffect(() => {
-    localStorage.setItem('stackpay_theme', theme)
+    localStorage.setItem('Ledga_theme', theme)
   }, [theme])
 
   const toggleTheme = () => {

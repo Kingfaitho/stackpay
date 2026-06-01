@@ -43,7 +43,6 @@ function AppLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [profile, setProfile] = useState(null)
-  const [showSearch, setShowSearch] = useState(false)
   const [invoiceCount, setInvoiceCount] = useState(0)
 
   useEffect(() => {
@@ -67,16 +66,6 @@ function AppLayout({ children }) {
     }
   }, [user])
 
-  useEffect(() => {
-    const handleKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault()
-        setShowSearch(true)
-      }
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -104,7 +93,7 @@ function AppLayout({ children }) {
           color: colors.textPrimary,
           marginBottom: '0.15rem',
         }}>
-          Stack<span style={{ color: colors.green }}>Pay</span>
+          Led<span style={{ color: colors.green }}>ga</span>
         </div>
         <div style={{
           color: colors.textMuted,
@@ -308,8 +297,8 @@ function AppLayout({ children }) {
           borderBottom: `1px solid ${colors.border}`,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 1.5rem',
+          gap: '0.75rem',
+          padding: '0 1.25rem',
           background: colors.bgTopbar,
           position: 'sticky',
           top: 0,
@@ -318,7 +307,7 @@ function AppLayout({ children }) {
           backdropFilter: 'blur(12px)',
         }}>
 
-          {/* Hamburger */}
+          {/* Hamburger (mobile) */}
           <button
             className="hamburger"
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -330,64 +319,42 @@ function AppLayout({ children }) {
               cursor: 'pointer',
               display: 'none',
               padding: '0.25rem',
+              flexShrink: 0,
             }}
           >
             ☰
           </button>
 
-          {/* Date */}
-          <div style={{
-            color: colors.textSecondary,
-            fontSize: '0.85rem',
-          }}>
+          {/* Date (hidden on mobile) */}
+          <div
+            className="topbar-date"
+            style={{
+              color: colors.textMuted,
+              fontSize: '0.78rem',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
             {new Date().toLocaleDateString('en-NG', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
+              weekday: 'short',
               day: 'numeric',
+              month: 'short',
             })}
           </div>
+
+          {/* Inline Search — fills available space */}
+          <GlobalSearch />
 
           {/* Right cluster */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.6rem',
+            gap: '0.5rem',
+            flexShrink: 0,
           }}>
-            {/* Search button */}
-            <button
-              onClick={() => setShowSearch(true)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.45rem 0.85rem',
-                background: colors.bgCard,
-                border: `1px solid ${colors.border}`,
-                borderRadius: '8px',
-                color: colors.textMuted,
-                fontFamily: 'DM Sans, sans-serif',
-                fontSize: '0.78rem',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                whiteSpace: 'nowrap',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = colors.borderGreen
-                e.currentTarget.style.color = colors.green
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = colors.border
-                e.currentTarget.style.color = colors.textMuted
-              }}
-            >
-              🔍
-              <span className="search-shortcut">⌘K</span>
-            </button>
-            
             <ThemeToggle compact={true} />
 
-            {/* Avatar — clickable, goes to profile */}
+            {/* Avatar */}
             <Link
               to="/profile"
               title="Go to Settings"
@@ -427,12 +394,7 @@ function AppLayout({ children }) {
                 <img
                   src={profile.logo_url}
                   alt="Business logo"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '50%',
-                  }}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                 />
               ) : (
                 user?.email?.[0]?.toUpperCase()
@@ -453,15 +415,11 @@ function AppLayout({ children }) {
         </div>
       </div>
 
-      {showSearch && (
-        <GlobalSearch onClose={() => setShowSearch(false)} />
-      )}
-
       <style>{`
         @media (max-width: 768px) {
-          .search-shortcut { display: none; }
           .desktop-sidebar { display: none !important; }
           .hamburger { display: flex !important; }
+          .topbar-date { display: none !important; }
         }
         @media (min-width: 769px) {
           .mobile-sidebar { display: none !important; }

@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 
 const insights = [
   {
     icon: '🤖',
     title: 'AI Business Health Score',
-    desc: 'StackPay AI analyzes your income, expenses and invoice patterns weekly to give your business a score out of 100 - with specific steps to improve.',
+    desc: 'Ledga AI analyzes your income, expenses and invoice patterns weekly to give your business a score out of 100 - with specific steps to improve.',
     tag: 'Coming Soon',
     color: '#00C566',
   },
@@ -101,7 +101,7 @@ function AIInsights() {
               marginBottom: '2rem',
               maxWidth: '440px',
             }}>
-              StackPay's AI studies your financial patterns and gives you
+              Ledga's AI studies your financial patterns and gives you
               personalized advice - like having a CFO in your pocket,
               at a fraction of the cost.
             </p>

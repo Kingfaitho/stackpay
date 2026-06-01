@@ -1,4 +1,4 @@
-import { useTheme } from '../context/ThemeContext'
+﻿import { useTheme } from '../context/ThemeContext'
 
 function Footer() {
   const { colors, isDark } = useTheme()
@@ -174,7 +174,7 @@ function Footer() {
             fontSize: '0.82rem',
             transition: 'color 0.3s',
           }}>
-            © 2025 StackPay. Built with 💚 in Nigeria.
+            © 2025 Ledga. Built with 💚 in Nigeria.
           </p>
           <p style={{
             color: colors.textMuted,

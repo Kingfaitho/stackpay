@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
@@ -160,7 +160,7 @@ function Invoices() {
     loadInvoices()
   }
 
-  const handlePaystackPayment = (inv) => {
+  const handlePayLedgament = (inv) => {
     if (!inv.clients?.email) {
       alert('This client has no email address. Add their email in Clients first.')
       return
@@ -193,7 +193,7 @@ function Invoices() {
     `Pay securely online:\n` +
     `${paymentUrl}\n\n` +
     `Thank you for your business! 🙏\n` +
-    `- ${profile?.business_name || 'StackPay'}`
+    `- ${profile?.business_name || 'Ledga'}`
   )
   window.open(`https://wa.me/?text=${message}`, '_blank')
 }
@@ -1003,7 +1003,7 @@ function Invoices() {
                 {/* Paystack Pay Now */}
                 {inv.status === 'unpaid' && (
                   <button
-                    onClick={() => handlePaystackPayment(inv)}
+                    onClick={() => handlePayLedgament(inv)}
                     style={{
                       padding: '0.3rem 0.75rem',
                       background: 'rgba(0,100,255,0.08)',

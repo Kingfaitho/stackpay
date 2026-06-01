@@ -123,7 +123,7 @@ function Login() {
             textDecoration: 'none',
             display: 'inline-block',
           }}>
-            Stack<span style={{ color: '#00C566' }}>Pay</span>
+            Led<span style={{ color: '#00C566' }}>ga</span>
           </Link>
           <p style={{
             color: '#7A9485',

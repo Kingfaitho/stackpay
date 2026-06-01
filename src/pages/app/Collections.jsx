@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../supabaseClient'
@@ -96,7 +96,7 @@ function Collections() {
   }
 
   const generateMessage = (inv, tone, profileData) => {
-    const business = profileData?.business_name || 'StackPay'
+    const business = profileData?.business_name || 'Ledga'
     const clientName = inv.clients?.name || 'there'
     const amount = new Intl.NumberFormat('en-NG', {
       style: 'currency',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 
 function InstallPrompt() {
   const [prompt, setPrompt] = useState(null)
@@ -148,7 +148,7 @@ function InstallPrompt() {
                 fontSize: '1rem',
                 marginBottom: '0.2rem',
               }}>
-                Install StackPay
+                Install Ledga
               </div>
               <div style={{
                 color: '#7A9485',

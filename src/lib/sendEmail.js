@@ -1,4 +1,4 @@
-export async function sendInvoicePaidEmail({
+﻿export async function sendInvoicePaidEmail({
   ownerEmail,
   ownerName,
   businessName,
@@ -9,7 +9,7 @@ export async function sendInvoicePaidEmail({
   const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY
 
   const body = {
-    from: 'StackPay <notifications@stackpay.ng>',
+    from: 'Ledga <notifications@Ledga.ng>',
     to: ownerEmail,
     subject: `💰 Invoice ${invoiceNumber} has been paid!`,
     html: `
@@ -49,7 +49,7 @@ export async function sendInvoicePaidEmail({
           </div>
         </div>
         <p style="color: #4A6055; font-size: 12px; text-align: center; margin: 0;">
-          Sent by StackPay - stackpay-five.vercel.app
+          Sent by Ledga - Ledga-five.vercel.app
         </p>
       </div>
     `,

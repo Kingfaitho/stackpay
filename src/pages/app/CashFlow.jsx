@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+﻿import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../supabaseClient'
@@ -548,7 +548,7 @@ Total under 120 words.`
             maxWidth: '420px',
             margin: '0 auto 1.5rem',
           }}>
-            Tell StackPay your minimum cash buffer and fixed monthly costs.
+            Tell Ledga your minimum cash buffer and fixed monthly costs.
             This is what makes forecasting accurate - not generic.
           </p>
           <button
@@ -623,7 +623,7 @@ Total under 120 words.`
             marginTop: '-0.5rem',
             marginBottom: '1rem',
           }}>
-            StackPay alerts you before cash drops below this amount.
+            Ledga alerts you before cash drops below this amount.
           </p>
 
           {/* Risk tolerance */}

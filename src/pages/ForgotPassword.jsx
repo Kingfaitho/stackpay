@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 
@@ -67,7 +67,7 @@ function ForgotPassword() {
                 marginBottom: '1.8rem',
                 lineHeight: 1.7,
               }}>
-                Enter the email address linked to your StackPay account.
+                Enter the email address linked to your Ledga account.
                 We'll send you a link to reset your password.
               </p>
 

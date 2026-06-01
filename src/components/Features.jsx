@@ -1,4 +1,4 @@
-import { FileText, CreditCard, BarChart3, Users, Zap, Shield } from 'lucide-react'
+﻿import { FileText, CreditCard, BarChart3, Users, Zap, Shield } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 
 const features = [
@@ -84,7 +84,7 @@ function Features() {
             lineHeight: 1.7,
             transition: 'color 0.3s',
           }}>
-            Most Nigerian SMEs use 4–6 different apps to do what StackPay does alone.
+            Most Nigerian SMEs use 4–6 different apps to do what Ledga does alone.
             Stop the chaos.
           </p>
         </div>

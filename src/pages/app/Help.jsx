@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../supabaseClient'
@@ -23,7 +23,7 @@ const FAQ = [
   },
   {
     q: 'How does inventory tracking work?',
-    a: 'Go to Inventory → "+ Add Item" → enter the item name, quantity, cost price, and selling price. StackPay calculates your profit margin automatically and alerts you when stock runs low.',
+    a: 'Go to Inventory → "+ Add Item" → enter the item name, quantity, cost price, and selling price. Ledga calculates your profit margin automatically and alerts you when stock runs low.',
   },
   {
     q: 'What is Cash Flow & Runway?',
@@ -35,11 +35,11 @@ const FAQ = [
   },
   {
     q: 'Can I share my client portal?',
-    a: 'Yes. Go to Clients → click "Portal" next to any client → copy the link and share it with them. They can view all their invoices and payment history without needing a StackPay account.',
+    a: 'Yes. Go to Clients → click "Portal" next to any client → copy the link and share it with them. They can view all their invoices and payment history without needing a Ledga account.',
   },
   {
     q: 'How do I delete my account?',
-    a: 'Email support@stackpay.ng with your account email and we will delete your account and all data within 30 days as required by our privacy policy.',
+    a: 'Email support@Ledga.ng with your account email and we will delete your account and all data within 30 days as required by our privacy policy.',
   },
 ]
 
@@ -84,7 +84,7 @@ function Help() {
       setFeedback({ type: 'feedback', subject: '', message: '' })
     } catch (err) {
       console.error('Feedback error:', err)
-      setError('Failed to send. Please email support@stackpay.ng directly.')
+      setError('Failed to send. Please email support@Ledga.ng directly.')
     }
     setSending(false)
   }
@@ -142,15 +142,15 @@ function Help() {
             title: 'WhatsApp Support',
             desc: 'Chat with us directly',
             action: 'Open WhatsApp',
-            href: 'https://wa.me/2348000000000?text=Hi, I need help with StackPay',
+            href: 'https://wa.me/2348000000000?text=Hi, I need help with Ledga',
             color: '#25D366',
           },
           {
             icon: '📧',
             title: 'Email Support',
-            desc: 'support@stackpay.ng',
+            desc: 'support@Ledga.ng',
             action: 'Send Email',
-            href: 'mailto:support@stackpay.ng',
+            href: 'mailto:support@Ledga.ng',
             color: colors.green,
           },
           {

@@ -16,7 +16,7 @@ function ProtectedRoute({ children }) {
       fontWeight: 700,
       fontSize: '1rem',
     }}>
-      Loading StackPay...
+      Loading Ledga...
     </div>
   )
 
