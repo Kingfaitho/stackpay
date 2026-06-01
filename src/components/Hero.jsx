@@ -398,417 +398,248 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── MAIN CONTENT ── */}
-      <div style={{
+      {/* ── MAIN CONTENT — two-column asymmetric ── */}
+      <div className="hero-main" style={{
         position: 'relative',
         zIndex: 2,
-        maxWidth: '800px',
         width: '100%',
+        maxWidth: '1160px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '3.5rem',
       }}>
 
-        {/* NEW badge */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          background: isDark
-            ? 'rgba(0,197,102,0.12)'
-            : 'rgba(0,120,60,0.08)',
-          border: `1px solid ${isDark ? 'rgba(0,197,102,0.3)' : 'rgba(0,120,60,0.2)'}`,
-          borderRadius: '100px',
-          padding: '0.35rem 1rem 0.35rem 0.5rem',
-          marginBottom: '2rem',
-          animation: 'fadeDown 0.5s ease both',
-        }}>
-          <span style={{
-            background: colors.green,
-            color: '#fff',
-            borderRadius: '100px',
-            padding: '0.12rem 0.55rem',
-            fontSize: '0.65rem',
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 800,
+        {/* ── LEFT: text ── */}
+        <div className="hero-left" style={{ flex: '0 0 52%', textAlign: 'left' }}>
+
+          {/* Thursday scene — the hook */}
+          <p style={{
+            fontStyle: 'italic',
+            fontSize: 'clamp(0.82rem, 1.4vw, 0.95rem)',
+            color: colors.textMuted,
+            marginBottom: '1.5rem',
+            lineHeight: 1.8,
+            animation: 'fadeDown 0.5s ease both',
+            borderLeft: `2px solid ${isDark ? 'rgba(0,197,102,0.3)' : 'rgba(0,120,60,0.25)'}`,
+            paddingLeft: '1rem',
           }}>
-            NEW
-          </span>
-          <span style={{
-            fontSize: '0.78rem',
-            color: colors.green,
-            fontWeight: 600,
-            fontFamily: 'Syne, sans-serif',
-          }}>
-            Always know your real profit
-          </span>
-        </div>
+            Thursday. 8:45pm. Job done. Client paid.<br />
+            You open your bank app. The number doesn't make sense.<br />
+            <strong style={{ color: colors.textSecondary, fontStyle: 'normal' }}>
+              ₦1.5M earned. ₦120K left. No idea why.
+            </strong>
+          </p>
 
-        {/* Headline */}
-        <h1 style={{
-          fontFamily: 'Syne, sans-serif',
-          fontWeight: 900,
-          fontSize: 'clamp(2.4rem, 5.5vw, 4.5rem)',
-          lineHeight: 1.05,
-          letterSpacing: '-2.5px',
-          marginBottom: '1.5rem',
-          color: colors.textPrimary,
-          animation: 'fadeDown 0.5s ease 0.1s both',
-        }}>
-          Know your real profit.
-          <br />
-
-          {/* Gradient text — GPU forced, works in ALL themes */}
-          <span style={{
-            display: 'inline-block',
-            color: 'transparent',
-            backgroundImage: isDark
-              ? 'linear-gradient(135deg, #00C566 0%, #C9A84C 50%, #7C6AF7 100%)'
-              : 'linear-gradient(135deg, #007A3D 0%, #B8860B 50%, #5B4EC7 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            transform: 'translateZ(0)',
-            WebkitTransform: 'translateZ(0)',
-            backgroundSize: '200% 200%',
-            animation: 'gradientShift 4s ease infinite',
-          }}>
-            Get paid faster.
-          </span>
-          <br />
-          Grow with clarity.
-        </h1>
-
-        {/* Subheadline */}
-        <p style={{
-          fontSize: 'clamp(1rem, 2vw, 1.15rem)',
-          color: colors.textSecondary,
-          maxWidth: '560px',
-          margin: '0 auto 2.5rem',
-          lineHeight: 1.75,
-          animation: 'fadeDown 0.5s ease 0.2s both',
-        }}>
-          Thursday. 8:45pm. Job done. Client paid. You open your bank app.
-          The number doesn't make sense. ₦1.5M earned. ₦120K left. No idea why.
-          <br /><br />
-          Ledga shows you exactly where every naira went - and how to keep more of it.
-        </p>
-
-        {/* CTA buttons */}
-        <div style={{
-          display: 'flex',
-          gap: '0.75rem',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-          marginBottom: '2.5rem',
-          animation: 'fadeDown 0.5s ease 0.3s both',
-        }}>
-          <button
-            onClick={() => navigate('/signup')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: colors.green,
-              color: '#fff',
-              padding: '1rem 2.25rem',
-              borderRadius: '14px',
-              fontWeight: 800,
-              fontSize: '1rem',
-              fontFamily: 'Syne, sans-serif',
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: `0 6px 30px ${colors.green}50`,
-              transition: 'all 0.25s',
-              letterSpacing: '-0.3px',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateY(-3px)'
-              e.currentTarget.style.boxShadow = `0 12px 40px ${colors.green}60`
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = `0 6px 30px ${colors.green}50`
-            }}
-          >
-            Start Free - No Card Needed <ArrowRight size={18} />
-          </button>
-
-          <button
-            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'transparent',
-              color: colors.textPrimary,
-              padding: '1rem 1.8rem',
-              borderRadius: '14px',
-              fontWeight: 600,
-              fontSize: '1rem',
-              fontFamily: 'Syne, sans-serif',
-              border: `1px solid ${colors.border}`,
-              cursor: 'pointer',
-              transition: 'all 0.25s',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = colors.borderGreen
-              e.currentTarget.style.color = colors.green
-              e.currentTarget.style.transform = 'translateY(-2px)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = colors.border
-              e.currentTarget.style.color = colors.textPrimary
-              e.currentTarget.style.transform = 'translateY(0)'
-            }}
-          >
-            See How It Works
-          </button>
-        </div>
-
-        {/* Mini dashboard preview */}
-        <div style={{
-          background: isDark
-            ? 'rgba(10,16,12,0.9)'
-            : 'rgba(255,255,255,0.92)',
-          border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,120,60,0.15)'}`,
-          borderRadius: '20px',
-          padding: '1.5rem',
-          maxWidth: '520px',
-          margin: '0 auto 2rem',
-          backdropFilter: 'blur(20px)',
-          boxShadow: isDark
-            ? '0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,197,102,0.1)'
-            : '0 40px 100px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
-          animation: 'fadeUp 0.8s ease 0.4s both',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          {/* Subtle inner glow */}
+          {/* Badge */}
           <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: `linear-gradient(90deg, transparent, ${colors.green}40, transparent)`,
-          }} />
-
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.1rem',
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            background: isDark ? 'rgba(0,197,102,0.12)' : 'rgba(0,120,60,0.08)',
+            border: `1px solid ${isDark ? 'rgba(0,197,102,0.3)' : 'rgba(0,120,60,0.2)'}`,
+            borderRadius: '100px', padding: '0.35rem 1rem 0.35rem 0.5rem',
+            marginBottom: '1.5rem', animation: 'fadeDown 0.5s ease 0.05s both',
           }}>
-            <div style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              fontSize: '0.8rem',
-              color: colors.textPrimary,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-            }}>
-              <span>📊</span> Live Dashboard Preview
-            </div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.65rem',
-              color: colors.green,
-              fontWeight: 700,
-              fontFamily: 'Syne, sans-serif',
-            }}>
-              <span style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: colors.green,
-                animation: 'livePulse 1.5s infinite',
-              }} />
-              LIVE
-            </div>
+            <span style={{
+              background: colors.green, color: '#fff', borderRadius: '100px',
+              padding: '0.12rem 0.55rem', fontSize: '0.65rem',
+              fontFamily: 'Syne, sans-serif', fontWeight: 800,
+            }}>LEDGA</span>
+            <span style={{ fontSize: '0.78rem', color: colors.green, fontWeight: 600, fontFamily: 'Syne, sans-serif' }}>
+              Always know your real profit
+            </span>
           </div>
 
-          {/* Stats row */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '0.6rem',
-            marginBottom: '1.1rem',
+          {/* Headline */}
+          <h1 style={{
+            fontFamily: 'Syne, sans-serif', fontWeight: 900,
+            fontSize: 'clamp(2.2rem, 4.2vw, 3.8rem)',
+            lineHeight: 1.05, letterSpacing: '-2.5px',
+            marginBottom: '1.25rem', color: colors.textPrimary,
+            animation: 'fadeDown 0.5s ease 0.1s both',
           }}>
-            {mockStats.map((stat, i) => (
-              <div key={i} style={{
-                background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
-                border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
-                borderRadius: '10px',
-                padding: '0.7rem 0.6rem',
-              }}>
-                <div style={{
-                  color: colors.textMuted,
-                  fontSize: '0.58rem',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.4px',
-                  marginBottom: '0.3rem',
-                }}>
-                  {stat.label}
-                </div>
-                <div style={{
-                  fontFamily: 'Syne, sans-serif',
-                  fontWeight: 800,
-                  fontSize: '0.88rem',
-                  color: i === 2 ? colors.warning : colors.textPrimary,
-                }}>
-                  {stat.value}
-                </div>
-                <div style={{
-                  fontSize: '0.6rem',
-                  color: stat.up ? colors.green : colors.warning,
-                  fontWeight: 700,
-                  marginTop: '0.15rem',
-                }}>
-                  {stat.change}
-                </div>
+            Know your real profit.{' '}
+            <span style={{
+              display: 'inline-block', color: 'transparent',
+              backgroundImage: isDark
+                ? 'linear-gradient(135deg, #00C566 0%, #C9A84C 50%, #7C6AF7 100%)'
+                : 'linear-gradient(135deg, #007A3D 0%, #B8860B 50%, #5B4EC7 100%)',
+              backgroundClip: 'text', WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundSize: '200% 200%', animation: 'gradientShift 4s ease infinite',
+            }}>
+              Get paid faster.
+            </span>{' '}
+            Grow with clarity.
+          </h1>
+
+          {/* Sub */}
+          <p style={{
+            fontSize: 'clamp(0.92rem, 1.6vw, 1.05rem)', color: colors.textSecondary,
+            maxWidth: '460px', marginBottom: '2rem', lineHeight: 1.75,
+            animation: 'fadeDown 0.5s ease 0.15s both',
+          }}>
+            Ledga shows you exactly where every naira went — and how to keep more of it next time. Built for Nigerian business owners who are making money but can never explain where it goes.
+          </p>
+
+          {/* CTAs */}
+          <div style={{
+            display: 'flex', gap: '0.75rem', flexWrap: 'wrap',
+            marginBottom: '2rem', animation: 'fadeDown 0.5s ease 0.2s both',
+          }}>
+            <button onClick={() => navigate('/signup')} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              background: colors.green, color: '#fff', padding: '1rem 2.25rem',
+              borderRadius: '14px', fontWeight: 800, fontSize: '1rem',
+              fontFamily: 'Syne, sans-serif', border: 'none', cursor: 'pointer',
+              boxShadow: `0 6px 30px ${colors.green}50`, transition: 'all 0.25s',
+              letterSpacing: '-0.3px',
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-3px)'
+                e.currentTarget.style.boxShadow = `0 12px 40px ${colors.green}60`
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = `0 6px 30px ${colors.green}50`
+              }}
+            >
+              Start Free — No Card Needed <ArrowRight size={18} />
+            </button>
+
+            <button
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '0.5rem',
+                background: 'transparent', color: colors.textPrimary, padding: '1rem 1.8rem',
+                borderRadius: '14px', fontWeight: 600, fontSize: '1rem',
+                fontFamily: 'Syne, sans-serif', border: `1px solid ${colors.border}`,
+                cursor: 'pointer', transition: 'all 0.25s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = colors.borderGreen
+                e.currentTarget.style.color = colors.green
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = colors.border
+                e.currentTarget.style.color = colors.textPrimary
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}
+            >
+              See How It Works
+            </button>
+          </div>
+
+          {/* Trust */}
+          <div style={{
+            display: 'flex', gap: '1.5rem', flexWrap: 'wrap',
+            animation: 'fadeDown 0.5s ease 0.25s both',
+          }}>
+            {[
+              { icon: <Shield size={13} />, text: 'Bank-grade security' },
+              { icon: <Zap size={13} />, text: 'Paystack integrated' },
+              { icon: <TrendingUp size={13} />, text: 'AI-powered insights' },
+            ].map((item, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: colors.textMuted, fontSize: '0.78rem' }}>
+                <span style={{ color: colors.green }}>{item.icon}</span>
+                {item.text}
               </div>
             ))}
           </div>
-
-          {/* Animated bar chart */}
-          <div style={{ marginBottom: '0.85rem' }}>
-            <div style={{
-              fontSize: '0.62rem',
-              color: colors.textMuted,
-              fontWeight: 600,
-              marginBottom: '0.5rem',
-              textAlign: 'left',
-            }}>
-              Revenue vs Expenses — 6 months
-            </div>
-            <div style={{
-              display: 'flex',
-              gap: '6px',
-              alignItems: 'flex-end',
-              height: '56px',
-            }}>
-              {[
-                { inc: 55, exp: 40 },
-                { inc: 45, exp: 38 },
-                { inc: 70, exp: 48 },
-                { inc: 58, exp: 40 },
-                { inc: 80, exp: 52 },
-                { inc: 92, exp: 56 },
-              ].map((bar, i) => (
-                <div key={i} style={{
-                  flex: 1,
-                  display: 'flex',
-                  gap: '2px',
-                  alignItems: 'flex-end',
-                }}>
-                  <div style={{
-                    flex: 1,
-                    height: `${bar.inc}%`,
-                    background: `linear-gradient(180deg, ${colors.green} 0%, ${colors.accent}80 100%)`,
-                    borderRadius: '3px 3px 0 0',
-                    opacity: 0,
-                    animation: `growBar 0.6s ease ${0.5 + i * 0.08}s forwards`,
-                  }} />
-                  <div style={{
-                    flex: 1,
-                    height: `${bar.exp}%`,
-                    background: isDark
-                      ? 'rgba(255,80,80,0.4)'
-                      : 'rgba(204,34,0,0.3)',
-                    borderRadius: '3px 3px 0 0',
-                    opacity: 0,
-                    animation: `growBar 0.6s ease ${0.58 + i * 0.08}s forwards`,
-                  }} />
-                </div>
-              ))}
-            </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '1.25rem',
-              marginTop: '0.4rem',
-            }}>
-              {[
-                { color: colors.green, label: 'Revenue' },
-                { color: isDark ? 'rgba(255,80,80,0.5)' : 'rgba(204,34,0,0.4)', label: 'Expenses' },
-              ].map(item => (
-                <div key={item.label} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.3rem',
-                  fontSize: '0.6rem',
-                  color: colors.textMuted,
-                }}>
-                  <div style={{
-                    width: '8px',
-                    height: '4px',
-                    borderRadius: '2px',
-                    background: item.color,
-                  }} />
-                  {item.label}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Runway indicator */}
-          <div style={{
-            background: isDark
-              ? 'rgba(0,197,102,0.08)'
-              : 'rgba(0,120,60,0.06)',
-            border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,120,60,0.15)'}`,
-            borderRadius: '8px',
-            padding: '0.55rem 0.85rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}>
-            <span style={{
-              fontSize: '0.7rem',
-              color: colors.textSecondary,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-            }}>
-              💧 Business Runway
-            </span>
-            <span style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 800,
-              fontSize: '0.82rem',
-              color: colors.green,
-            }}>
-              74 days safe ✓
-            </span>
-          </div>
         </div>
 
-        {/* Trust badges */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '2rem',
-          flexWrap: 'wrap',
-          animation: 'fadeDown 0.5s ease 0.5s both',
+        {/* ── RIGHT: dashboard preview ── */}
+        <div className="hero-right" style={{
+          flex: '0 0 44%', position: 'relative',
+          animation: 'fadeUp 0.8s ease 0.3s both',
         }}>
-          {[
-            { icon: <Shield size={14} />, text: 'Bank-grade security' },
-            { icon: <Zap size={14} />, text: 'Paystack integrated' },
-            { icon: <TrendingUp size={14} />, text: 'AI-powered insights' },
-          ].map((item, i) => (
-            <div key={i} style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              color: colors.textMuted,
-              fontSize: '0.8rem',
-            }}>
-              <span style={{ color: colors.green }}>{item.icon}</span>
-              {item.text}
+          <div style={{
+            background: isDark ? 'rgba(10,16,12,0.92)' : 'rgba(255,255,255,0.95)',
+            border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,120,60,0.15)'}`,
+            borderRadius: '20px', padding: '1.5rem',
+            backdropFilter: 'blur(20px)',
+            boxShadow: isDark
+              ? '0 40px 100px rgba(0,0,0,0.7), inset 0 1px 0 rgba(0,197,102,0.1)'
+              : '0 40px 100px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.8)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: '1px',
+              background: `linear-gradient(90deg, transparent, ${colors.green}40, transparent)`,
+            }} />
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.1rem' }}>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.8rem', color: colors.textPrimary, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                📊 Live Dashboard Preview
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.65rem', color: colors.green, fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colors.green, animation: 'livePulse 1.5s infinite' }} />
+                LIVE
+              </div>
             </div>
-          ))}
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', marginBottom: '1.1rem' }}>
+              {mockStats.map((stat, i) => (
+                <div key={i} style={{
+                  background: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)',
+                  border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'}`,
+                  borderRadius: '10px', padding: '0.7rem 0.6rem',
+                }}>
+                  <div style={{ color: colors.textMuted, fontSize: '0.58rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '0.3rem' }}>{stat.label}</div>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '0.88rem', color: i === 2 ? colors.warning : colors.textPrimary }}>{stat.value}</div>
+                  <div style={{ fontSize: '0.6rem', color: stat.up ? colors.green : colors.warning, fontWeight: 700, marginTop: '0.15rem' }}>{stat.change}</div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: '0.85rem' }}>
+              <div style={{ fontSize: '0.62rem', color: colors.textMuted, fontWeight: 600, marginBottom: '0.5rem' }}>
+                You earned vs You spent — 6 months
+              </div>
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', height: '56px' }}>
+                {[{inc:55,exp:40},{inc:45,exp:38},{inc:70,exp:48},{inc:58,exp:40},{inc:80,exp:52},{inc:92,exp:56}].map((bar, i) => (
+                  <div key={i} style={{ flex: 1, display: 'flex', gap: '2px', alignItems: 'flex-end' }}>
+                    <div style={{ flex: 1, height: `${bar.inc}%`, background: `linear-gradient(180deg, ${colors.green} 0%, ${colors.accent}80 100%)`, borderRadius: '3px 3px 0 0', opacity: 0, animation: `growBar 0.6s ease ${0.5 + i * 0.08}s forwards` }} />
+                    <div style={{ flex: 1, height: `${bar.exp}%`, background: isDark ? 'rgba(255,80,80,0.4)' : 'rgba(204,34,0,0.3)', borderRadius: '3px 3px 0 0', opacity: 0, animation: `growBar 0.6s ease ${0.58 + i * 0.08}s forwards` }} />
+                  </div>
+                ))}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.25rem', marginTop: '0.4rem' }}>
+                {[{color: colors.green, label:'You earned'},{color: isDark?'rgba(255,80,80,0.5)':'rgba(204,34,0,0.4)', label:'You spent'}].map(item => (
+                  <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.6rem', color: colors.textMuted }}>
+                    <div style={{ width: '8px', height: '4px', borderRadius: '2px', background: item.color }} />
+                    {item.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{
+              background: isDark ? 'rgba(0,197,102,0.08)' : 'rgba(0,120,60,0.06)',
+              border: `1px solid ${isDark ? 'rgba(0,197,102,0.2)' : 'rgba(0,120,60,0.15)'}`,
+              borderRadius: '8px', padding: '0.55rem 0.85rem',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span style={{ fontSize: '0.7rem', color: colors.textSecondary }}>💧 Business Runway</span>
+              <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '0.82rem', color: colors.green }}>74 days safe ✓</span>
+            </div>
+          </div>
+
+          {/* Floating pill */}
+          <div style={{
+            position: 'absolute', bottom: '-18px', left: '50%', transform: 'translateX(-50%)',
+            background: isDark ? 'rgba(15,20,17,0.97)' : 'rgba(255,255,255,0.97)',
+            border: `1px solid ${isDark ? 'rgba(0,197,102,0.35)' : 'rgba(0,120,60,0.25)'}`,
+            borderRadius: '100px', padding: '0.5rem 1.1rem',
+            display: 'flex', alignItems: 'center', gap: '0.6rem',
+            backdropFilter: 'blur(20px)',
+            boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.5)' : '0 12px 40px rgba(0,0,0,0.12)',
+            whiteSpace: 'nowrap', animation: 'floatCard1 3.5s ease-in-out infinite',
+          }}>
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: colors.green, animation: 'livePulse 1.5s infinite', flexShrink: 0 }} />
+            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem', color: colors.green }}>
+              Invoice paid · ₦150,000 ✓
+            </span>
+          </div>
         </div>
       </div>
 
@@ -918,10 +749,12 @@ export default function Hero() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @media (min-width: 1024px) {
-          .hero-float-left { display: block !important; }
-          .hero-float-right { display: block !important; }
-          .hero-float-bottom { display: block !important; }
+        .hero-float-left, .hero-float-right, .hero-float-bottom { display: none !important; }
+        @media (max-width: 960px) {
+          .hero-main { flex-direction: column !important; gap: 2.5rem !important; }
+          .hero-left { flex: unset !important; width: 100% !important; text-align: center !important; }
+          .hero-left p[style] { border-left: none !important; padding-left: 0 !important; }
+          .hero-right { flex: unset !important; width: 100% !important; max-width: 520px !important; }
         }
       `}</style>
     </section>

@@ -188,52 +188,116 @@ function Signup() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#060908',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem 5%',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      <div style={{
-        position: 'absolute',
-        top: '30%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '600px',
-        height: '600px',
-        background: 'radial-gradient(circle, rgba(0,197,102,0.05) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
+    <div style={{ minHeight: '100vh', display: 'flex' }}>
 
-      <div style={{
-        width: '100%',
-        maxWidth: '480px',
+      {/* ── LEFT BRAND PANEL ── */}
+      <div className="signup-left" style={{
+        width: '42%',
+        background: 'linear-gradient(160deg, #0B1F13 0%, #071209 55%, #0C1A10 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '2.5rem',
+        overflow: 'hidden',
         position: 'relative',
+        flexShrink: 0,
       }}>
+        {/* Orbs */}
+        <div style={{ position: 'absolute', top: '5%', left: '-15%', width: '380px', height: '380px', borderRadius: '50%', background: 'rgba(0,197,102,0.10)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '5%', right: '-10%', width: '250px', height: '250px', borderRadius: '50%', background: 'rgba(124,106,247,0.07)', filter: 'blur(60px)', pointerEvents: 'none' }} />
 
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Link to="/" style={{
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 800,
-            fontSize: '2rem',
-            color: '#EDF2EF',
-            textDecoration: 'none',
-            display: 'inline-block',
+        {/* Logo */}
+        <Link to="/" style={{ fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: '1.7rem', color: '#fff', letterSpacing: '-1px', textDecoration: 'none', position: 'relative', zIndex: 1 }}>
+          Led<span style={{ color: '#00C566' }}>ga</span>
+        </Link>
+
+        {/* Main content */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.3rem 0.85rem',
+            background: 'rgba(0,197,102,0.12)', border: '1px solid rgba(0,197,102,0.2)',
+            borderRadius: '100px', marginBottom: '1.25rem', width: 'fit-content',
           }}>
-            Led<span style={{ color: '#00C566' }}>ga</span>
-          </Link>
-          <p style={{
-            color: '#7A9485',
-            fontSize: '0.95rem',
-            marginTop: '0.4rem',
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00C566', animation: 'sgPulse 2s ease-in-out infinite' }} />
+            <span style={{ color: '#00C566', fontSize: '0.68rem', fontWeight: 700, fontFamily: 'Syne, sans-serif', letterSpacing: '0.5px' }}>
+              FREE FOREVER TO START
+            </span>
+          </div>
+
+          <h2 style={{
+            fontFamily: 'Syne, sans-serif', fontWeight: 900,
+            fontSize: 'clamp(1.4rem, 2.2vw, 1.9rem)',
+            color: '#fff', lineHeight: 1.2, letterSpacing: '-0.8px', marginBottom: '1.5rem',
           }}>
-            Create your free business account
-          </p>
+            Finally know where every naira goes.
+          </h2>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem', marginBottom: '2rem' }}>
+            {[
+              'Create a professional invoice in 60 seconds',
+              'Know your real profit after every job',
+              'Share payment links on WhatsApp in one tap',
+              'See your 90-day cash flow forecast',
+            ].map((text, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: '0.65rem',
+                padding: '0.6rem 0.85rem',
+                background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: '10px',
+              }}>
+                <div style={{
+                  width: '18px', height: '18px', borderRadius: '50%',
+                  background: 'rgba(0,197,102,0.2)', border: '1px solid rgba(0,197,102,0.35)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <span style={{ color: '#00C566', fontSize: '0.55rem', fontWeight: 900 }}>✓</span>
+                </div>
+                <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.82rem', fontFamily: 'DM Sans, sans-serif' }}>
+                  {text}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Sample stat card */}
+          <div style={{
+            background: 'rgba(0,197,102,0.08)', border: '1px solid rgba(0,197,102,0.2)',
+            borderRadius: '16px', padding: '1rem 1.25rem', backdropFilter: 'blur(10px)',
+          }}>
+            <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.65rem', marginBottom: '0.3rem', fontFamily: 'DM Sans, sans-serif' }}>
+              This month · Adunola's Boutique
+            </div>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 900, fontSize: '1.6rem', color: '#00C566', marginBottom: '0.15rem' }}>
+              ₦847,000
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', fontFamily: 'DM Sans, sans-serif' }}>
+              You kept ₦312,400 after all costs
+            </div>
+          </div>
         </div>
+
+        <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.68rem', fontFamily: 'DM Sans, sans-serif', position: 'relative', zIndex: 1, display: 'flex', gap: '0.75rem' }}>
+          <span>🔒 Secure</span><span>·</span><span>Free to start</span><span>·</span><span>No credit card</span>
+        </div>
+      </div>
+
+      {/* ── RIGHT FORM PANEL ── */}
+      <div style={{
+        flex: 1, background: '#060908',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '2rem', position: 'relative', overflow: 'hidden',
+        overflowY: 'auto',
+      }}>
+        <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(0,197,102,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <div style={{ width: '100%', maxWidth: '460px', position: 'relative' }}>
+
+          <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
+            <p style={{ color: '#7A9485', fontSize: '0.95rem' }}>
+              Create your free Ledga account
+            </p>
+          </div>
 
         <div style={{
           background: '#111815',
@@ -576,7 +640,16 @@ function Signup() {
         }}>
           🔒 Your data is encrypted. We never share your information.
         </p>
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) { .signup-left { display: none !important; } }
+        @keyframes sgPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+      `}</style>
     </div>
   )
 }
