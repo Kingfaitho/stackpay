@@ -50,10 +50,14 @@ naira/month for Moniebook; our Growth plan at 3,500 naira/month undercuts it.
 
 ### Now (weeks)
 
-- [ ] Keep initial JS bundle small; audit chunks after every feature (done: route splitting)
-- [ ] Reminder nudges on Dashboard: "3 invoices need chasing" deep link to Collections
+- [x] Keep initial JS bundle small; audit chunks after every feature (route splitting, 1690kB to 249kB)
+- [x] Reminder nudges on Dashboard: "3 invoices need chasing" deep link to Collections
+- [x] Server-side payment verification (verify-payment edge function, live)
+- [x] Server-side subscription verification (verify-subscription edge function, live)
+- [x] Unguessable token links for payments and client portal; zero anonymous table access
+- [x] Per-route fault isolation: one broken page never takes down the app
 - [ ] Receipt auto-send on payment confirmation (WhatsApp + email)
-- [ ] Tax-exemption banner: detect turnover under thresholds and tell the owner
+- [x] Tax-exemption banner: detect turnover under thresholds and tell the owner
 
 ### Next (1-2 months)
 

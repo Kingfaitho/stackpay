@@ -93,17 +93,26 @@ function Billing() {
       plan: plan.planCode,
       currency: 'NGN',
       ref: `Ledga-SUB-${Date.now()}`,
-      callback: async (response) => {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ plan: plan.name })
-          .eq('id', user.id)
-
-        if (!error) {
-          setCurrentPlan(plan.name)
-          alert(`🎉 Welcome to Ledga ${plan.name}! Your subscription is now active.`)
-        }
-        setLoading(false)
+      callback: (response) => {
+        // Paystack charged the card; the plan only activates after the
+        // server confirms the transaction really happened and matches
+        // this plan's price.
+        supabase.functions
+          .invoke('verify-subscription', {
+            body: { reference: response.reference, planName: plan.name },
+          })
+          .then(({ data, error }) => {
+            if (!error && data?.ok) {
+              setCurrentPlan(plan.name)
+              alert(`Welcome to Ledga ${plan.name}! Your subscription is now active.`)
+            } else {
+              alert(
+                'Your payment went through but we could not confirm it yet. ' +
+                `Contact support with reference ${response.reference} and we will activate your plan.`
+              )
+            }
+          })
+          .finally(() => setLoading(false))
       },
       onClose: () => {
         setLoading(false)

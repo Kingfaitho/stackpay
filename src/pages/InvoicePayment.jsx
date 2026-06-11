@@ -19,31 +19,33 @@ function InvoicePayment() {
   }, [invoiceId])
 
   const loadInvoice = async () => {
-    const { data: inv, error: invError } = await supabase
-      .from('invoices')
-      .select('*, clients(name, email)')
-      .eq('id', invoiceId)
-      .single()
+    // Links carry an unguessable token; the database itself is closed to
+    // anonymous reads, so this RPC is the only door and the token is the key.
+    const isToken = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      .test(invoiceId)
 
-    if (invError || !inv) {
+    if (!isToken) {
+      // Old numeric links from before the security upgrade
       setError(true)
       setLoading(false)
       return
     }
 
-    if (inv.status === 'paid') {
+    const { data, error: rpcError } = await supabase
+      .rpc('get_invoice_for_payment', { p_token: invoiceId })
+
+    if (rpcError || !data?.invoice) {
+      setError(true)
+      setLoading(false)
+      return
+    }
+
+    if (data.invoice.status === 'paid') {
       setPaid(true)
     }
 
-    setInvoice(inv)
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('business_name, owner_name, email, currency')
-      .eq('id', inv.user_id)
-      .single()
-
-    setBusiness(profile)
+    setInvoice({ ...data.invoice, clients: data.client })
+    setBusiness(data.business)
     setLoading(false)
   }
 
@@ -68,7 +70,7 @@ function InvoicePayment() {
       ref: `Ledga-${invoice.invoice_number}-${Date.now()}`,
       metadata: {
         invoice_number: invoice.invoice_number,
-        invoice_id: invoiceId,
+        invoice_id: invoice.id,
       },
       callback: (response) => {
         // Paystack charged the card; now confirm server-side before showing
@@ -78,7 +80,7 @@ function InvoicePayment() {
         setVerifyError('')
         supabase.functions
           .invoke('verify-payment', {
-            body: { reference: response.reference, invoiceId },
+            body: { reference: response.reference, invoiceId: invoice.id },
           })
           .then(({ data, error: fnError }) => {
             if (fnError || !data?.ok) {
@@ -160,7 +162,8 @@ function InvoicePayment() {
       }}>
         Invoice not found
       </h2>
-      <p>This payment link may be invalid or expired.</p>
+      <p>This payment link may be invalid or expired.<br />
+        Ask the business owner to send you a fresh link.</p>
     </div>
   )
 

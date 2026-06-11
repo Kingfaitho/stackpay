@@ -141,7 +141,7 @@ function Collections() {
     const invoiceNum = inv.invoice_number
     const daysOverdue = inv.daysOverdue
 
-    const payLink = `${window.location.origin}/pay/${inv.id}`
+    const payLink = `${window.location.origin}/pay/${inv.public_token}`
 
     if (tone === 'gentle') {
       return `Hello ${clientName} 👋

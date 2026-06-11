@@ -15,39 +15,29 @@ function ClientPortal() {
   }, [clientId])
 
   const loadPortal = async () => {
-    const { data: clientData, error: clientError } = await supabase
-      .from('clients')
-      .select('name, email, user_id')
-      .eq('id', clientId)
-      .single()
+    // Portal links carry an unguessable token; anonymous table reads are
+    // closed, so this RPC is the only way in.
+    const isToken = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+      .test(clientId)
 
-    if (clientError || !clientData) {
+    if (!isToken) {
       setError(true)
       setLoading(false)
       return
     }
 
-    setClient(clientData)
+    const { data, error: rpcError } = await supabase
+      .rpc('get_portal_data', { p_token: clientId })
 
-    // Load business name of the owner
-    const { data: profileData } = await supabase
-      .from('profiles')
-      .select('business_name')
-      .eq('id', clientData.user_id)
-      .single()
-
-    if (profileData?.business_name) {
-      setBusinessName(profileData.business_name)
+    if (rpcError || !data?.client) {
+      setError(true)
+      setLoading(false)
+      return
     }
 
-    // Load invoices for this client
-    const { data: invoiceData } = await supabase
-      .from('invoices')
-      .select('*')
-      .eq('client_id', clientId)
-      .order('created_at', { ascending: false })
-
-    setInvoices(invoiceData || [])
+    setClient(data.client)
+    setBusinessName(data.business_name || '')
+    setInvoices(data.invoices || [])
     setLoading(false)
   }
 

@@ -232,8 +232,8 @@ function Clients() {
     loadClients()
   }
 
-  const copyPortalLink = (clientId) => {
-    const link = `${window.location.origin}/portal/${clientId}`
+  const copyPortalLink = (clientToken) => {
+    const link = `${window.location.origin}/portal/${clientToken}`
     navigator.clipboard.writeText(link).then(() => {
       alert(`Portal link copied!\n\n${link}\n\nShare with your client so they can view all their invoices online.`)
     }).catch(() => {
@@ -849,7 +849,7 @@ function Clients() {
                 </button>
 
                 <button
-                  onClick={() => copyPortalLink(client.id)}
+                  onClick={() => copyPortalLink(client.public_token)}
                   style={{
                     background: isDark
                       ? 'rgba(0,197,102,0.06)'

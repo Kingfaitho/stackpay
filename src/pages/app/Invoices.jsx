@@ -181,7 +181,7 @@ function Invoices() {
   }
 
   const shareOnWhatsApp = (inv, clientName) => {
-  const paymentUrl = `${window.location.origin}/pay/${inv.id}`
+  const paymentUrl = `${window.location.origin}/pay/${inv.public_token}`
   const message = encodeURIComponent(
     `Hello ${clientName || 'there'} 👋\n\n` +
     `Please find your invoice details below:\n\n` +

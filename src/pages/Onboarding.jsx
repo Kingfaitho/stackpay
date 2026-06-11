@@ -184,7 +184,7 @@ export default function Onboarding() {
 
   const shareOnWhatsApp = () => {
     if (!createdInvoice) return
-    const paymentLink = `${window.location.origin}/pay/${createdInvoice.id}`
+    const paymentLink = `${window.location.origin}/pay/${createdInvoice.public_token}`
     const message = encodeURIComponent(
       `Hi ${clientName || 'there'} 👋\n\n` +
       `Please find your invoice below:\n\n` +
@@ -1216,7 +1216,7 @@ export default function Onboarding() {
                     {/* Payment link chip */}
                     <div
                       onClick={() => {
-                        const link = `${window.location.origin}/pay/${createdInvoice.id}`
+                        const link = `${window.location.origin}/pay/${createdInvoice.public_token}`
                         navigator.clipboard?.writeText(link)
                       }}
                       style={{
@@ -1244,7 +1244,7 @@ export default function Onboarding() {
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
                       }}>
-                        {window.location.origin}/pay/{createdInvoice.id}
+                        {window.location.origin}/pay/{createdInvoice.public_token}
                       </span>
                       <span style={{
                         color: colors.green,

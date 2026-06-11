@@ -39,6 +39,8 @@ WSL note: node_modules is installed from Windows. Before building under WSL run:
 - Pages: `src/pages` (public) and `src/pages/app` (protected, wrapped in `AppLayout`).
 - New routes must be lazy-loaded in `App.jsx` and wrapped in `ProtectedRoute` if authenticated.
 - WhatsApp sharing uses `https://wa.me/<234...>?text=` links; Nigerian numbers convert `0xxxxxxxxxx` to `234xxxxxxxxx`.
+- Public links NEVER use row ids. Payment links are `/pay/<invoice.public_token>`, portal links are `/portal/<client.public_token>` (uuid tokens). Public pages read data only through the token-gated RPCs in `supabase/rls-policies.sql`; there is no anonymous table access.
+- Money-state writes (invoice paid, plan active) happen only in edge functions (`verify-payment`, `verify-subscription`) after confirming with Paystack. Never trust the browser callback.
 - Copy voice: speaks to Nigerian business owners, plain language, no corporate jargon, product is live (never "waitlist" or "early access").
 
 ## Git

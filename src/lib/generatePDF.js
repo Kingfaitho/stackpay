@@ -649,6 +649,6 @@ export async function generateInvoicePDF(invoice, clientName, businessName, owne
   doc.save(`${invoice.invoice_number}.pdf`)
 }
 
-export function generatePaymentUrl(invoiceId) {
-  return `${window.location.origin}/pay/${invoiceId}`
+export function generatePaymentUrl(invoiceToken) {
+  return `${window.location.origin}/pay/${invoiceToken}`
 }
