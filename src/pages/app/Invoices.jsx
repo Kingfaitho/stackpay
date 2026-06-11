@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
 import { generateInvoicePDF } from '../../lib/generatePDF'
+import { downloadUBLInvoice } from '../../lib/generateUBL'
 import { sendInvoicePaidEmail } from '../../lib/sendEmail'
 import { initializePayment } from '../../lib/paystack'
 import { useTheme } from '../../context/ThemeContext'
@@ -139,17 +140,7 @@ function Invoices() {
       .update({ status: 'paid' })
       .eq('id', id)
 
-    const inv = invoices.find(i => i.id === id)
-    if (inv && user?.email) {
-      await sendInvoicePaidEmail({
-        ownerEmail: user.email,
-        ownerName: profile?.owner_name || '',
-        businessName: profile?.business_name || 'Your Business',
-        clientName: inv.clients?.name || 'Client',
-        invoiceNumber: inv.invoice_number,
-        amount: inv.total,
-      })
-    }
+    await sendInvoicePaidEmail({ invoiceId: id })
 
     loadInvoices()
   }
@@ -980,6 +971,25 @@ function Invoices() {
                   }}
                 >
                   ↓ PDF
+                </button>
+
+                {/* NRS e-invoice (UBL XML) */}
+                <button
+                  onClick={() => downloadUBLInvoice(inv, profile, inv.clients)}
+                  title="Download structured e-invoice (UBL XML) for NRS/FIRS e-invoicing"
+                  style={{
+                    padding: '0.3rem 0.75rem',
+                    background: 'rgba(124,106,247,0.08)',
+                    border: '1px solid rgba(124,106,247,0.2)',
+                    color: '#7C6AF7',
+                    borderRadius: '6px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    fontFamily: 'Syne, sans-serif',
+                  }}
+                >
+                  ↓ e-Invoice
                 </button>
 
                 {/* WhatsApp */}

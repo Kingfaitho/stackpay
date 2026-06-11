@@ -56,14 +56,17 @@ naira/month for Moniebook; our Growth plan at 3,500 naira/month undercuts it.
 - [x] Server-side subscription verification (verify-subscription edge function, live)
 - [x] Unguessable token links for payments and client portal; zero anonymous table access
 - [x] Per-route fault isolation: one broken page never takes down the app
-- [ ] Receipt auto-send on payment confirmation (WhatsApp + email)
+- [x] Receipt auto-send on payment confirmation: client receipt + owner alert
+      emailed server-side on both online payment and manual mark-as-paid
 - [x] Tax-exemption banner: detect turnover under thresholds and tell the owner
 
 ### Next (1-2 months)
 
-- [ ] **NRS e-invoicing compliance**: generate Peppol UBL (XML/JSON) alongside our
-      PDF, submit through the FIRS/NRS API or an accredited access point partner.
-      Market as "NRS-ready invoicing." Do not claim compliance until certified.
+- [~] **NRS e-invoicing compliance**: UBL BIS 3.0 export is SHIPPED (e-Invoice
+      button on every invoice, TIN field in Profile). Remaining: onboard with
+      FIRS/NRS or an accredited access point, then build submit-einvoice edge
+      function for live transmission. See docs/nrs-einvoicing.md.
+      Do not claim compliance until certified.
 - [ ] Scheduled reminder automation: server-side (Supabase cron + WhatsApp Business
       API or email fallback) so reminders go out even when the owner is offline
 - [ ] Offline-tolerant core: cache dashboard + invoice drafts locally, sync on

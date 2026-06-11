@@ -9,6 +9,8 @@
 //   SB_URL               - project URL (or use built-in SUPABASE_URL)
 //   SB_SERVICE_ROLE_KEY  - service role key (or built-in SUPABASE_SERVICE_ROLE_KEY)
 
+import { sendReceiptEmails } from '../_shared/receipts.ts'
+
 declare const Deno: {
   serve: (handler: (req: Request) => Promise<Response> | Response) => void
   env: {
@@ -47,7 +49,7 @@ Deno.serve(async (req) => {
 
     // 1. Load the invoice (service role bypasses RLS)
     const invoiceRes = await fetch(
-      `${supabaseUrl}/rest/v1/invoices?id=eq.${encodeURIComponent(invoiceId)}&select=id,total,status,invoice_number`,
+      `${supabaseUrl}/rest/v1/invoices?id=eq.${encodeURIComponent(invoiceId)}&select=id,total,status,invoice_number,user_id,clients(name,email)`,
       {
         headers: {
           apikey: serviceKey,
@@ -108,6 +110,26 @@ Deno.serve(async (req) => {
     if (!updateRes.ok) {
       console.error('Invoice update failed', updateRes.status, await updateRes.text())
       return json({ error: 'Could not update invoice' }, 500)
+    }
+
+    // 6. Auto-send receipts: to the client (their receipt) and the owner
+    //    (you got paid). Never blocks the success response on failure.
+    const resendKey = Deno.env.get('RESEND_API_KEY')
+    if (resendKey) {
+      const profileRes = await fetch(
+        `${supabaseUrl}/rest/v1/profiles?id=eq.${encodeURIComponent(invoice.user_id)}&select=business_name,email`,
+        { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+      )
+      const profiles = await profileRes.json()
+      const business = Array.isArray(profiles) ? profiles[0] : null
+      await sendReceiptEmails(resendKey, {
+        invoiceNumber: invoice.invoice_number,
+        amount: Number(invoice.total),
+        businessName: business?.business_name || 'Your business',
+        ownerEmail: business?.email,
+        clientName: invoice.clients?.name,
+        clientEmail: invoice.clients?.email,
+      })
     }
 
     return json({ ok: true })

@@ -12,6 +12,7 @@ function Profile() {
     owner_name: '',
     phone: '',
     address: '',
+    tin: '',
     currency: 'NGN',
     logo_url: '',
   })
@@ -36,6 +37,7 @@ function Profile() {
         owner_name: data.owner_name || '',
         phone: data.phone || '',
         address: data.address || '',
+        tin: data.tin || '',
         currency: data.currency || 'NGN',
         logo_url: data.logo_url || '',
       })
@@ -296,6 +298,14 @@ function Profile() {
                 placeholder="e.g. 14 Adeola Odeku, Victoria Island, Lagos"
                 value={form.address}
                 onChange={e => setForm({ ...form, address: e.target.value })}
+                style={inp}
+              />
+
+              <label style={labelStyle}>TAX IDENTIFICATION NUMBER (TIN)</label>
+              <input
+                placeholder="e.g. 12345678-0001 (from FIRS/JTB)"
+                value={form.tin}
+                onChange={e => setForm({ ...form, tin: e.target.value })}
                 style={inp}
               />
 
