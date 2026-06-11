@@ -342,7 +342,7 @@ function AppLayout({ children }) {
             })}
           </div>
 
-          {/* Inline Search — fills available space */}
+          {/* Inline Search - fills available space */}
           <GlobalSearch />
 
           {/* Right cluster */}

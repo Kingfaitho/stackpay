@@ -167,6 +167,39 @@ select option {
   animation: shimmer 3s linear infinite;
 }
 
+/* Scroll-reveal (used by <Reveal>) */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Respect users who prefer less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* ================================
    APP LAYOUT - MOBILE FIXES
 ================================ */
@@ -286,7 +319,7 @@ select option {
   --border-green: rgba(0,150,80,0.25);
   --text-primary: #1A1A18;
   --text-secondary: #5A6355;
-  --text-muted: #9A9E96;
+  --text-muted: #6E7568;
   --green: #00A855;
   --green-dark: #007A3D;
   --gold: #C9A84C;

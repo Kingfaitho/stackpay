@@ -1,49 +1,50 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import InstallPrompt from './components/InstallPrompt'
 
-// Public pages
+// Landing stays eager so the first paint is instant
 import LandingPage from './pages/LandingPage'
-import Onboarding from './pages/Onboarding'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import ForgotPassword from './pages/ForgotPassword'
-import ResetPassword from './pages/ResetPassword'
-import Terms from './pages/Terms'
-import Privacy from './pages/Privacy'
-import ClientPortal from './pages/ClientPortal'
-import InvoicePayment from './pages/InvoicePayment'
 
-// App pages
-import Dashboard from './pages/app/Dashboard'
-import Invoices from './pages/app/Invoices'
-import Clients from './pages/app/Clients'
-import POS from './pages/app/POS'
-import WorkOrders from './pages/app/WorkOrders'
-import ClientInsights from './pages/app/ClientInsights'
-import Expenses from './pages/app/Expenses'
-import CashReceipts from './pages/app/CashReceipts'
-import Inventory from './pages/app/Inventory'
-import CashFlow from './pages/app/CashFlow'
-import Collections from './pages/app/Collections'
-import Budget from './pages/app/Budget'
-import Reports from './pages/app/Reports'
-import Notes from './pages/app/Notes'
-import Recurring from './pages/app/Recurring'
-import Team from './pages/app/Team'
-import Billing from './pages/app/Billing'
-import Profile from './pages/app/Profile'
-import Admin from './pages/Admin'
-import Help from './pages/app/Help'
+// Everything else loads on demand to keep the initial bundle small
+const Onboarding = lazy(() => import('./pages/Onboarding'))
+const Login = lazy(() => import('./pages/Login'))
+const Signup = lazy(() => import('./pages/Signup'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
+const Terms = lazy(() => import('./pages/Terms'))
+const Privacy = lazy(() => import('./pages/Privacy'))
+const ClientPortal = lazy(() => import('./pages/ClientPortal'))
+const InvoicePayment = lazy(() => import('./pages/InvoicePayment'))
+
+const Dashboard = lazy(() => import('./pages/app/Dashboard'))
+const Invoices = lazy(() => import('./pages/app/Invoices'))
+const Clients = lazy(() => import('./pages/app/Clients'))
+const POS = lazy(() => import('./pages/app/POS'))
+const WorkOrders = lazy(() => import('./pages/app/WorkOrders'))
+const ClientInsights = lazy(() => import('./pages/app/ClientInsights'))
+const Expenses = lazy(() => import('./pages/app/Expenses'))
+const CashReceipts = lazy(() => import('./pages/app/CashReceipts'))
+const Inventory = lazy(() => import('./pages/app/Inventory'))
+const CashFlow = lazy(() => import('./pages/app/CashFlow'))
+const Collections = lazy(() => import('./pages/app/Collections'))
+const Budget = lazy(() => import('./pages/app/Budget'))
+const Reports = lazy(() => import('./pages/app/Reports'))
+const Notes = lazy(() => import('./pages/app/Notes'))
+const Recurring = lazy(() => import('./pages/app/Recurring'))
+const Team = lazy(() => import('./pages/app/Team'))
+const Billing = lazy(() => import('./pages/app/Billing'))
+const Profile = lazy(() => import('./pages/app/Profile'))
+const Admin = lazy(() => import('./pages/Admin'))
+const Help = lazy(() => import('./pages/app/Help'))
 
 // Protected route wrapper
 import { useAuth } from './context/AuthContext'
 
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
-  if (loading) return (
+function ScreenLoader() {
+  return (
     <div style={{
       minHeight: '100vh',
       display: 'flex',
@@ -57,6 +58,11 @@ function ProtectedRoute({ children }) {
       Loading...
     </div>
   )
+}
+
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth()
+  if (loading) return <ScreenLoader />
   if (!user) return <Navigate to="/login" replace />
   return children
 }
@@ -67,88 +73,90 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Router>
-            <Routes>
+            <Suspense fallback={<ScreenLoader />}>
+              <Routes>
 
-              {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/portal/:clientId" element={<ClientPortal />} />
-              <Route path="/pay/:invoiceId" element={<InvoicePayment />} />
+                {/* Public routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/portal/:clientId" element={<ClientPortal />} />
+                <Route path="/pay/:invoiceId" element={<InvoicePayment />} />
 
-              {/* Protected app routes */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute><Dashboard /></ProtectedRoute>
-              } />
-              <Route path="/onboarding" element={
-                <ProtectedRoute><Onboarding /></ProtectedRoute>
-              } />
-              <Route path="/invoices" element={
-                <ProtectedRoute><Invoices /></ProtectedRoute>
-              } />
-              <Route path="/clients" element={
-                <ProtectedRoute><Clients /></ProtectedRoute>
-              } />
-              <Route path="/pos" element={
-  <ProtectedRoute><POS /></ProtectedRoute>
-} />
-<Route path="/work-orders" element={
-  <ProtectedRoute><WorkOrders /></ProtectedRoute>
-} />
-<Route path="/client-insights" element={
-  <ProtectedRoute><ClientInsights /></ProtectedRoute>
-} />
-              <Route path="/expenses" element={
-                <ProtectedRoute><Expenses /></ProtectedRoute>
-              } />
-              <Route path="/cash-receipts" element={
-                <ProtectedRoute><CashReceipts /></ProtectedRoute>
-              } />
-              <Route path="/inventory" element={
-                <ProtectedRoute><Inventory /></ProtectedRoute>
-              } />
-              <Route path="/cashflow" element={
-                <ProtectedRoute><CashFlow /></ProtectedRoute>
-              } />
-              <Route path="/collections" element={
-                <ProtectedRoute><Collections /></ProtectedRoute>
-              } />
-              <Route path="/budget" element={
-                <ProtectedRoute><Budget /></ProtectedRoute>
-              } />
-              <Route path="/reports" element={
-                <ProtectedRoute><Reports /></ProtectedRoute>
-              } />
-              <Route path="/notes" element={
-                <ProtectedRoute><Notes /></ProtectedRoute>
-              } />
-              <Route path="/recurring" element={
-                <ProtectedRoute><Recurring /></ProtectedRoute>
-              } />
-              <Route path="/team" element={
-                <ProtectedRoute><Team /></ProtectedRoute>
-              } />
-              <Route path="/billing" element={
-                <ProtectedRoute><Billing /></ProtectedRoute>
-              } />
-              <Route path="/help" element={
-  <ProtectedRoute><Help /></ProtectedRoute>
-} />
-              <Route path="/profile" element={
-                <ProtectedRoute><Profile /></ProtectedRoute>
-              } />
-              <Route path="/admin" element={
-                <ProtectedRoute><Admin /></ProtectedRoute>
-              } />
+                {/* Protected app routes */}
+                <Route path="/dashboard" element={
+                  <ProtectedRoute><Dashboard /></ProtectedRoute>
+                } />
+                <Route path="/onboarding" element={
+                  <ProtectedRoute><Onboarding /></ProtectedRoute>
+                } />
+                <Route path="/invoices" element={
+                  <ProtectedRoute><Invoices /></ProtectedRoute>
+                } />
+                <Route path="/clients" element={
+                  <ProtectedRoute><Clients /></ProtectedRoute>
+                } />
+                <Route path="/pos" element={
+                  <ProtectedRoute><POS /></ProtectedRoute>
+                } />
+                <Route path="/work-orders" element={
+                  <ProtectedRoute><WorkOrders /></ProtectedRoute>
+                } />
+                <Route path="/client-insights" element={
+                  <ProtectedRoute><ClientInsights /></ProtectedRoute>
+                } />
+                <Route path="/expenses" element={
+                  <ProtectedRoute><Expenses /></ProtectedRoute>
+                } />
+                <Route path="/cash-receipts" element={
+                  <ProtectedRoute><CashReceipts /></ProtectedRoute>
+                } />
+                <Route path="/inventory" element={
+                  <ProtectedRoute><Inventory /></ProtectedRoute>
+                } />
+                <Route path="/cashflow" element={
+                  <ProtectedRoute><CashFlow /></ProtectedRoute>
+                } />
+                <Route path="/collections" element={
+                  <ProtectedRoute><Collections /></ProtectedRoute>
+                } />
+                <Route path="/budget" element={
+                  <ProtectedRoute><Budget /></ProtectedRoute>
+                } />
+                <Route path="/reports" element={
+                  <ProtectedRoute><Reports /></ProtectedRoute>
+                } />
+                <Route path="/notes" element={
+                  <ProtectedRoute><Notes /></ProtectedRoute>
+                } />
+                <Route path="/recurring" element={
+                  <ProtectedRoute><Recurring /></ProtectedRoute>
+                } />
+                <Route path="/team" element={
+                  <ProtectedRoute><Team /></ProtectedRoute>
+                } />
+                <Route path="/billing" element={
+                  <ProtectedRoute><Billing /></ProtectedRoute>
+                } />
+                <Route path="/help" element={
+                  <ProtectedRoute><Help /></ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                  <ProtectedRoute><Profile /></ProtectedRoute>
+                } />
+                <Route path="/admin" element={
+                  <ProtectedRoute><Admin /></ProtectedRoute>
+                } />
 
-              {/* Catch all */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+                {/* Catch all */}
+                <Route path="*" element={<Navigate to="/" replace />} />
 
-            </Routes>
+              </Routes>
+            </Suspense>
             <InstallPrompt />
           </Router>
         </AuthProvider>

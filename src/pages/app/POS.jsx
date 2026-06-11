@@ -151,7 +151,7 @@ function POS() {
         description,
         payment_method: 'pos_sale',
         received_date: new Date().toISOString().split('T')[0],
-        notes: `POS Sale ${receiptNumber} — Profit: NGN ${cartProfit.toLocaleString()}`,
+        notes: `POS Sale ${receiptNumber} - Profit: NGN ${cartProfit.toLocaleString()}`,
       })
 
       // 2. Reduce inventory quantities
@@ -290,7 +290,7 @@ function POS() {
         alignItems: 'start',
       }}>
 
-        {/* LEFT — Product selection */}
+        {/* LEFT - Product selection */}
         <div>
           {/* Barcode scanner input */}
           <div style={{
@@ -316,7 +316,7 @@ function POS() {
                 fontWeight: 400,
                 fontSize: '0.68rem',
               }}>
-                — plug in USB barcode scanner and scan here
+                - plug in USB barcode scanner and scan here
               </span>
             </div>
             <form onSubmit={handleBarcodeSubmit} style={{
@@ -525,7 +525,7 @@ function POS() {
           )}
         </div>
 
-        {/* RIGHT — Cart and checkout */}
+        {/* RIGHT - Cart and checkout */}
         <div style={{
           background: colors.bgCard,
           border: `1px solid ${colors.border}`,

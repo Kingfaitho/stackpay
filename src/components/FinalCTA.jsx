@@ -1,150 +1,155 @@
-﻿import { useState } from 'react'
-import { ArrowRight, CheckCircle } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Zap, Clock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 
 function FinalCTA() {
-  const [email, setEmail] = useState('')
-  const [submitted, setSubmitted] = useState(false)
+  const navigate = useNavigate()
   const { colors, isDark } = useTheme()
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (!email) return
-    setSubmitted(true)
-    setEmail('')
-  }
 
   return (
     <section style={{
       padding: '100px 5%',
-      textAlign: 'center',
       position: 'relative',
       overflow: 'hidden',
       background: colors.bgPrimary,
       transition: 'background 0.3s',
     }}>
-      {/* Glow */}
       <div style={{
-        position: 'absolute',
-        bottom: '-100px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '500px',
-        height: '500px',
-        background: isDark
-          ? 'radial-gradient(circle, rgba(0,197,102,0.07) 0%, transparent 70%)'
-          : 'radial-gradient(circle, rgba(0,120,60,0.05) 0%, transparent 70%)',
-        pointerEvents: 'none',
-      }} />
-
-      <div style={{
-        maxWidth: '600px',
+        maxWidth: '880px',
         margin: '0 auto',
         position: 'relative',
+        borderRadius: '28px',
+        padding: '1px',
+        background: isDark
+          ? 'linear-gradient(135deg, rgba(0,197,102,0.45), rgba(201,168,76,0.35) 50%, rgba(124,106,247,0.3))'
+          : 'linear-gradient(135deg, rgba(0,120,60,0.3), rgba(184,140,0,0.3) 50%, rgba(91,78,199,0.25))',
       }}>
-        <h2 style={{
-          fontFamily: 'Syne, sans-serif',
-          fontWeight: 800,
-          fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
-          letterSpacing: '-1px',
-          color: colors.textPrimary,
-          lineHeight: 1.2,
-          marginBottom: '1.2rem',
-          transition: 'color 0.3s',
+        <div style={{
+          borderRadius: '27px',
+          padding: 'clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 5vw, 4rem)',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden',
+          background: isDark
+            ? 'linear-gradient(160deg, #0B1F13 0%, #071209 60%, #0C1A10 100%)'
+            : 'linear-gradient(160deg, #FFFFFF 0%, #F7F4EC 100%)',
         }}>
-          Your business deserves better than WhatsApp notes and scattered receipts
-        </h2>
-        <p style={{
-          color: colors.textSecondary,
-          fontSize: '1rem',
-          marginBottom: '2.5rem',
-          lineHeight: 1.7,
-          transition: 'color 0.3s',
-        }}>
-          Join 500 Nigerian business owners getting early access to Ledga.
-          Free to start. No credit card required.
-        </p>
+          {/* Glow accents */}
+          <div style={{
+            position: 'absolute', top: '-120px', left: '-80px',
+            width: '360px', height: '360px', borderRadius: '50%',
+            background: isDark ? 'rgba(0,197,102,0.10)' : 'rgba(0,120,60,0.06)',
+            filter: 'blur(80px)', pointerEvents: 'none',
+          }} />
+          <div style={{
+            position: 'absolute', bottom: '-120px', right: '-80px',
+            width: '320px', height: '320px', borderRadius: '50%',
+            background: isDark ? 'rgba(201,168,76,0.08)' : 'rgba(184,140,0,0.05)',
+            filter: 'blur(70px)', pointerEvents: 'none',
+          }} />
 
-        <form
-          onSubmit={handleSubmit}
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          {!submitted ? (
-            <>
-              <input
-                type="email"
-                placeholder="Your business email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                style={{
-                  flex: 1,
-                  minWidth: '220px',
-                  maxWidth: '320px',
-                  padding: '0.85rem 1.2rem',
-                  borderRadius: '10px',
-                  border: `1px solid ${colors.border}`,
-                  background: colors.bgInput,
-                  color: colors.textPrimary,
-                  fontSize: '0.95rem',
-                  fontFamily: 'DM Sans, sans-serif',
-                  outline: 'none',
-                  transition: 'background 0.3s, border-color 0.3s',
-                }}
-              />
-              <button
-                type="submit"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  background: colors.accent,
-                  color: colors.accentText,
-                  padding: '0.85rem 1.5rem',
-                  borderRadius: '10px',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  fontFamily: 'Syne, sans-serif',
-                  border: 'none',
-                  cursor: 'pointer',
-                  transition: 'opacity 0.2s',
-                  whiteSpace: 'nowrap',
-                }}
-                onMouseEnter={e => e.currentTarget.style.opacity = '0.88'}
-                onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-              >
-                Claim My Spot <ArrowRight size={16} />
-              </button>
-            </>
-          ) : (
-            <div style={{
-              display: 'flex',
+          <span style={{
+            color: isDark ? '#C9A84C' : '#B8860B',
+            fontFamily: 'Syne, sans-serif',
+            fontWeight: 700,
+            fontSize: '0.78rem',
+            letterSpacing: '2.5px',
+            textTransform: 'uppercase',
+            display: 'block',
+            marginBottom: '1.2rem',
+            position: 'relative',
+          }}>
+            Start tonight, not someday
+          </span>
+
+          <h2 style={{
+            fontFamily: 'Syne, sans-serif',
+            fontWeight: 800,
+            fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)',
+            letterSpacing: '-1px',
+            color: isDark ? '#F2F6F3' : colors.textPrimary,
+            lineHeight: 1.2,
+            marginBottom: '1.2rem',
+            position: 'relative',
+            transition: 'color 0.3s',
+          }}>
+            Your business deserves better than WhatsApp notes and scattered receipts
+          </h2>
+          <p style={{
+            color: isDark ? 'rgba(237,242,239,0.6)' : colors.textSecondary,
+            fontSize: '1rem',
+            marginBottom: '2.5rem',
+            lineHeight: 1.7,
+            maxWidth: '520px',
+            margin: '0 auto 2.5rem',
+            position: 'relative',
+            transition: 'color 0.3s',
+          }}>
+            Send your first invoice in the next 60 seconds and know your real
+            profit by morning. Free to start - no card, no paperwork.
+          </p>
+
+          <button
+            onClick={() => navigate('/signup')}
+            style={{
+              display: 'inline-flex',
               alignItems: 'center',
               gap: '0.6rem',
-              color: colors.green,
+              background: colors.green,
+              color: '#fff',
+              padding: '1.05rem 2.5rem',
+              borderRadius: '14px',
+              fontWeight: 800,
+              fontSize: '1.05rem',
               fontFamily: 'Syne, sans-serif',
-              fontWeight: 700,
-              fontSize: '1rem',
-              padding: '0.85rem 1.5rem',
-              background: isDark
-                ? 'rgba(0,197,102,0.1)'
-                : 'rgba(0,120,60,0.08)',
-              borderRadius: '10px',
-              border: `1px solid ${colors.borderGreen}`,
-            }}>
-              <CheckCircle size={20} /> You're in! Talk soon 🎉
-            </div>
-          )}
-        </form>
+              border: 'none',
+              cursor: 'pointer',
+              letterSpacing: '-0.3px',
+              boxShadow: `0 8px 36px ${colors.green}50`,
+              transition: 'transform 0.25s, box-shadow 0.25s',
+              position: 'relative',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateY(-3px)'
+              e.currentTarget.style.boxShadow = `0 14px 44px ${colors.green}60`
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = `0 8px 36px ${colors.green}50`
+            }}
+          >
+            Start Free - Send Your First Invoice <ArrowRight size={18} />
+          </button>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '1.5rem',
+            flexWrap: 'wrap',
+            marginTop: '1.75rem',
+            position: 'relative',
+          }}>
+            {[
+              { icon: <Clock size={13} />, text: 'Ready in 60 seconds' },
+              { icon: <ShieldCheck size={13} />, text: 'Bank-grade security' },
+              { icon: <Zap size={13} />, text: 'Paystack payments' },
+            ].map((item, i) => (
+              <div key={i} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                color: isDark ? 'rgba(237,242,239,0.45)' : colors.textMuted,
+                fontSize: '0.78rem',
+              }}>
+                <span style={{ color: colors.green, display: 'flex' }}>{item.icon}</span>
+                {item.text}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )
 }
 
 export default FinalCTA
-

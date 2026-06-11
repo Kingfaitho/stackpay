@@ -1,8 +1,14 @@
 ﻿import { useEffect, useState } from 'react'
+import {
+  AlertTriangle, Banknote, BarChart3, CheckCircle2, Clock,
+  MessageCircle, Send, Star, Zap
+} from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { supabase } from '../../supabaseClient'
 import AppLayout from '../../components/AppLayout'
+
+const TONES = ['gentle', 'firm', 'urgent']
 
 function Collections() {
   const { user } = useAuth()
@@ -15,9 +21,34 @@ function Collections() {
   const [sentLog, setSentLog] = useState({})
   const [reliabilityScores, setReliabilityScores] = useState({})
 
+  const storageKey = user ? `ledga_reminder_log_${user.id}` : null
+
   useEffect(() => {
-    if (user) loadData()
+    if (!user) return
+    loadData()
+    try {
+      setSentLog(JSON.parse(localStorage.getItem(`ledga_reminder_log_${user.id}`)) || {})
+    } catch {
+      setSentLog({})
+    }
   }, [user])
+
+  // Reminder history survives refresh so escalation picks up where it left off
+  const recordSend = (invoiceId, tone) => {
+    setSentLog(prev => {
+      const entry = prev[invoiceId] || { count: 0 }
+      const next = {
+        ...prev,
+        [invoiceId]: {
+          count: entry.count + 1,
+          lastSent: new Date().toISOString(),
+          lastTone: tone,
+        },
+      }
+      if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
+      return next
+    })
+  }
 
   const loadData = async () => {
     setLoading(true)
@@ -89,10 +120,14 @@ function Collections() {
     setLoading(false)
   }
 
-  const getTone = (daysOverdue) => {
-    if (daysOverdue <= 3) return 'gentle'
-    if (daysOverdue <= 14) return 'firm'
-    return 'urgent'
+  // Escalates by how overdue the invoice is AND how many reminders were
+  // already sent: ignore two gentle nudges and the next one turns firm.
+  const getTone = (inv) => {
+    const daysOverdue = inv.daysOverdue || 0
+    const byDays = daysOverdue <= 3 ? 0 : daysOverdue <= 14 ? 1 : 2
+    const sentCount = sentLog[inv.id]?.count || 0
+    const byHistory = sentCount >= 4 ? 2 : sentCount >= 2 ? 1 : 0
+    return TONES[Math.min(2, Math.max(byDays, byHistory))]
   }
 
   const generateMessage = (inv, tone, profileData) => {
@@ -149,19 +184,18 @@ If you have already made payment, please disregard this message and share your p
 - ${business}`
   }
 
+  const buildWaUrl = (inv, message) => {
+    const phone = inv.clients?.phone?.replace(/[^0-9]/g, '')
+    if (!phone) return `https://wa.me/?text=${encodeURIComponent(message)}`
+    const intlPhone = phone.startsWith('0') ? '234' + phone.slice(1) : phone
+    return `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`
+  }
+
   const sendWhatsApp = (inv, tone) => {
     setSending(prev => ({ ...prev, [inv.id]: true }))
     const message = generateMessage(inv, tone, profile)
-    const phone = inv.clients?.phone?.replace(/[^0-9]/g, '')
-    let waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`
-    if (phone) {
-      const intlPhone = phone.startsWith('0')
-        ? '234' + phone.slice(1)
-        : phone
-      waUrl = `https://wa.me/${intlPhone}?text=${encodeURIComponent(message)}`
-    }
-    window.open(waUrl, '_blank')
-    setSentLog(prev => ({ ...prev, [inv.id]: new Date().toLocaleTimeString() }))
+    window.open(buildWaUrl(inv, message), '_blank')
+    recordSend(inv.id, tone)
     setTimeout(() => setSending(prev => ({ ...prev, [inv.id]: false })), 1000)
   }
 
@@ -173,10 +207,10 @@ If you have already made payment, please disregard this message and share your p
 
     overdueInvoices.forEach((inv, i) => {
       setTimeout(() => {
-        const tone = getTone(inv.daysOverdue)
+        const tone = getTone(inv)
         const message = generateMessage(inv, tone, profile)
-        window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
-        setSentLog(prev => ({ ...prev, [inv.id]: new Date().toLocaleTimeString() }))
+        window.open(buildWaUrl(inv, message), '_blank')
+        recordSend(inv.id, tone)
       }, i * 1500)
     })
   }
@@ -243,7 +277,7 @@ If you have already made payment, please disregard this message and share your p
             color: colors.textPrimary,
             marginBottom: '0.25rem',
           }}>
-            🏃 Collections Engine
+            Collections Engine
           </h1>
           <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
             Chase unpaid invoices and track client payment reliability
@@ -280,7 +314,7 @@ If you have already made payment, please disregard this message and share your p
                 : 'rgba(204,34,0,0.08)'
             }}
           >
-            ⚡ Chase All Overdue ({overdueInvoices.length})
+            <Zap size={15} strokeWidth={2.5} /> Chase All Overdue ({overdueInvoices.length})
           </button>
         )}
       </div>
@@ -294,27 +328,27 @@ If you have already made payment, please disregard this message and share your p
       }}>
         {[
           {
-            icon: '🚨',
+            icon: AlertTriangle,
             label: 'Overdue Invoices',
             value: overdueInvoices.length,
             color: overdueInvoices.length > 0 ? colors.danger : colors.textPrimary,
           },
           {
-            icon: '💰',
+            icon: Banknote,
             label: 'Total Overdue Value',
             value: formatNaira(totalOverdue),
             color: totalOverdue > 0 ? colors.danger : colors.textPrimary,
           },
           {
-            icon: '⏰',
+            icon: Clock,
             label: 'Due This Week',
             value: dueSoonInvoices.length,
             color: dueSoonInvoices.length > 0 ? colors.warning : colors.textPrimary,
           },
           {
-            icon: '📨',
+            icon: Send,
             label: 'Reminders Sent',
-            value: Object.keys(sentLog).length,
+            value: Object.values(sentLog).reduce((s, e) => s + (e.count || 0), 0),
             color: colors.green,
           },
         ].map((item, i) => (
@@ -323,8 +357,8 @@ If you have already made payment, please disregard this message and share your p
             marginBottom: 0,
             padding: '1.1rem',
           }}>
-            <div style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>
-              {item.icon}
+            <div style={{ marginBottom: '0.5rem' }}>
+              <item.icon size={18} color={item.color} strokeWidth={2} />
             </div>
             <div style={{
               color: colors.textLabel,
@@ -374,7 +408,7 @@ If you have already made payment, please disregard this message and share your p
               alignItems: 'center',
               gap: '0.5rem',
             }}>
-              🚨 Overdue Invoices
+              <AlertTriangle size={15} color={colors.danger} strokeWidth={2} /> Overdue Invoices
               {overdueInvoices.length > 0 && (
                 <span style={{
                   background: `${colors.danger}15`,
@@ -396,7 +430,9 @@ If you have already made payment, please disregard this message and share your p
                 padding: '2.5rem',
                 color: colors.textMuted,
               }}>
-                <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>✅</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.6rem' }}>
+                  <CheckCircle2 size={32} color={colors.green} strokeWidth={1.8} />
+                </div>
                 <p style={{ fontSize: '0.9rem' }}>
                   No overdue invoices! All payments are on time.
                 </p>
@@ -404,10 +440,10 @@ If you have already made payment, please disregard this message and share your p
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {overdueInvoices.map(inv => {
-                  const tone = getTone(inv.daysOverdue)
+                  const tone = getTone(inv)
                   const tc = toneConfig[tone]
                   const clientScore = reliabilityScores[inv.client_id]
-                  const wasSent = sentLog[inv.id]
+                  const history = sentLog[inv.id]
 
                   return (
                     <div key={inv.id} style={{
@@ -453,13 +489,19 @@ If you have already made payment, please disregard this message and share your p
                             {tc.label}
                           </span>
 
-                          {wasSent && (
+                          {history && (
                             <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
                               color: colors.green,
                               fontSize: '0.68rem',
                               fontWeight: 600,
                             }}>
-                              ✓ Sent {wasSent}
+                              <CheckCircle2 size={11} strokeWidth={2.5} />
+                              {history.count} reminder{history.count !== 1 ? 's' : ''} sent
+                              {' · last '}
+                              {new Date(history.lastSent).toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
                             </span>
                           )}
                         </div>
@@ -488,8 +530,9 @@ If you have already made payment, please disregard this message and share your p
                               color: getScoreColor(clientScore.score),
                               fontWeight: 700,
                             }}>
-                              {clientScore.score >= 80 ? '⭐' :
-                               clientScore.score >= 50 ? '⚠️' : '🔴'}
+                              {clientScore.score >= 80
+                                ? <Star size={10} strokeWidth={2.5} />
+                                : <AlertTriangle size={10} strokeWidth={2.5} />}
                               {clientScore.score}% reliable
                             </span>
                           )}
@@ -541,7 +584,7 @@ If you have already made payment, please disregard this message and share your p
                             transition: 'all 0.2s',
                           }}
                         >
-                          💬 Send Reminder
+                          <MessageCircle size={14} strokeWidth={2.5} /> Send Reminder
                         </button>
                       </div>
                     </div>
@@ -564,7 +607,7 @@ If you have already made payment, please disregard this message and share your p
                 alignItems: 'center',
                 gap: '0.5rem',
               }}>
-                ⏰ Due This Week
+                <Clock size={15} color={colors.warning} strokeWidth={2} /> Due This Week
                 <span style={{
                   background: `${colors.warning}15`,
                   border: `1px solid ${colors.warning}30`,
@@ -652,7 +695,7 @@ If you have already made payment, please disregard this message and share your p
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        💬 Remind
+                        <MessageCircle size={13} strokeWidth={2.5} style={{ marginRight: '0.3rem' }} /> Remind
                       </button>
                     </div>
                   </div>
@@ -671,7 +714,8 @@ If you have already made payment, please disregard this message and share your p
                 color: colors.textPrimary,
                 marginBottom: '0.5rem',
               }}>
-                📊 Client Reliability Scores
+                <BarChart3 size={15} color={colors.green} strokeWidth={2} style={{ marginRight: '0.4rem', verticalAlign: '-2px' }} />
+                Client Reliability Scores
               </h2>
               <p style={{
                 color: colors.textMuted,

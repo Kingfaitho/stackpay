@@ -6,25 +6,28 @@ import { supabase } from '../supabaseClient'
 import {
   Check, FileText, TrendingUp, Brain, DollarSign,
   ChevronRight, ChevronLeft, Zap, MessageCircle,
-  BarChart2, Shield, Users
+  BarChart2, Shield, Users, Camera, Scissors,
+  UtensilsCrossed, Sparkles, Briefcase, Palette,
+  Laptop, PartyPopper, Store, HardHat, GraduationCap,
+  HeartPulse, Truck, Clapperboard, Lightbulb, Link2, Unlock
 } from 'lucide-react'
 
 const BUSINESS_TYPES = [
-  { id: 'photography', label: 'Photography & Videography', icon: '📸' },
-  { id: 'fashion', label: 'Fashion & Tailoring', icon: '👗' },
-  { id: 'catering', label: 'Catering & Food Business', icon: '🍽️' },
-  { id: 'beauty', label: 'Beauty & Hair Salon', icon: '💅' },
-  { id: 'consulting', label: 'Consulting & Coaching', icon: '💼' },
-  { id: 'design', label: 'Freelance Design', icon: '🎨' },
-  { id: 'tech', label: 'Software & Tech', icon: '💻' },
-  { id: 'events', label: 'Event Planning', icon: '🎉' },
-  { id: 'retail', label: 'Retail & Shop', icon: '🏪' },
-  { id: 'construction', label: 'Construction & Engineering', icon: '🏗️' },
-  { id: 'education', label: 'Education & Tutoring', icon: '📚' },
-  { id: 'health', label: 'Healthcare & Wellness', icon: '🏥' },
-  { id: 'transport', label: 'Transport & Logistics', icon: '🚗' },
-  { id: 'media', label: 'Media & Content', icon: '🎬' },
-  { id: 'other', label: 'Other Business', icon: '⚡' },
+  { id: 'photography', label: 'Photography & Videography', icon: Camera },
+  { id: 'fashion', label: 'Fashion & Tailoring', icon: Scissors },
+  { id: 'catering', label: 'Catering & Food Business', icon: UtensilsCrossed },
+  { id: 'beauty', label: 'Beauty & Hair Salon', icon: Sparkles },
+  { id: 'consulting', label: 'Consulting & Coaching', icon: Briefcase },
+  { id: 'design', label: 'Freelance Design', icon: Palette },
+  { id: 'tech', label: 'Software & Tech', icon: Laptop },
+  { id: 'events', label: 'Event Planning', icon: PartyPopper },
+  { id: 'retail', label: 'Retail & Shop', icon: Store },
+  { id: 'construction', label: 'Construction & Engineering', icon: HardHat },
+  { id: 'education', label: 'Education & Tutoring', icon: GraduationCap },
+  { id: 'health', label: 'Healthcare & Wellness', icon: HeartPulse },
+  { id: 'transport', label: 'Transport & Logistics', icon: Truck },
+  { id: 'media', label: 'Media & Content', icon: Clapperboard },
+  { id: 'other', label: 'Other Business', icon: Zap },
 ]
 
 const STEPS = [
@@ -362,16 +365,16 @@ export default function Onboarding() {
             marginBottom: '2.5rem',
             maxWidth: '340px',
           }}>
-            Invoice clients, track expenses, and know your real profit — all in one place.
+            Invoice clients, track expenses, and know your real profit - all in one place.
           </p>
 
-          {/* Feature cards — floating */}
+          {/* Feature cards - floating */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {[
               { Icon: FileText, label: 'Create invoices in 60 seconds', delay: '0s' },
               { Icon: BarChart2, label: 'Track real profit daily', delay: '0.6s' },
               { Icon: TrendingUp, label: '90-day cash flow forecast', delay: '1.2s' },
-              { Icon: Shield, label: 'Secure — free to start forever', delay: '1.8s' },
+              { Icon: Shield, label: 'Secure - free to start forever', delay: '1.8s' },
             ].map(({ Icon, label, delay }, i) => (
               <div key={i} style={{
                 display: 'flex',
@@ -421,7 +424,9 @@ export default function Onboarding() {
           alignItems: 'center',
           gap: '1rem',
         }}>
-          <span>🔒 Secure</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+            <Shield size={11} strokeWidth={2} /> Secure
+          </span>
           <span>·</span>
           <span>Free to start</span>
           <span>·</span>
@@ -550,7 +555,7 @@ export default function Onboarding() {
           {/* Animated step content */}
           <div key={step} style={{ animation: 'fadeInUp 0.32s ease forwards' }}>
 
-            {/* ── STEP 1 — Welcome ── */}
+            {/* ── STEP 1 - Welcome ── */}
             {step === 1 && (
               <div>
                 <div style={{ marginBottom: '2rem' }}>
@@ -563,15 +568,15 @@ export default function Onboarding() {
                     lineHeight: 1.15,
                     marginBottom: '0.6rem',
                   }}>
-                    Get paid faster. 💰<br />
-                    Know your numbers.
+                    Know your real profit.<br />
+                    Get paid faster.
                   </h2>
                   <p style={{
                     color: colors.textSecondary,
                     fontSize: '0.92rem',
                     lineHeight: 1.7,
                   }}>
-                    Ledga gives Nigerian business owners the financial tools big companies use — simple, fast, and built for you.
+                    Ledga gives Nigerian business owners the financial tools big companies use - simple, fast, and built for you.
                   </p>
                 </div>
 
@@ -648,7 +653,7 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* ── STEP 2 — Business Info ── */}
+            {/* ── STEP 2 - Business Info ── */}
             {step === 2 && (
               <div>
                 <div style={{ marginBottom: '1.75rem' }}>
@@ -746,7 +751,13 @@ export default function Onboarding() {
                         backdropFilter: 'blur(8px)',
                       }}
                     >
-                      <div style={{ fontSize: '1.1rem', marginBottom: '0.25rem' }}>{type.icon}</div>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.35rem' }}>
+                        <type.icon
+                          size={18}
+                          strokeWidth={2}
+                          color={businessType === type.id ? colors.green : colors.textMuted}
+                        />
+                      </div>
                       <div style={{
                         fontSize: '0.65rem',
                         fontWeight: 600,
@@ -817,7 +828,7 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* ── STEP 3 — First Client ── */}
+            {/* ── STEP 3 - First Client ── */}
             {step === 3 && (
               <div>
                 <div style={{ marginBottom: '1.75rem' }}>
@@ -846,7 +857,7 @@ export default function Onboarding() {
                   marginBottom: '1.25rem',
                   alignItems: 'flex-start',
                 }}>
-                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>💡</span>
+                  <Lightbulb size={16} color={colors.green} strokeWidth={2} style={{ flexShrink: 0, marginTop: '2px' }} />
                   <p style={{ color: colors.textSecondary, fontSize: '0.82rem', lineHeight: 1.6 }}>
                     Think of someone who owes you money right now or someone you are about to invoice. Add them here.
                   </p>
@@ -954,7 +965,7 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* ── STEP 4 — First Invoice ── */}
+            {/* ── STEP 4 - First Invoice ── */}
             {step === 4 && (
               <div>
                 <div style={{ marginBottom: '1.75rem' }}>
@@ -970,7 +981,7 @@ export default function Onboarding() {
                   </h2>
                   <p style={{ color: colors.textSecondary, fontSize: '0.88rem' }}>
                     {clientName
-                      ? `For ${clientName} — you'll get a payment link to send on WhatsApp.`
+                      ? `For ${clientName} - you'll get a payment link to send on WhatsApp.`
                       : "You'll get a payment link to send directly on WhatsApp."}
                   </p>
                 </div>
@@ -984,9 +995,9 @@ export default function Onboarding() {
                   borderRadius: '12px',
                   marginBottom: '1.25rem',
                 }}>
-                  <span style={{ fontSize: '1rem', flexShrink: 0 }}>⚡</span>
+                  <Zap size={16} color={colors.green} strokeWidth={2} style={{ flexShrink: 0, marginTop: '2px' }} />
                   <p style={{ color: colors.textSecondary, fontSize: '0.82rem', lineHeight: 1.6 }}>
-                    After this you will have a live payment link — paste it on WhatsApp and get paid.
+                    After this you will have a live payment link - paste it on WhatsApp and get paid.
                   </p>
                 </div>
 
@@ -1141,7 +1152,7 @@ export default function Onboarding() {
               </div>
             )}
 
-            {/* ── STEP 5 — Done ── */}
+            {/* ── STEP 5 - Done ── */}
             {step === 5 && (
               <div style={{ textAlign: 'center' }}>
 
@@ -1184,7 +1195,7 @@ export default function Onboarding() {
                   letterSpacing: '-0.8px',
                   marginBottom: '0.5rem',
                 }}>
-                  You're all set! 🎉
+                  You're all set
                 </h2>
 
                 <p style={{
@@ -1224,7 +1235,7 @@ export default function Onboarding() {
                       onMouseEnter={e => e.currentTarget.style.borderColor = colors.borderGreen}
                       onMouseLeave={e => e.currentTarget.style.borderColor = colors.border}
                     >
-                      <span style={{ fontSize: '0.9rem' }}>🔗</span>
+                      <Link2 size={15} color={colors.green} strokeWidth={2} style={{ flexShrink: 0 }} />
                       <span style={{
                         color: colors.textMuted,
                         fontSize: '0.75rem',
@@ -1288,7 +1299,7 @@ export default function Onboarding() {
                     alignItems: 'center',
                     gap: '0.4rem',
                   }}>
-                    🔓 Features that unlock as you grow
+                    <Unlock size={13} strokeWidth={2.5} /> Features that unlock as you grow
                   </div>
                   {[
                     { threshold: 'After 3 invoices', feature: 'Cash Flow Forecasting' },

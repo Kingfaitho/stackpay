@@ -47,7 +47,7 @@ export const themes = {
     borderGreen: 'rgba(0,150,80,0.25)',
     textPrimary: '#1A1C18',
     textSecondary: '#4A5245',
-    textMuted: '#8A9080',
+    textMuted: '#6E7568',
     textLabel: '#6A756A',
     green: '#007A3D',
     greenDark: '#005A2D',

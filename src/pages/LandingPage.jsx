@@ -9,6 +9,7 @@ import Marketplace from '../components/Marketplace'
 import Pricing from '../components/Pricing'
 import FinalCTA from '../components/FinalCTA'
 import Footer from '../components/Footer'
+import Reveal from '../components/Reveal'
 
 function LandingPage() {
   const { colors } = useTheme()
@@ -22,13 +23,13 @@ function LandingPage() {
     }}>
       <Navbar />
       <Hero />
-      <StatsBar />
-      <Features />
-      <AIInsights />
-      <HowItWorks />
-      <Marketplace />
-      <Pricing />
-      <FinalCTA />
+      <Reveal><StatsBar /></Reveal>
+      <Reveal><Features /></Reveal>
+      <Reveal><AIInsights /></Reveal>
+      <Reveal><HowItWorks /></Reveal>
+      <Reveal><Marketplace /></Reveal>
+      <Reveal><Pricing /></Reveal>
+      <Reveal><FinalCTA /></Reveal>
       <Footer />
     </main>
   )

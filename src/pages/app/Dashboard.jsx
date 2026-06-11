@@ -212,7 +212,7 @@ const QUOTES = [
 ]
 
 function DailyQuote({ colors, isDark }) {
-  // Pick a quote based on the day of year — same quote all day, changes daily
+  // Pick a quote based on the day of year - same quote all day, changes daily
   const dayOfYear = Math.floor(
     (new Date() - new Date(new Date().getFullYear(), 0, 0)) /
     (1000 * 60 * 60 * 24)
@@ -250,7 +250,7 @@ function DailyQuote({ colors, isDark }) {
           fontWeight: 600,
           fontFamily: 'Syne, sans-serif',
         }}>
-          — {quote.author}
+          - {quote.author}
         </p>
       </div>
     </div>
@@ -290,7 +290,7 @@ function Dashboard() {
       setProfile(profileData)
 
       // Only redirect to onboarding if flag is not true AND they have zero invoices.
-      // If they have invoices they are already active — heal the flag and continue.
+      // If they have invoices they are already active - heal the flag and continue.
       if (profileData && profileData.onboarding_complete !== true) {
         const { count: invCount } = await supabase
           .from('invoices')
@@ -301,7 +301,7 @@ function Dashboard() {
           navigate('/onboarding')
           return
         }
-        // Has invoices but flag is wrong — silently fix it
+        // Has invoices but flag is wrong - silently fix it
         await supabase
           .from('profiles')
           .update({ onboarding_complete: true })
@@ -578,7 +578,7 @@ const totalIncome = invoiceIncome + cashIncome
         <StatCard
           label="Waiting on you"
           value={stats.unpaidInvoices}
-          sub={stats.unpaidInvoices > 0 ? 'Chase these — it is your money' : 'All invoices collected ✓'}
+          sub={stats.unpaidInvoices > 0 ? 'Chase these - it is your money' : 'All invoices collected ✓'}
           color={colors.warning}
           icon="🔔"
           gradient={isDark

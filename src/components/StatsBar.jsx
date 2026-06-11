@@ -1,10 +1,10 @@
 import { useTheme } from '../context/ThemeContext'
 
 const stats = [
-  { number: '39M+', label: 'Nigerian SMEs need this' },
-  { number: '₦0', label: 'Cost to join waitlist' },
+  { number: '60s', label: 'To send your first invoice' },
+  { number: '₦0', label: 'To start - no card needed' },
+  { number: '90d', label: 'Cash flow forecast ahead' },
   { number: '1', label: 'Dashboard for everything' },
-  { number: '500', label: 'Free early access spots' },
 ]
 
 function StatsBar() {

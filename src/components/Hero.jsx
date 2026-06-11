@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowRight, CheckCircle, Zap, Shield, TrendingUp } from 'lucide-react'
+import { ArrowRight, Check, CheckCircle, Zap, Shield, TrendingUp, Activity, Droplets } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 
@@ -132,7 +132,7 @@ export default function Hero() {
       }} />
 
       {/* ── BACKGROUND LAYER 4: Floating orbs ── */}
-      {/* Orb 1 — green top left */}
+      {/* Orb 1 - green top left */}
       <div style={{
         position: 'absolute',
         top: '8%',
@@ -148,7 +148,7 @@ export default function Hero() {
         zIndex: 0,
       }} />
 
-      {/* Orb 2 — purple bottom right */}
+      {/* Orb 2 - purple bottom right */}
       <div style={{
         position: 'absolute',
         bottom: '10%',
@@ -164,7 +164,7 @@ export default function Hero() {
         zIndex: 0,
       }} />
 
-      {/* Orb 3 — gold center pulse */}
+      {/* Orb 3 - gold center pulse */}
       <div style={{
         position: 'absolute',
         top: '45%',
@@ -181,7 +181,7 @@ export default function Hero() {
         zIndex: 0,
       }} />
 
-      {/* Orb 4 — green bottom left */}
+      {/* Orb 4 - green bottom left */}
       <div style={{
         position: 'absolute',
         bottom: '20%',
@@ -221,7 +221,7 @@ export default function Hero() {
 
       {/* ── FLOATING UI CARDS (desktop only) ── */}
 
-      {/* Left card — invoice paid */}
+      {/* Left card - invoice paid */}
       <div className="hero-float-left" style={{
         display: 'none',
         position: 'absolute',
@@ -280,7 +280,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Right card — credit score */}
+      {/* Right card - credit score */}
       <div className="hero-float-right" style={{
         display: 'none',
         position: 'absolute',
@@ -354,7 +354,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Bottom floating pill — runway */}
+      {/* Bottom floating pill - runway */}
       <div className="hero-float-bottom" style={{
         display: 'none',
         position: 'absolute',
@@ -398,7 +398,7 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* ── MAIN CONTENT — two-column asymmetric ── */}
+      {/* ── MAIN CONTENT - two-column asymmetric ── */}
       <div className="hero-main" style={{
         position: 'relative',
         zIndex: 2,
@@ -412,7 +412,7 @@ export default function Hero() {
         {/* ── LEFT: text ── */}
         <div className="hero-left" style={{ flex: '0 0 52%', textAlign: 'left' }}>
 
-          {/* Thursday scene — the hook */}
+          {/* Thursday scene - the hook */}
           <p style={{
             fontStyle: 'italic',
             fontSize: 'clamp(0.82rem, 1.4vw, 0.95rem)',
@@ -477,7 +477,7 @@ export default function Hero() {
             maxWidth: '460px', marginBottom: '2rem', lineHeight: 1.75,
             animation: 'fadeDown 0.5s ease 0.15s both',
           }}>
-            Ledga shows you exactly where every naira went — and how to keep more of it next time. Built for Nigerian business owners who are making money but can never explain where it goes.
+            Ledga shows you exactly where every naira went - and how to keep more of it next time. Built for Nigerian business owners who are making money but can never explain where it goes.
           </p>
 
           {/* CTAs */}
@@ -502,7 +502,7 @@ export default function Hero() {
                 e.currentTarget.style.boxShadow = `0 6px 30px ${colors.green}50`
               }}
             >
-              Start Free — No Card Needed <ArrowRight size={18} />
+              Start Free - No Card Needed <ArrowRight size={18} />
             </button>
 
             <button
@@ -569,7 +569,7 @@ export default function Hero() {
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.1rem' }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.8rem', color: colors.textPrimary, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                📊 Live Dashboard Preview
+                <Activity size={14} color={colors.green} strokeWidth={2.5} /> Live Dashboard Preview
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.65rem', color: colors.green, fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>
                 <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: colors.green, animation: 'livePulse 1.5s infinite' }} />
@@ -593,7 +593,7 @@ export default function Hero() {
 
             <div style={{ marginBottom: '0.85rem' }}>
               <div style={{ fontSize: '0.62rem', color: colors.textMuted, fontWeight: 600, marginBottom: '0.5rem' }}>
-                You earned vs You spent — 6 months
+                You earned vs You spent - 6 months
               </div>
               <div style={{ display: 'flex', gap: '6px', alignItems: 'flex-end', height: '56px' }}>
                 {[{inc:55,exp:40},{inc:45,exp:38},{inc:70,exp:48},{inc:58,exp:40},{inc:80,exp:52},{inc:92,exp:56}].map((bar, i) => (
@@ -619,8 +619,12 @@ export default function Hero() {
               borderRadius: '8px', padding: '0.55rem 0.85rem',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span style={{ fontSize: '0.7rem', color: colors.textSecondary }}>💧 Business Runway</span>
-              <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '0.82rem', color: colors.green }}>74 days safe ✓</span>
+              <span style={{ fontSize: '0.7rem', color: colors.textSecondary, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <Droplets size={12} color={colors.green} /> Business Runway
+              </span>
+              <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: '0.82rem', color: colors.green, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                74 days safe <Check size={13} strokeWidth={3} />
+              </span>
             </div>
           </div>
 
@@ -636,8 +640,8 @@ export default function Hero() {
             whiteSpace: 'nowrap', animation: 'floatCard1 3.5s ease-in-out infinite',
           }}>
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: colors.green, animation: 'livePulse 1.5s infinite', flexShrink: 0 }} />
-            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem', color: colors.green }}>
-              Invoice paid · ₦150,000 ✓
+            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem', color: colors.green, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              Invoice paid · ₦150,000 <Check size={13} strokeWidth={3} />
             </span>
           </div>
         </div>

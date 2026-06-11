@@ -271,7 +271,7 @@ function Notes() {
               })
               setForm({
                 type: 'note',
-                title: `Weekly Business Review — ${today}`,
+                title: `Weekly Business Review - ${today}`,
                 content: `FINANCIAL:\n- Check cash flow and runway\n- Chase overdue invoices\n- Log all expenses from this week\n- Review profit vs last week\n\nMENTAL:\n- What drained my energy this week?\n- What decision am I avoiding?\n- What did I learn?\n\nSPIRITUAL / PERSONAL:\n- Am I building something I am proud of?\n- Who did I help this week?\n- What am I grateful for?\n\nNEXT WEEK FOCUS:\n- #1 priority:\n- #2 priority:\n- #3 priority:`,
                 priority: 'high',
                 due_date: '',
@@ -302,7 +302,7 @@ function Notes() {
               })
               setForm({
                 type: 'note',
-                title: `Monthly Business Review — ${today}`,
+                title: `Monthly Business Review - ${today}`,
                 content: `FINANCIAL:\n- Check cash flow and runway\n- Chase overdue invoices\n- Log all expenses from this week\n- Review profit vs last week\n\nMENTAL:\n- What drained my energy this week?\n- What decision am I avoiding?\n- What did I learn?\n\nSPIRITUAL / PERSONAL:\n- Am I building something I am proud of?\n- Who did I help this week?\n- What am I grateful for?\n\nNEXT MONTH FOCUS:\n- #1 priority:\n- #2 priority:\n- #3 priority:`,
                 priority: 'high',
                 due_date: '',
@@ -333,7 +333,7 @@ function Notes() {
               })
               setForm({
                 type: 'note',
-                title: `Yearly Business Review — ${today}`,
+                title: `Yearly Business Review - ${today}`,
                 content: `FINANCIAL:\n- Check cash flow and runway\n- Chase overdue invoices\n- Log all expenses from this week\n- Review profit vs last week\n\nMENTAL:\n- What drained my energy this week?\n- What decision am I avoiding?\n- What did I learn?\n\nSPIRITUAL / PERSONAL:\n- Am I building something I am proud of?\n- Who did I help this week?\n- What am I grateful for?\n\nNEXT YEAR FOCUS:\n- #1 priority:\n- #2 priority:\n- #3 priority:`,
                 priority: 'high',
                 due_date: '',

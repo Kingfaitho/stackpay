@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 
 const plans = [
@@ -32,7 +33,7 @@ const plans = [
       'Cash Flow Forecasting',
       'Priority support',
     ],
-    cta: 'Get Early Access',
+    cta: 'Start with Growth',
   },
   {
     name: 'Business',
@@ -47,16 +48,13 @@ const plans = [
       'Monthly financial report',
       'Dedicated account manager',
     ],
-    cta: 'Join Waitlist',
+    cta: 'Start with Business',
   },
 ]
 
 function Pricing() {
   const { colors, isDark } = useTheme()
-
-  const scrollToWaitlist = () => {
-    document.getElementById('waitlist')?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const navigate = useNavigate()
 
   return (
     <section id="pricing" style={{
@@ -208,7 +206,7 @@ function Pricing() {
               </ul>
 
               <button
-                onClick={scrollToWaitlist}
+                onClick={() => navigate('/signup')}
                 style={{
                   width: '100%',
                   padding: '0.9rem',
