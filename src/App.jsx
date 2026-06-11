@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import ErrorBoundary from './components/ErrorBoundary'
+import RouteBoundary from './components/RouteBoundary'
 import InstallPrompt from './components/InstallPrompt'
 
 // Landing stays eager so the first paint is instant
@@ -73,8 +74,9 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Router>
-            <Suspense fallback={<ScreenLoader />}>
-              <Routes>
+            <RouteBoundary>
+              <Suspense fallback={<ScreenLoader />}>
+                <Routes>
 
                 {/* Public routes */}
                 <Route path="/" element={<LandingPage />} />
@@ -155,8 +157,9 @@ function App() {
                 {/* Catch all */}
                 <Route path="*" element={<Navigate to="/" replace />} />
 
-              </Routes>
-            </Suspense>
+                </Routes>
+              </Suspense>
+            </RouteBoundary>
             <InstallPrompt />
           </Router>
         </AuthProvider>

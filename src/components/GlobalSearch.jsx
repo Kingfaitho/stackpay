@@ -10,6 +10,11 @@ import {
   Settings, CheckSquare, X
 } from 'lucide-react'
 
+// Shortcut hint only makes sense where a physical keyboard exists,
+// and the symbol depends on the platform.
+const IS_MAC = /Mac|iP(hone|ad|od)/.test(navigator.platform || '')
+const HAS_KEYBOARD = !window.matchMedia('(pointer: coarse)').matches
+
 const FEATURE_MAP = {
   '/invoices':        { Icon: FileText,    color: '#00C566' },
   '/clients':         { Icon: Users,       color: '#7C6AF7' },
@@ -293,7 +298,7 @@ function GlobalSearch() {
           >
             <X size={13} strokeWidth={2.5} />
           </button>
-        ) : (
+        ) : HAS_KEYBOARD && (
           <kbd style={{
             padding: '2px 6px',
             background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
@@ -305,7 +310,7 @@ function GlobalSearch() {
             flexShrink: 0,
             whiteSpace: 'nowrap',
           }}>
-            ⌘K
+            {IS_MAC ? '⌘K' : 'Ctrl K'}
           </kbd>
         )}
       </div>
