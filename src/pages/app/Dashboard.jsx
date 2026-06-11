@@ -8,6 +8,7 @@ import {
   Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts'
 import OnboardingBanner from '../../components/OnboardingBanner'
+import ActionNudges from '../../components/ActionNudges'
 import LedgaIntelligence from '../../components/LedgaIntelligence'
 import { useEffect, useState } from 'react'
 
@@ -435,6 +436,8 @@ const totalIncome = invoiceIncome + cashIncome
 
   return (
     <AppLayout>
+
+      <ActionNudges />
 
       {/* Welcome + Hero CTA */}
       <div style={{ marginBottom: '1.5rem' }}>

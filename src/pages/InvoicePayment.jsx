@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { Check, CreditCard, Lock, SearchX } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 
 function InvoicePayment() {
@@ -8,8 +9,10 @@ function InvoicePayment() {
   const [business, setBusiness] = useState(null)
   const [loading, setLoading] = useState(true)
   const [paying, setPaying] = useState(false)
+  const [verifying, setVerifying] = useState(false)
   const [paid, setPaid] = useState(false)
   const [error, setError] = useState(false)
+  const [verifyError, setVerifyError] = useState('')
 
   useEffect(() => {
     if (invoiceId) loadInvoice()
@@ -67,18 +70,31 @@ function InvoicePayment() {
         invoice_number: invoice.invoice_number,
         invoice_id: invoiceId,
       },
-      callback: async (response) => {
-        await supabase
-          .from('invoices')
-          .update({
-            status: 'paid',
-            paystack_ref: response.reference,
+      callback: (response) => {
+        // Paystack charged the card; now confirm server-side before showing
+        // success. The invoice is only marked paid after the edge function
+        // verifies the transaction with Paystack's API.
+        setVerifying(true)
+        setVerifyError('')
+        supabase.functions
+          .invoke('verify-payment', {
+            body: { reference: response.reference, invoiceId },
           })
-          .eq('id', invoiceId)
-
-        setInvoice({ ...invoice, status: 'paid' })
-        setPaid(true)
-        setPaying(false)
+          .then(({ data, error: fnError }) => {
+            if (fnError || !data?.ok) {
+              setVerifyError(
+                'Your payment went through but we could not confirm it yet. ' +
+                'Please contact the business owner with reference ' + response.reference
+              )
+            } else {
+              setInvoice(prev => ({ ...prev, status: 'paid' }))
+              setPaid(true)
+            }
+          })
+          .finally(() => {
+            setVerifying(false)
+            setPaying(false)
+          })
       },
       onClose: () => {
         setPaying(false)
@@ -136,7 +152,7 @@ function InvoicePayment() {
       textAlign: 'center',
       padding: '2rem',
     }}>
-      <div style={{ fontSize: '3rem' }}>🔍</div>
+      <SearchX size={48} color="#4A6055" strokeWidth={1.5} />
       <h2 style={{
         fontFamily: 'Syne, sans-serif',
         color: '#F0F5F2',
@@ -169,7 +185,7 @@ function InvoicePayment() {
             fontSize: '1.6rem',
             color: '#EDF2EF',
           }}>
-            Stack<span style={{ color: '#00C566' }}>Pay</span>
+            Led<span style={{ color: '#00C566' }}>ga</span>
           </div>
         </div>
 
@@ -191,10 +207,9 @@ function InvoicePayment() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '1.8rem',
               margin: '0 auto 1.5rem',
             }}>
-              ✓
+              <Check size={28} color="#00C566" strokeWidth={2.5} />
             </div>
             <h2 style={{
               fontFamily: 'Syne, sans-serif',
@@ -388,10 +403,26 @@ function InvoicePayment() {
               </div>
             )}
 
+            {/* Verification failure notice */}
+            {verifyError && (
+              <div style={{
+                background: 'rgba(245,166,35,0.08)',
+                border: '1px solid rgba(245,166,35,0.3)',
+                borderRadius: '10px',
+                padding: '0.9rem 1rem',
+                marginBottom: '1rem',
+                color: '#f5a623',
+                fontSize: '0.82rem',
+                lineHeight: 1.6,
+              }}>
+                {verifyError}
+              </div>
+            )}
+
             {/* Pay Button */}
             <button
               onClick={handlePay}
-              disabled={paying}
+              disabled={paying || verifying}
               style={{
                 width: '100%',
                 padding: '1.1rem',
@@ -417,7 +448,7 @@ function InvoicePayment() {
                 if (!paying) e.currentTarget.style.background = '#00C566'
               }}
             >
-              {paying ? (
+              {paying || verifying ? (
                 <>
                   <span style={{
                     width: '16px',
@@ -428,11 +459,11 @@ function InvoicePayment() {
                     animation: 'spin 0.8s linear infinite',
                     display: 'inline-block',
                   }} />
-                  Processing...
+                  {verifying ? 'Confirming payment...' : 'Processing...'}
                 </>
               ) : (
                 <>
-                  💳 Pay {formatAmount(invoice?.total)} Now
+                  <CreditCard size={18} strokeWidth={2.2} /> Pay {formatAmount(invoice?.total)} Now
                 </>
               )}
             </button>
@@ -441,8 +472,12 @@ function InvoicePayment() {
               textAlign: 'center',
               color: '#4A6055',
               fontSize: '0.78rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.35rem',
             }}>
-              🔒 Secured by Paystack. Your payment info is encrypted.
+              <Lock size={12} strokeWidth={2} /> Secured by Paystack. Your payment info is encrypted.
             </p>
           </>
         )}

@@ -18,6 +18,23 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Only signed-in Ledga users may spend AI credits. The anon key alone
+    // is public, so we validate the caller's JWT against Supabase auth.
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
+    const token = (req.headers.get('Authorization') || '').replace('Bearer ', '')
+    if (supabaseUrl && anonKey) {
+      const userRes = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: { Authorization: `Bearer ${token}`, apikey: anonKey },
+      })
+      if (!userRes.ok) {
+        return new Response(
+          JSON.stringify({ error: 'Sign in to use the AI advisor' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
     const { prompt, isEmergency } = await req.json()
 
     if (!prompt) {
