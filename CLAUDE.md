@@ -43,6 +43,42 @@ WSL note: node_modules is installed from Windows. Before building under WSL run:
 - Money-state writes (invoice paid, plan active) happen only in edge functions (`verify-payment`, `verify-subscription`) after confirming with Paystack. Never trust the browser callback.
 - Copy voice: speaks to Nigerian business owners, plain language, no corporate jargon, product is live (never "waitlist" or "early access").
 
+## What's next (June 2026)
+
+Full roadmap lives in GOALS.md. The immediate queue, in order:
+
+### Owner actions (blocked on Kingfaitho, not code)
+
+1. Resend (resend.com): rotate the API key (the old one shipped in past browser
+   bundles), update the RESEND_API_KEY secret in Supabase, delete the unused
+   VITE_RESEND_API_KEY from Vercel env, and verify the ledga.ng domain so
+   receipt emails actually deliver.
+2. Paystack verification: follow docs/paystack-verification.md. Until it
+   clears, collect by bank transfer + Mark as Paid (receipts auto-send).
+   Go-live is a two-key swap, no code changes.
+3. NRS e-invoicing onboarding: register with FIRS/NRS or an accredited access
+   point per docs/nrs-einvoicing.md. Never market "NRS compliant" before this.
+
+### Build queue (next features, in priority order)
+
+1. **Scheduled reminder automation**: Supabase cron (pg_cron) + edge function
+   that finds overdue invoices nightly and emails the client a payment link
+   (WhatsApp Business API later). Reminders go out even when the owner is
+   offline. This monetizes Collections and needs no external approval.
+2. **Buyer TIN on Clients**: optional TIN field flowing into generateUBL.js so
+   B2B e-invoices are fully valid. Small, finishes the e-invoicing story.
+3. **Offline-tolerant core**: extend the existing PWA service worker to cache
+   the dashboard and invoice drafts, sync on reconnect. Data is expensive;
+   competitors are offline-first.
+4. **USD payment links**: promised on the Pricing page, so either ship it
+   (needs Paystack USD approval, blocked on verification) or soften the
+   pricing copy until it exists. Do not leave a broken promise live.
+5. **Payment provider abstraction**: wrap Paystack behind one interface so
+   Monnify/Korapay can slot in as alternatives later.
+6. **Real trust proof on landing**: when available, CAC business name in the
+   footer, verified Paystack badge, real customer stories with names and
+   numbers. Never fabricate testimonials or stats.
+
 ## Git
 
 - Commits are authored by Kingfaitho only. Never add Co-Authored-By trailers or AI attribution to commits.
