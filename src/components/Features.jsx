@@ -42,8 +42,26 @@ function Features() {
       padding: '100px 5%',
       background: colors.bgPrimary,
       transition: 'background 0.3s',
+      position: 'relative',
+      overflow: 'hidden',
     }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Ambient drifting glows */}
+      <div aria-hidden style={{
+        position: 'absolute', top: '-140px', right: '-100px',
+        width: '420px', height: '420px', borderRadius: '50%',
+        background: isDark ? 'rgba(0,197,102,0.07)' : 'rgba(0,120,60,0.05)',
+        filter: 'blur(90px)', pointerEvents: 'none',
+        animation: 'driftA 16s ease-in-out infinite',
+      }} />
+      <div aria-hidden style={{
+        position: 'absolute', bottom: '-160px', left: '-120px',
+        width: '380px', height: '380px', borderRadius: '50%',
+        background: isDark ? 'rgba(124,106,247,0.06)' : 'rgba(91,78,199,0.04)',
+        filter: 'blur(90px)', pointerEvents: 'none',
+        animation: 'driftB 19s ease-in-out infinite',
+      }} />
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative' }}>
 
         {/* Header */}
         <div style={{

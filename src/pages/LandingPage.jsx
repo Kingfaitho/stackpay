@@ -1,6 +1,7 @@
 import { useTheme } from '../context/ThemeContext'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
+import TrustTicker from '../components/TrustTicker'
 import StatsBar from '../components/StatsBar'
 import Features from '../components/Features'
 import AIInsights from '../components/AIInsights'
@@ -23,6 +24,7 @@ function LandingPage() {
     }}>
       <Navbar />
       <Hero />
+      <TrustTicker />
       <Reveal><StatsBar /></Reveal>
       <Reveal><Features /></Reveal>
       <Reveal><AIInsights /></Reveal>

@@ -34,18 +34,20 @@ function FinalCTA() {
             ? 'linear-gradient(160deg, #0B1F13 0%, #071209 60%, #0C1A10 100%)'
             : 'linear-gradient(160deg, #FFFFFF 0%, #F7F4EC 100%)',
         }}>
-          {/* Glow accents */}
+          {/* Glow accents - slow ambient drift */}
           <div style={{
             position: 'absolute', top: '-120px', left: '-80px',
             width: '360px', height: '360px', borderRadius: '50%',
             background: isDark ? 'rgba(0,197,102,0.10)' : 'rgba(0,120,60,0.06)',
             filter: 'blur(80px)', pointerEvents: 'none',
+            animation: 'driftA 14s ease-in-out infinite',
           }} />
           <div style={{
             position: 'absolute', bottom: '-120px', right: '-80px',
             width: '320px', height: '320px', borderRadius: '50%',
             background: isDark ? 'rgba(201,168,76,0.08)' : 'rgba(184,140,0,0.05)',
             filter: 'blur(70px)', pointerEvents: 'none',
+            animation: 'driftB 17s ease-in-out infinite',
           }} />
 
           <span style={{
@@ -108,6 +110,7 @@ function FinalCTA() {
               boxShadow: `0 8px 36px ${colors.green}50`,
               transition: 'transform 0.25s, box-shadow 0.25s',
               position: 'relative',
+              overflow: 'hidden',
             }}
             onMouseEnter={e => {
               e.currentTarget.style.transform = 'translateY(-3px)'
@@ -118,6 +121,12 @@ function FinalCTA() {
               e.currentTarget.style.boxShadow = `0 8px 36px ${colors.green}50`
             }}
           >
+            <span aria-hidden style={{
+              position: 'absolute', top: 0, bottom: 0, width: '45%', left: '-60%',
+              background: 'linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent)',
+              animation: 'ctaSheen 3.8s ease-in-out infinite',
+              pointerEvents: 'none',
+            }} />
             Start Free - Send Your First Invoice <ArrowRight size={18} />
           </button>
 

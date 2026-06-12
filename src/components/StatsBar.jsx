@@ -17,7 +17,18 @@ function StatsBar() {
       background: colors.bgSecondary,
       padding: '50px 5%',
       transition: 'background 0.3s, border-color 0.3s',
+      position: 'relative',
     }}>
+      {/* Living hairline that sweeps along the top edge */}
+      <div aria-hidden style={{
+        position: 'absolute', top: '-1px', left: 0, right: 0, height: '1px',
+        background: isDark
+          ? 'linear-gradient(90deg, transparent, rgba(0,197,102,0.55), rgba(201,168,76,0.4), transparent)'
+          : 'linear-gradient(90deg, transparent, rgba(0,120,60,0.4), rgba(184,140,0,0.3), transparent)',
+        backgroundSize: '200% auto',
+        animation: 'shimmer 5s linear infinite',
+        pointerEvents: 'none',
+      }} />
       <div style={{
         maxWidth: '1200px',
         margin: '0 auto',

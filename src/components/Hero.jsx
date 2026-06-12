@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowRight, Check, CheckCircle, Zap, Shield, TrendingUp, Activity, Droplets } from 'lucide-react'
+import { ArrowRight, Check, Zap, Shield, TrendingUp, Activity, Droplets, MessageCircle, FileCheck } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
 
@@ -30,10 +30,25 @@ function CountUp({ end, prefix = '', suffix = '', duration = 2000 }) {
   return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>
 }
 
+// Demo activity that rotates under the dashboard preview so the hero
+// keeps moving after load. Clearly part of the labeled preview, not real data.
+const LIVE_EVENTS = [
+  { icon: Check, text: 'Invoice paid · ₦150,000' },
+  { icon: MessageCircle, text: 'WhatsApp reminder sent' },
+  { icon: FileCheck, text: 'e-Invoice exported · INV-014' },
+  { icon: TrendingUp, text: 'Real profit up 23% this month' },
+]
+
 export default function Hero() {
   const [mousePos, setMousePos] = useState({ x: 50, y: 40 })
+  const [liveIdx, setLiveIdx] = useState(0)
   const navigate = useNavigate()
   const { colors, isDark } = useTheme()
+
+  useEffect(() => {
+    const id = setInterval(() => setLiveIdx(i => (i + 1) % LIVE_EVENTS.length), 3200)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     const handleMouse = (e) => {
@@ -219,185 +234,6 @@ export default function Hero() {
         }} />
       ))}
 
-      {/* ── FLOATING UI CARDS (desktop only) ── */}
-
-      {/* Left card - invoice paid */}
-      <div className="hero-float-left" style={{
-        display: 'none',
-        position: 'absolute',
-        left: '2%',
-        top: '28%',
-        zIndex: 2,
-        animation: 'floatCard1 4s ease-in-out infinite',
-      }}>
-        <div style={{
-          background: isDark ? 'rgba(15,20,17,0.95)' : 'rgba(255,255,255,0.95)',
-          border: `1px solid ${isDark ? 'rgba(0,197,102,0.3)' : 'rgba(0,120,60,0.2)'}`,
-          borderRadius: '16px',
-          padding: '1rem 1.25rem',
-          width: '195px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: isDark
-            ? '0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,197,102,0.1)'
-            : '0 20px 60px rgba(0,0,0,0.15)',
-        }}>
-          <div style={{
-            fontSize: '0.62rem',
-            color: colors.textMuted,
-            fontWeight: 700,
-            letterSpacing: '0.6px',
-            textTransform: 'uppercase',
-            marginBottom: '0.4rem',
-          }}>
-            Invoice Paid ✓
-          </div>
-          <div style={{
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 800,
-            fontSize: '1.3rem',
-            color: colors.green,
-            marginBottom: '0.15rem',
-          }}>
-            ₦150,000
-          </div>
-          <div style={{ color: colors.textMuted, fontSize: '0.68rem' }}>
-            Emeka · Logo Design
-          </div>
-          <div style={{
-            marginTop: '0.65rem',
-            height: '4px',
-            borderRadius: '2px',
-            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              height: '100%',
-              width: '100%',
-              background: `linear-gradient(90deg, ${colors.green}, ${colors.accent})`,
-              borderRadius: '2px',
-            }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Right card - credit score */}
-      <div className="hero-float-right" style={{
-        display: 'none',
-        position: 'absolute',
-        right: '2%',
-        top: '24%',
-        zIndex: 2,
-        animation: 'floatCard2 5s ease-in-out infinite',
-        animationDelay: '1s',
-      }}>
-        <div style={{
-          background: isDark ? 'rgba(15,20,17,0.95)' : 'rgba(255,255,255,0.95)',
-          border: `1px solid ${isDark ? 'rgba(124,106,247,0.3)' : 'rgba(91,78,199,0.2)'}`,
-          borderRadius: '16px',
-          padding: '1rem 1.25rem',
-          width: '185px',
-          backdropFilter: 'blur(20px)',
-          boxShadow: isDark
-            ? '0 20px 60px rgba(0,0,0,0.6)'
-            : '0 20px 60px rgba(0,0,0,0.15)',
-        }}>
-          <div style={{
-            fontSize: '0.62rem',
-            color: colors.textMuted,
-            fontWeight: 700,
-            letterSpacing: '0.6px',
-            textTransform: 'uppercase',
-            marginBottom: '0.5rem',
-          }}>
-            Credit Score
-          </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'baseline',
-            gap: '0.25rem',
-            marginBottom: '0.4rem',
-          }}>
-            <span style={{
-              fontFamily: 'Syne, sans-serif',
-              fontWeight: 900,
-              fontSize: '1.8rem',
-              color: colors.purple,
-              lineHeight: 1,
-            }}>
-              720
-            </span>
-            <span style={{ color: colors.textMuted, fontSize: '0.68rem' }}>
-              /1000
-            </span>
-          </div>
-          <div style={{
-            fontSize: '0.68rem',
-            color: colors.green,
-            fontWeight: 700,
-          }}>
-            Loan eligible: ₦1M+
-          </div>
-          <div style={{
-            marginTop: '0.5rem',
-            height: '3px',
-            background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.06)',
-            borderRadius: '2px',
-            overflow: 'hidden',
-          }}>
-            <div style={{
-              height: '100%',
-              width: '72%',
-              background: colors.purple,
-              borderRadius: '2px',
-            }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom floating pill - runway */}
-      <div className="hero-float-bottom" style={{
-        display: 'none',
-        position: 'absolute',
-        bottom: '14%',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 2,
-        animation: 'floatCard1 3.5s ease-in-out infinite',
-        animationDelay: '0.5s',
-      }}>
-        <div style={{
-          background: isDark ? 'rgba(15,20,17,0.95)' : 'rgba(255,255,255,0.95)',
-          border: `1px solid ${isDark ? 'rgba(0,197,102,0.35)' : 'rgba(0,120,60,0.25)'}`,
-          borderRadius: '100px',
-          padding: '0.6rem 1.25rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.6rem',
-          backdropFilter: 'blur(20px)',
-          boxShadow: isDark
-            ? '0 12px 40px rgba(0,0,0,0.5)'
-            : '0 12px 40px rgba(0,0,0,0.12)',
-          whiteSpace: 'nowrap',
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: colors.green,
-            animation: 'livePulse 1.5s infinite',
-            flexShrink: 0,
-          }} />
-          <span style={{
-            fontFamily: 'Syne, sans-serif',
-            fontWeight: 700,
-            fontSize: '0.82rem',
-            color: colors.green,
-          }}>
-            Business Runway: 74 days safe
-          </span>
-        </div>
-      </div>
-
       {/* ── MAIN CONTENT - two-column asymmetric ── */}
       <div className="hero-main" style={{
         position: 'relative',
@@ -491,7 +327,7 @@ export default function Hero() {
               borderRadius: '14px', fontWeight: 800, fontSize: '1rem',
               fontFamily: 'Syne, sans-serif', border: 'none', cursor: 'pointer',
               boxShadow: `0 6px 30px ${colors.green}50`, transition: 'all 0.25s',
-              letterSpacing: '-0.3px',
+              letterSpacing: '-0.3px', position: 'relative', overflow: 'hidden',
             }}
               onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-3px)'
@@ -502,6 +338,12 @@ export default function Hero() {
                 e.currentTarget.style.boxShadow = `0 6px 30px ${colors.green}50`
               }}
             >
+              <span aria-hidden style={{
+                position: 'absolute', top: 0, bottom: 0, width: '45%', left: '-60%',
+                background: 'linear-gradient(105deg, transparent, rgba(255,255,255,0.35), transparent)',
+                animation: 'ctaSheen 3.8s ease-in-out infinite',
+                pointerEvents: 'none',
+              }} />
               Start Free - No Card Needed <ArrowRight size={18} />
             </button>
 
@@ -628,21 +470,31 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Floating pill */}
-          <div style={{
-            position: 'absolute', bottom: '-18px', left: '50%', transform: 'translateX(-50%)',
-            background: isDark ? 'rgba(15,20,17,0.97)' : 'rgba(255,255,255,0.97)',
-            border: `1px solid ${isDark ? 'rgba(0,197,102,0.35)' : 'rgba(0,120,60,0.25)'}`,
-            borderRadius: '100px', padding: '0.5rem 1.1rem',
-            display: 'flex', alignItems: 'center', gap: '0.6rem',
-            backdropFilter: 'blur(20px)',
-            boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.5)' : '0 12px 40px rgba(0,0,0,0.12)',
-            whiteSpace: 'nowrap', animation: 'floatCard1 3.5s ease-in-out infinite',
-          }}>
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: colors.green, animation: 'livePulse 1.5s infinite', flexShrink: 0 }} />
-            <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem', color: colors.green, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-              Invoice paid · ₦150,000 <Check size={13} strokeWidth={3} />
-            </span>
+          {/* Floating pill - rotating live activity */}
+          <div style={{ position: 'absolute', bottom: '-18px', left: '50%', transform: 'translateX(-50%)' }}>
+            <div style={{
+              background: isDark ? 'rgba(15,20,17,0.97)' : 'rgba(255,255,255,0.97)',
+              border: `1px solid ${isDark ? 'rgba(0,197,102,0.35)' : 'rgba(0,120,60,0.25)'}`,
+              borderRadius: '100px', padding: '0.5rem 1.1rem',
+              display: 'flex', alignItems: 'center', gap: '0.6rem',
+              backdropFilter: 'blur(20px)',
+              boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.5)' : '0 12px 40px rgba(0,0,0,0.12)',
+              whiteSpace: 'nowrap', animation: 'floatCard1 3.5s ease-in-out infinite',
+            }}>
+              <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: colors.green, animation: 'livePulse 1.5s infinite', flexShrink: 0 }} />
+              {(() => {
+                const LiveIcon = LIVE_EVENTS[liveIdx].icon
+                return (
+                  <span key={liveIdx} style={{
+                    fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: '0.78rem',
+                    color: colors.green, display: 'flex', alignItems: 'center', gap: '0.3rem',
+                    animation: 'tickerIn 0.4s ease both',
+                  }}>
+                    {LIVE_EVENTS[liveIdx].text} <LiveIcon size={13} strokeWidth={3} />
+                  </span>
+                )
+              })()}
+            </div>
           </div>
         </div>
       </div>
@@ -753,7 +605,6 @@ export default function Hero() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        .hero-float-left, .hero-float-right, .hero-float-bottom { display: none !important; }
         @media (max-width: 960px) {
           .hero-main { flex-direction: column !important; gap: 2.5rem !important; }
           .hero-left { flex: unset !important; width: 100% !important; text-align: center !important; }
